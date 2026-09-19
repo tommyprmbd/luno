@@ -1,8 +1,8 @@
-import type { TimerMode } from "../../types/timer";
+import type { TimerMode as TimerModeType } from "../../types/timer";
 
 type TimerModeProps = {
-  mode: TimerMode;
-  onChange: (mode: TimerMode) => void;
+  mode: TimerModeType;
+  onChange: (mode: TimerModeType) => void;
 };
 
 function TimerMode({ mode, onChange }: TimerModeProps) {
