@@ -1,13 +1,15 @@
 import "./App.css";
-import Timer from "./components/Timer";
+import Header from "./components/Header/Header";
+import TaskList from "./components/Tasks/TaskList";
+import Timer from "./components/Timer/Timer";
 
 function App() {
   return (
-    <main>
-      <h1>Luno</h1>
-
-      <Timer title="Pomodoro" minutes={25} />
-    </main>
+    <div className="app">
+      <Header />
+      <Timer />
+      <TaskList />
+    </div>
   );
 }
 
