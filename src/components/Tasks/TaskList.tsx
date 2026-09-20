@@ -1,38 +1,72 @@
 import { useState } from "react";
 import TaskItem from "./TaskItem";
-
-const tasks = [
-  {
-    id: 1,
-    title: "Learn React",
-  },
-  {
-    id: 2,
-    title: "Build Luno",
-  },
-];
+import type { Task } from "../../types/task";
+import type { FormEvent } from "react";
 
 function TaskList() {
-  const [taskTitle, setTaskTitle] = useState("");
+  const [tasks, setTask] = useState<Task[]>([]);
+  const [newTask, setNewTask] = useState("");
+
+  function addTask() {
+    const title = newTask.trim();
+
+    if (!title) {
+      return;
+    }
+
+    const task: Task = {
+      id: crypto.randomUUID(),
+      title,
+      completed: false,
+    };
+
+    setTask((current) => [...current, task]);
+    setNewTask("");
+  }
+
+  function toggleTask(id: string) {
+    setTask((current) =>
+      current.map((task) =>
+        task.id === id ? { ...task, completed: !task.completed } : task,
+      ),
+    );
+  }
+
+  function deleteTask(id: string) {
+    setTask((current) => current.filter((task) => task.id !== id));
+  }
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    addTask();
+  }
 
   return (
     <section className="tasks">
-      <h2>Tasks</h2>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          value={newTask}
+          onChange={(event) => setNewTask(event.target.value)}
+          placeholder="What are you working on?"
+          aria-label="New Task"
+        />
 
-      <input
-        type="text"
-        value={taskTitle}
-        onChange={(event) => setTaskTitle(event.target.value)}
-        placeholder="What are you working on?"
-      />
+        <button type="submit">ADD</button>
+      </form>
 
-      <div className="task-list">
-        {tasks.map((task) => (
-          <TaskItem key={task.id} title={task.title} />
-        ))}
-      </div>
-
-      <button className="add-task-button">+ Add Task</button>
+      {tasks.length > 0 && (
+        <ul>
+          {tasks.map((task) => (
+            <TaskItem
+              key={task.id}
+              task={task}
+              onToggle={toggleTask}
+              onDelete={deleteTask}
+            />
+          ))}
+        </ul>
+      )}
     </section>
   );
 }

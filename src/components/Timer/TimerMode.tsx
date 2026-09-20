@@ -21,6 +21,13 @@ function TimerMode({ mode, onChange }: TimerModeProps) {
       >
         Short Break
       </button>
+
+      <button
+        className={mode === "long-break" ? "timer-mode-active" : ""}
+        onClick={() => onChange("long-break")}
+      >
+        Long Break
+      </button>
     </div>
   );
 }

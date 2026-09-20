@@ -1,3 +1,3 @@
-export type TimerMode = 'pomodoro' | 'short-break'
+export type TimerMode = "pomodoro" | "short-break" | "long-break";
 
-export type TimerStatus = 'idle' | 'running' | 'paused'
+export type TimerStatus = "idle" | "running" | "paused";
