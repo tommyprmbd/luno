@@ -42,7 +42,7 @@ function TaskList({
         <button type="submit">ADD</button>
       </form>
 
-      {tasks.length > 0 && (
+      {tasks.length > 0 ? (
         <ul>
           {tasks.map((task) => (
             <TaskItem
@@ -55,6 +55,8 @@ function TaskList({
             />
           ))}
         </ul>
+      ) : (
+        <p className="task-empty">Add a task to get started.</p>
       )}
     </section>
   );
