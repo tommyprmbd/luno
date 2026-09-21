@@ -1,23 +1,33 @@
-import { useState } from "react";
 import "./App.css";
 import Header from "./components/Header/Header";
 import TaskList from "./components/Tasks/TaskList";
 import Timer from "./components/Timer/Timer";
-import type { Task } from "./types/task";
+import { useTasks } from "./hooks/useTasks";
 
 function App() {
-  const [activeTask, setActiveTask] = useState<Task | null>(null);
-  
+  const {
+    tasks,
+    activeTask,
+    activeTaskId,
+    addTask,
+    selectTask,
+    toggleTask,
+    deleteTask,
+  } = useTasks();
+
   return (
     <div className="app">
       <Header />
-      
+
       <Timer activeTask={activeTask} />
 
       <TaskList
-        activeTaskId={activeTask?.id ?? null}
-        onSelectTask={setActiveTask}
-        onActiveTaskRemoved={() => setActiveTask(null)}
+        tasks={tasks}
+        activeTaskId={activeTaskId}
+        onAddTask={addTask}
+        onSelectTask={selectTask}
+        onToggleTask={toggleTask}
+        onDeleteTask={deleteTask}
       />
     </div>
   );
