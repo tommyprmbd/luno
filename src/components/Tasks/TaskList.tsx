@@ -3,7 +3,13 @@ import TaskItem from "./TaskItem";
 import type { Task } from "../../types/task";
 import type { FormEvent } from "react";
 
-function TaskList() {
+type TaskListProps = {
+  activeTaskId: string | null;
+  onSelectTask: (task: Task) => void;
+  onActiveTaskRemoved: () => void;
+};
+
+function TaskList({activeTaskId, onSelectTask, onActiveTaskRemoved}: TaskListProps) {
   const [tasks, setTask] = useState<Task[]>([]);
   const [newTask, setNewTask] = useState("");
 
@@ -30,10 +36,28 @@ function TaskList() {
         task.id === id ? { ...task, completed: !task.completed } : task,
       ),
     );
+
+    if (id === activeTaskId) {
+      onActiveTaskRemoved();
+    }
   }
 
   function deleteTask(id: string) {
     setTask((current) => current.filter((task) => task.id !== id));
+
+    if (id === activeTaskId) {
+      onActiveTaskRemoved();
+    }
+  }
+
+  function selectTask(id: string) {
+    const task = tasks.find((current) => current.id === id);
+
+    if (!task || task.completed) {
+      return;
+    }
+
+    onSelectTask(task);
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -61,6 +85,8 @@ function TaskList() {
             <TaskItem
               key={task.id}
               task={task}
+              isActive={task.id === activeTaskId}
+              onSelect={selectTask}
               onToggle={toggleTask}
               onDelete={deleteTask}
             />

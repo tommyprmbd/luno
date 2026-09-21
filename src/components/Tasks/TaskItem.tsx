@@ -2,13 +2,21 @@ import type { Task } from "../../types/task";
 
 type TaskItemProps = {
   task: Task;
+  isActive: boolean;
+  onSelect: (id: string) => void;
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
 };
 
-function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
+function TaskItem({
+  task,
+  isActive,
+  onSelect,
+  onToggle,
+  onDelete,
+}: TaskItemProps) {
   return (
-    <li className={`task-item ${task.completed ? "task-item-completed" : ""}`}>
+    <li className={`task-item ${isActive ? "task-item-active" : ""}`}>
       <label>
         <input
           type="checkbox"
@@ -18,6 +26,15 @@ function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
 
         <span>{task.title}</span>
       </label>
+
+      {!task.completed && (
+        <button
+          type="button"
+          onClick={() => onSelect(task.id)}
+        >
+          FOCUS
+        </button>
+      )}
 
       <button
         type="button"
