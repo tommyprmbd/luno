@@ -1,30 +1,34 @@
-import TimerMode from "./TimerMode";
 import TimerControls from "./TimerControls";
 import TimerDisplay from "./TimerDisplay";
-import { useTimer } from "../../hooks/useTimer";
 import type { Task } from "../../types/task";
+import type { TimerMode as TimerModeType, TimerStatus } from "../../types/timer";
+import TimerMode from "./TimerMode";
 
 type TimerProps = {
   activeTask: Task | null;
+  mode: TimerModeType;
+  status: TimerStatus;
+  remainingSeconds: number;
+  onStart: () => void;
+  onPause: () => void;
+  onReset: () => void;
+  onChangeMode: (mode: TimerModeType) => void;
 };
 
-function Timer({ activeTask }: TimerProps) {
-  const { mode, status, remainingSeconds, start, pause, reset, changeMode } =
-    useTimer();
-
+function Timer({ activeTask, mode, status, remainingSeconds, onStart, onPause, onReset, onChangeMode }: TimerProps) {
   return (
     <section className="timer">
       {activeTask && <div className="timer-task">{activeTask.title}</div>}
 
-      <TimerMode mode={mode} onChange={changeMode} />
+      <TimerMode mode={mode} onChange={onChangeMode} />
       
       <TimerDisplay remainingSeconds={remainingSeconds} />
       
       <TimerControls
         status={status}
-        onStart={start}
-        onPause={pause}
-        onReset={reset}
+        onStart={onStart}
+        onPause={onPause}
+        onReset={onReset}
       />
     </section>
   );
