@@ -10,6 +10,7 @@ describe("TaskList", () => {
       <TaskList
         tasks={[]}
         activeTaskId={null}
+        isTimerRunning={false}
         onAddTask={vi.fn()}
         onSelectTask={vi.fn()}
         onToggleTask={vi.fn()}
@@ -38,6 +39,7 @@ describe("TaskList", () => {
       <TaskList
         tasks={tasks}
         activeTaskId={null}
+        isTimerRunning={false}
         onAddTask={vi.fn()}
         onSelectTask={vi.fn()}
         onToggleTask={vi.fn()}
@@ -57,6 +59,7 @@ describe("TaskList", () => {
       <TaskList
         tasks={[]}
         activeTaskId={null}
+        isTimerRunning={false}
         onAddTask={onAddTask}
         onSelectTask={vi.fn()}
         onToggleTask={vi.fn()}

@@ -3,6 +3,7 @@ import type { Task } from "../../types/task";
 type TaskItemProps = {
   task: Task;
   isActive: boolean;
+  isTimerRunning: boolean;
   onSelect: (id: string) => void;
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
@@ -11,6 +12,7 @@ type TaskItemProps = {
 function TaskItem({
   task,
   isActive,
+  isTimerRunning,
   onSelect,
   onToggle,
   onDelete,
@@ -21,6 +23,7 @@ function TaskItem({
         <input
           type="checkbox"
           checked={task.completed}
+          disabled={isTimerRunning}
           onChange={() => onToggle(task.id)}
         />
 
@@ -30,6 +33,7 @@ function TaskItem({
       {!task.completed && (
         <button
           type="button"
+          disabled={isTimerRunning}
           onClick={() => onSelect(task.id)}
         >
           FOCUS

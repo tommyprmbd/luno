@@ -53,6 +53,7 @@ function App() {
       <TaskList
         tasks={tasks}
         activeTaskId={activeTaskId}
+        isTimerRunning={status === 'running'}
         onAddTask={addTask}
         onSelectTask={handleSelectTask}
         onToggleTask={handleToggleTask}

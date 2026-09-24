@@ -6,6 +6,7 @@ import type { FormEvent } from "react";
 type TaskListProps = {
   tasks: Task[];
   activeTaskId: string | null;
+  isTimerRunning: boolean;
   onAddTask: (title: string) => void;
   onSelectTask: (id: string) => void;
   onToggleTask: (id: string) => void;
@@ -15,6 +16,7 @@ type TaskListProps = {
 function TaskList({
   tasks,
   activeTaskId,
+  isTimerRunning,
   onAddTask,
   onSelectTask,
   onToggleTask,
@@ -49,6 +51,7 @@ function TaskList({
               key={task.id}
               task={task}
               isActive={task.id === activeTaskId}
+              isTimerRunning={isTimerRunning}
               onSelect={onSelectTask}
               onToggle={onToggleTask}
               onDelete={onDeleteTask}
