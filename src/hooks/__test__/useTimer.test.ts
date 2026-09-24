@@ -1,12 +1,5 @@
 import { act, renderHook } from "@testing-library/react";
-import {
-  afterEach,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi,
-} from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { useTimer } from "../useTimer";
 import { TIMER_DURATION } from "../../constants/timer";
 
@@ -24,9 +17,7 @@ describe("useTimer", () => {
 
     expect(result.current.mode).toBe("pomodoro");
     expect(result.current.status).toBe("idle");
-    expect(result.current.remainingSeconds).toBe(
-      TIMER_DURATION.pomodoro,
-    );
+    expect(result.current.remainingSeconds).toBe(TIMER_DURATION.pomodoro);
   });
 
   it("should start the timer", () => {
@@ -64,9 +55,7 @@ describe("useTimer", () => {
       vi.advanceTimersByTime(3000);
     });
 
-    expect(result.current.remainingSeconds).toBe(
-      TIMER_DURATION.pomodoro - 3,
-    );
+    expect(result.current.remainingSeconds).toBe(TIMER_DURATION.pomodoro - 3);
   });
 
   it("should reset the timer", () => {
@@ -82,9 +71,7 @@ describe("useTimer", () => {
     });
 
     expect(result.current.status).toBe("idle");
-    expect(result.current.remainingSeconds).toBe(
-      TIMER_DURATION.pomodoro,
-    );
+    expect(result.current.remainingSeconds).toBe(TIMER_DURATION.pomodoro);
   });
 
   it("should change timer mode", () => {
@@ -96,9 +83,7 @@ describe("useTimer", () => {
 
     expect(result.current.mode).toBe("short-break");
     expect(result.current.status).toBe("idle");
-    expect(result.current.remainingSeconds).toBe(
-      TIMER_DURATION["short-break"],
-    );
+    expect(result.current.remainingSeconds).toBe(TIMER_DURATION["short-break"]);
   });
 
   it("should stop at zero when timer finishes", () => {
@@ -112,7 +97,69 @@ describe("useTimer", () => {
       vi.advanceTimersByTime(TIMER_DURATION.pomodoro * 1000);
     });
 
-    expect(result.current.remainingSeconds).toBe(0);
+    expect(result.current.remainingSeconds).toBe(TIMER_DURATION["short-break"]);
+    expect(result.current.mode).toBe("short-break");
     expect(result.current.status).toBe("idle");
+  });
+
+  it("should stop when timer reaches zero", () => {
+    vi.useFakeTimers();
+
+    const { result } = renderHook(() => useTimer());
+
+    act(() => {
+      result.current.start();
+    });
+
+    act(() => {
+      vi.advanceTimersByTime(TIMER_DURATION.pomodoro * 1000);
+    });
+
+    expect(result.current.remainingSeconds).toBe(TIMER_DURATION["short-break"]);
+    expect(result.current.mode).toBe("short-break");
+    expect(result.current.status).toBe("idle");
+
+    vi.useRealTimers();
+  });
+
+  it("should switch to short break when pomodoro finishes", () => {
+    vi.useFakeTimers();
+
+    const { result } = renderHook(() => useTimer());
+
+    act(() => {
+      result.current.start();
+    });
+
+    act(() => {
+      vi.advanceTimersByTime(TIMER_DURATION.pomodoro * 1000);
+    });
+
+    expect(result.current.mode).toBe("short-break");
+    expect(result.current.status).toBe("idle");
+    expect(result.current.remainingSeconds).toBe(TIMER_DURATION["short-break"]);
+
+    vi.useRealTimers();
+  });
+
+  it("should finish short break without changing mode", () => {
+    vi.useFakeTimers();
+
+    const { result } = renderHook(() => useTimer());
+
+    act(() => {
+      result.current.changeMode("short-break");
+      result.current.start();
+    });
+
+    act(() => {
+      vi.advanceTimersByTime(TIMER_DURATION["short-break"] * 1000);
+    });
+
+    expect(result.current.mode).toBe("short-break");
+    expect(result.current.status).toBe("idle");
+    expect(result.current.remainingSeconds).toBe(0);
+
+    vi.useRealTimers();
   });
 });

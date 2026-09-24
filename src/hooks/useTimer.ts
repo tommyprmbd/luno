@@ -19,6 +19,12 @@ export function useTimer() {
         if (current <= 1) {
           clearInterval(interval);
           setStatus("idle");
+
+          if (mode === "pomodoro") {
+            setMode("short-break");
+            return TIMER_DURATION["short-break"];
+          }
+
           return 0;
         }
 

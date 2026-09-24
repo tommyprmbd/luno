@@ -149,4 +149,34 @@ describe("TaskItem", () => {
       }),
     ).toBeEnabled();
   });
+
+  it("should call onDelete when delete button is clicked while timer is running", async () => {
+    const user = userEvent.setup();
+    const onDelete = vi.fn();
+
+    const task: Task = {
+      id: "task-1",
+      title: "Build Luno",
+      completed: false,
+    };
+
+    render(
+      <TaskItem
+        task={task}
+        isActive={false}
+        isTimerRunning={true}
+        onSelect={vi.fn()}
+        onToggle={vi.fn()}
+        onDelete={onDelete}
+      />,
+    );
+
+    await user.click(
+      screen.getByRole("button", {
+        name: "Delete Build Luno",
+      }),
+    );
+
+    expect(onDelete).toHaveBeenCalledWith("task-1");
+  });
 });
