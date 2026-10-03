@@ -6,8 +6,16 @@ import { useTasks } from "./hooks/useTasks";
 import { useTimer } from "./hooks/useTimer";
 
 function App() {
-  const { mode, status, remainingSeconds, start, pause, reset, changeMode } =
-    useTimer();
+  const {
+    mode,
+    status,
+    remainingSeconds,
+    completedPomodoros,
+    start,
+    pause,
+    reset,
+    changeMode,
+  } = useTimer();
 
   const {
     tasks,
@@ -44,6 +52,7 @@ function App() {
         mode={mode}
         status={status}
         remainingSeconds={remainingSeconds}
+        completedPomodoros={completedPomodoros}
         onStart={start}
         onPause={pause}
         onReset={reset}
@@ -53,7 +62,7 @@ function App() {
       <TaskList
         tasks={tasks}
         activeTaskId={activeTaskId}
-        isTimerRunning={status === 'running'}
+        isTimerRunning={status === "running"}
         onAddTask={addTask}
         onSelectTask={handleSelectTask}
         onToggleTask={handleToggleTask}

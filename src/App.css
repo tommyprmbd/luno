@@ -255,3 +255,19 @@
     padding-inline: 14px;
   }
 }
+
+.timer-progress {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin: 16px 0;
+}
+
+.timer-progress-dot {
+  font-size: 12px;
+  opacity: 0.3;
+}
+
+.timer-progress-dot.completed {
+  opacity: 1;
+}
