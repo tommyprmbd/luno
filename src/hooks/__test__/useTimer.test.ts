@@ -162,4 +162,47 @@ describe("useTimer", () => {
 
     vi.useRealTimers();
   });
+
+  it("should switch to long break after four completed pomodoros", () => {
+    vi.useFakeTimers();
+
+    try {
+      const { result } = renderHook(() => useTimer());
+
+      for (let session = 1; session <= 4; session++) {
+        act(() => {
+          result.current.changeMode("pomodoro");
+          result.current.start();
+        });
+
+        act(() => {
+          vi.advanceTimersByTime(TIMER_DURATION.pomodoro * 1000);
+        });
+
+        expect(result.current.completedPomodoros).toBe(session);
+
+        if (session < 4) {
+          expect(result.current.mode).toBe("short-break");
+
+          act(() => {
+            result.current.start();
+          });
+
+          act(() => {
+            vi.advanceTimersByTime(TIMER_DURATION["short-break"] * 1000);
+          });
+
+          expect(result.current.status).toBe("idle");
+        }
+      }
+
+      expect(result.current.mode).toBe("long-break");
+      expect(result.current.remainingSeconds).toBe(
+        TIMER_DURATION["long-break"],
+      );
+      expect(result.current.status).toBe("idle");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });
