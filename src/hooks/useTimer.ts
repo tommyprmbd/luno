@@ -35,6 +35,10 @@ export function useTimer() {
             return TIMER_DURATION["short-break"];
           }
 
+          if (mode === "long-break") {
+            setCompletedPomodoros(0);
+          }
+
           return 0;
         }
 
