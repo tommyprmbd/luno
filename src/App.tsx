@@ -4,6 +4,7 @@ import TaskList from "./components/Tasks/TaskList";
 import Timer from "./components/Timer/Timer";
 import { useTasks } from "./hooks/useTasks";
 import { useTimer } from "./hooks/useTimer";
+import type { TimerMode } from "./types/timer";
 
 function App() {
   const {
@@ -43,6 +44,14 @@ function App() {
     toggleTask(id);
   }
 
+  function handleChangeMode(newMode: TimerMode) {
+    if (status === "running") {
+      return;
+    }
+
+    changeMode(newMode);
+  }
+
   return (
     <div className="app">
       <Header />
@@ -56,7 +65,7 @@ function App() {
         onStart={start}
         onPause={pause}
         onReset={reset}
-        onChangeMode={changeMode}
+        onChangeMode={handleChangeMode}
       />
 
       <TaskList

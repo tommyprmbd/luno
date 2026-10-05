@@ -396,4 +396,115 @@ describe("App", () => {
       vi.useRealTimers();
     }
   });
+
+  it("should not allow changing timer mode while running", () => {
+    render(<App />);
+
+    act(() => {
+      screen
+        .getByRole("button", {
+          name: "START",
+        })
+        .click();
+    });
+
+    act(() => {
+      screen
+        .getByRole("button", {
+          name: "Short Break",
+        })
+        .click();
+    });
+
+    expect(
+      screen.getByRole("button", {
+        name: "Pomodoro",
+      }),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByRole("button", {
+        name: "Short Break",
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it("should preserve remaining time when paused and resume from it", () => {
+    vi.useFakeTimers();
+
+    try {
+      render(<App />);
+
+      act(() => {
+        screen.getByRole("button", { name: "START" }).click();
+      });
+
+      act(() => {
+        vi.advanceTimersByTime(5000);
+      });
+
+      expect(screen.getByText("24:55")).toBeInTheDocument();
+
+      act(() => {
+        screen.getByRole("button", { name: "PAUSE" }).click();
+      });
+
+      expect(screen.getByText("24:55")).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "RESUME" }),
+      ).toBeInTheDocument();
+
+      act(() => {
+        vi.advanceTimersByTime(5000);
+      });
+
+      expect(screen.getByText("24:55")).toBeInTheDocument();
+
+      act(() => {
+        screen.getByRole("button", { name: "RESUME" }).click();
+      });
+
+      act(() => {
+        vi.advanceTimersByTime(5000);
+      });
+
+      expect(screen.getByText("24:50")).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("should reset timer without resetting pomodoro progress", () => {
+    vi.useFakeTimers();
+
+    try {
+      render(<App />);
+
+      act(() => {
+        screen.getByRole("button", { name: "START" }).click();
+      });
+
+      act(() => {
+        vi.advanceTimersByTime(TIMER_DURATION.pomodoro * 1000);
+      });
+
+      expect(
+        screen.getByLabelText("Pomodoro progress: 1 of 4 completed"),
+      ).toBeInTheDocument();
+
+      expect(screen.getByRole("button", { name: "RESET" })).toBeInTheDocument();
+
+      act(() => {
+        screen.getByRole("button", { name: "RESET" }).click();
+      });
+
+      expect(
+        screen.getByLabelText("Pomodoro progress: 1 of 4 completed"),
+      ).toBeInTheDocument();
+
+      expect(screen.getByRole("button", { name: "START" })).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });

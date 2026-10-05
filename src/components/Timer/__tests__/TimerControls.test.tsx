@@ -64,4 +64,58 @@ describe("TimerControls", () => {
 
     expect(screen.getByRole("button", { name: "RESET" })).toBeInTheDocument();
   });
+
+  it("should call onPause when PAUSE is clicked", async () => {
+    const user = userEvent.setup();
+    const onPause = vi.fn();
+
+    render(
+      <TimerControls
+        status="running"
+        onStart={vi.fn()}
+        onPause={onPause}
+        onReset={vi.fn()}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "PAUSE" }));
+
+    expect(onPause).toHaveBeenCalled();
+  });
+
+  it("should call onReset when RESET is clicked while running", async () => {
+    const user = userEvent.setup();
+    const onReset = vi.fn();
+
+    render(
+      <TimerControls
+        status="running"
+        onStart={vi.fn()}
+        onPause={vi.fn()}
+        onReset={onReset}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "RESET" }));
+
+    expect(onReset).toHaveBeenCalled();
+  });
+
+  it("should call onStart when RESUME is clicked", async () => {
+    const user = userEvent.setup();
+    const onStart = vi.fn();
+
+    render(
+      <TimerControls
+        status="paused"
+        onStart={onStart}
+        onPause={vi.fn()}
+        onReset={vi.fn()}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "RESUME" }));
+
+    expect(onStart).toHaveBeenCalled();
+  });
 });
