@@ -271,3 +271,11 @@
 .timer-progress-dot.completed {
   opacity: 1;
 }
+
+.task-item-completed {
+  opacity: 0.6;
+}
+
+.task-title-completed {
+  text-decoration: line-through;
+}

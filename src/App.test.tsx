@@ -282,15 +282,15 @@ describe("App", () => {
     try {
       render(<App />);
 
-      for (let session = 1; session <= 4; session++) {
-        act(() => {
-          screen
-            .getByRole("button", {
-              name: "START",
-            })
-            .click();
-        });
+      act(() => {
+        screen
+          .getByRole("button", {
+            name: "START",
+          })
+          .click();
+      });
 
+      for (let session = 1; session <= 4; session++) {
         act(() => {
           vi.advanceTimersByTime(TIMER_DURATION.pomodoro * 1000);
         });
@@ -303,24 +303,14 @@ describe("App", () => {
           ).toBeInTheDocument();
 
           act(() => {
-            screen
-              .getByRole("button", {
-                name: "START",
-              })
-              .click();
-          });
-
-          act(() => {
             vi.advanceTimersByTime(TIMER_DURATION["short-break"] * 1000);
           });
 
-          act(() => {
-            screen
-              .getByRole("button", {
-                name: "Pomodoro",
-              })
-              .click();
-          });
+          expect(
+            screen.getByRole("button", {
+              name: "Pomodoro",
+            }),
+          ).toBeInTheDocument();
         }
       }
 
@@ -332,6 +322,12 @@ describe("App", () => {
 
       expect(
         screen.getByLabelText("Pomodoro progress: 4 of 4 completed"),
+      ).toBeInTheDocument();
+
+      expect(
+        screen.getByRole("button", {
+          name: "PAUSE",
+        }),
       ).toBeInTheDocument();
     } finally {
       vi.useRealTimers();

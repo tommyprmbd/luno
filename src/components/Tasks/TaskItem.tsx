@@ -18,7 +18,15 @@ function TaskItem({
   onDelete,
 }: TaskItemProps) {
   return (
-    <li className={`task-item ${isActive ? "task-item-active" : ""}`}>
+    <li
+      className={[
+        "task-item",
+        isActive ? "task-item-active" : "",
+        task.completed ? "task-item-completed" : "",
+      ]
+        .filter(Boolean)
+        .join(" ")}
+    >
       <label>
         <input
           type="checkbox"
@@ -27,7 +35,9 @@ function TaskItem({
           onChange={() => onToggle(task.id)}
         />
 
-        <span>{task.title}</span>
+        <span className={task.completed ? "task-title-completed" : ""}>
+          {task.title}
+        </span>
       </label>
 
       {!task.completed && (

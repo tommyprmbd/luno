@@ -17,32 +17,30 @@ export function useTimer() {
 
     const interval = setInterval(() => {
       setRemainingSeconds((current) => {
-        if (current <= 1) {
-          clearInterval(interval);
-          setStatus("idle");
-
-          if (mode === "pomodoro") {
-            const nextCompletedPomodoros = completedPomodoros + 1;
-
-            setCompletedPomodoros(nextCompletedPomodoros);
-
-            if (nextCompletedPomodoros % 4 === 0) {
-              setMode("long-break");
-              return TIMER_DURATION["long-break"];
-            }
-
-            setMode("short-break");
-            return TIMER_DURATION["short-break"];
-          }
-
-          if (mode === "long-break") {
-            setCompletedPomodoros(0);
-          }
-
-          return 0;
+        if (current > 1) {
+          return current - 1;
         }
 
-        return current - 1;
+        if (mode === "pomodoro") {
+          const nextCompletedPomodoros = completedPomodoros + 1;
+
+          setCompletedPomodoros(nextCompletedPomodoros);
+
+          if (nextCompletedPomodoros % 4 === 0) {
+            setMode("long-break");
+            return TIMER_DURATION["long-break"];
+          }
+
+          setMode("short-break");
+          return TIMER_DURATION["short-break"];
+        }
+
+        if (mode === "long-break") {
+          setCompletedPomodoros(0);
+        }
+
+        setMode("pomodoro");
+        return TIMER_DURATION.pomodoro;
       });
     }, 1000);
 

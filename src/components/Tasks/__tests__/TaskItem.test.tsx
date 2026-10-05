@@ -179,4 +179,35 @@ describe("TaskItem", () => {
 
     expect(onDelete).toHaveBeenCalledWith("task-1");
   });
+
+  it("should show completed task appearance", () => {
+    const completedTask: Task = {
+      id: "task-1",
+      title: "Build Luno",
+      completed: true,
+    };
+
+    render(
+      <TaskItem
+        task={completedTask}
+        isActive={false}
+        isTimerRunning={false}
+        onSelect={vi.fn()}
+        onToggle={vi.fn()}
+        onDelete={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByRole("listitem")).toHaveClass("task-item-completed");
+
+    expect(screen.getByText("Build Luno")).toHaveClass("task-title-completed");
+
+    expect(screen.getByRole("checkbox")).toBeChecked();
+
+    expect(
+      screen.queryByRole("button", {
+        name: "FOCUS",
+      }),
+    ).not.toBeInTheDocument();
+  });
 });
