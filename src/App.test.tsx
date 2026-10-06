@@ -551,4 +551,50 @@ describe("App", () => {
 
     expect(screen.getByText(longTitle)).toBeInTheDocument();
   });
+
+  it("should update the document title with the current timer and mode", () => {
+    render(<App />);
+
+    expect(document.title).toBe("25:00 - Pomodoro | Luno");
+  });
+
+  it("should update the document title when the timer runs", () => {
+    vi.useFakeTimers();
+
+    try {
+      render(<App />);
+
+      act(() => {
+        screen.getByRole("button", { name: "START" }).click();
+      });
+
+      act(() => {
+        vi.advanceTimersByTime(3000);
+      });
+
+      expect(document.title).toBe("24:57 - Pomodoro | Luno");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("should show the current break mode in the document title", () => {
+    vi.useFakeTimers();
+
+    try {
+      render(<App />);
+
+      act(() => {
+        screen.getByRole("button", { name: "START" }).click();
+      });
+
+      act(() => {
+        vi.advanceTimersByTime(TIMER_DURATION.pomodoro * 1000);
+      });
+
+      expect(document.title).toBe("05:00 - Short Break | Luno");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });
