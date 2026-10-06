@@ -1,75 +1,143 @@
-# React + TypeScript + Vite
+# Luno
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A simple and focused Pomodoro timer for staying productive without unnecessary complexity.
 
-Currently, two official plugins are available:
+Luno helps you focus on one task at a time using the Pomodoro technique, with automatic breaks and lightweight task management.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Features
 
-## React Compiler
+- Create, complete, and delete tasks
+- Select a task to focus on
+- Pomodoro timer
+- Short and long breaks
+- Automatic Pomodoro/break transitions
+- Pomodoro progress tracking
+- Pause, resume, and reset timer
+- Persistent tasks and timer-related state using local storage
+- Responsive UI
+- Keyboard-accessible controls
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Tech Stack
 
-## Expanding the ESLint configuration
+- React
+- TypeScript
+- Vite
+- Vitest
+- React Testing Library
+- CSS
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Getting Started
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### Prerequisites
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+Make sure you have installed:
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- Node.js
+- npm
 
+### Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/tommyprmbd/luno.git
+cd luno
 ```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+Install dependencies:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+npm install
 ```
+
+Start the development server:
+
+```bash
+npm run dev
+```
+
+The application will be available at the local URL shown by Vite.
+
+## Available Scripts
+
+| Command | Description |
+| --- | --- |
+| `npm run dev` | Start the development server |
+| `npm run build` | Build the application for production |
+| `npm run test` | Run the test suite |
+| `npm run lint` | Run ESLint |
+
+## How It Works
+
+Luno follows the standard Pomodoro cycle:
+
+```text
+Pomodoro
+   ↓
+Short Break
+   ↓
+Pomodoro
+   ↓
+Short Break
+   ↓
+Pomodoro
+   ↓
+Short Break
+   ↓
+Pomodoro
+   ↓
+Long Break
+   ↓
+Repeat
+```
+
+After four completed Pomodoro sessions, Luno starts a long break and resets the Pomodoro progress when the long break finishes.
+
+## Project Structure
+
+```text
+src/
+├── components/
+│   ├── Header/
+│   ├── Tasks/
+│   └── Timer/
+├── constants/
+├── hooks/
+├── types/
+├── App.tsx
+└── main.tsx
+```
+
+The project keeps the application intentionally small and separates UI components, hooks, types, and constants to keep the codebase easy to understand and maintain.
+
+## Testing
+
+Run the test suite with:
+
+```bash
+npm run test
+```
+
+Tests cover the main timer, task, component, hook, and application behaviors.
+
+## Production Build
+
+Create a production build with:
+
+```bash
+npm run build
+```
+
+The generated files are placed in the `dist/` directory.
+
+## Contributing
+
+Contributions, ideas, and improvements are welcome.
+
+For larger changes, please open an issue first to discuss the proposed change.
+
+## License
+
+This project is licensed under the MIT License.
+
+See the [LICENSE](LICENSE) file for details.
