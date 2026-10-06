@@ -10,7 +10,7 @@ function TimerDisplay({ remainingSeconds }: TimerDisplayProps) {
   const formattedSeconds = String(seconds).padStart(2, "0");
 
   return (
-    <div className="timer-display">
+    <div className="timer-display" role="timer">
       {formattedMinutes}:{formattedSeconds}
     </div>
   );

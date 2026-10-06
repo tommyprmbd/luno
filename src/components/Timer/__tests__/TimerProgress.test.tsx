@@ -30,4 +30,14 @@ describe("TimerProgress", () => {
 
     expect(progress.querySelectorAll(".completed")).toHaveLength(4);
   });
+
+  it("should expose pomodoro progress to assistive technology", () => {
+    render(<TimerProgress completedPomodoros={2} />);
+
+    expect(
+      screen.getByRole("status", {
+        name: "Pomodoro progress: 2 of 4 completed",
+      }),
+    ).toBeInTheDocument();
+  });
 });

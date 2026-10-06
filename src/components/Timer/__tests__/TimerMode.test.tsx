@@ -18,6 +18,12 @@ describe("TimerMode", () => {
     expect(
       screen.getByRole("button", { name: "Long Break" }),
     ).toBeInTheDocument();
+
+    expect(
+      screen.getByRole("button", {
+        name: "Pomodoro",
+      }),
+    ).toHaveAttribute("aria-pressed", "true");
   });
 
   it("should change timer mode", async () => {
@@ -33,5 +39,11 @@ describe("TimerMode", () => {
     );
 
     expect(onChange).toHaveBeenCalledWith("short-break");
+
+    expect(
+      screen.getByRole("button", {
+        name: "Short Break",
+      }),
+    ).toHaveAttribute("aria-pressed", "false");
   });
 });
