@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import "./App.css";
 import Header from "./components/Header/Header";
 import TaskList from "./components/Tasks/TaskList";
@@ -27,6 +28,21 @@ function App() {
     toggleTask,
     deleteTask,
   } = useTasks();
+
+  useEffect(() => {
+    const minutes = Math.floor(remainingSeconds / 60);
+    const seconds = remainingSeconds % 60;
+
+    const formattedTime = `${minutes}:${String(seconds).padStart(2, "0")}`;
+
+    const modeLabels = {
+      pomodoro: "Pomodoro",
+      "short-break": "Short Break",
+      "long-break": "Long Break",
+    };
+
+    document.title = `${formattedTime} - ${modeLabels[mode]} | Luno`;
+  }, [remainingSeconds, mode]);
 
   function handleSelectTask(id: string) {
     if (status === "running") {
