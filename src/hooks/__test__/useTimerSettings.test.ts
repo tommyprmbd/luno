@@ -11,9 +11,9 @@ describe("useTimerSettings", () => {
     const { result } = renderHook(() => useTimerSettings());
 
     expect(result.current.settings).toEqual({
-      pomodoroDuration: 25,
-      shortBreakDuration: 5,
-      longBreakDuration: 15,
+      pomodoroDuration: 1500,
+      shortBreakDuration: 300,
+      longBreakDuration: 900,
       longBreakInterval: 4,
     });
   });

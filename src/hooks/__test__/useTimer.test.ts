@@ -350,4 +350,103 @@ describe("useTimer", () => {
     expect(result.current.remainingSeconds).toBe(TIMER_DURATION.pomodoro);
     expect(result.current.completedPomodoros).toBe(0);
   });
+
+  it("should use custom pomodoro duration", () => {
+    localStorage.setItem(
+      "luno-timer-settings",
+      JSON.stringify({
+        pomodoroDuration: 30,
+        shortBreakDuration: 5,
+        longBreakDuration: 15,
+        longBreakInterval: 4,
+      }),
+    );
+
+    const { result } = renderHook(() => useTimer());
+
+    expect(result.current.remainingSeconds).toBe(30);
+  });
+
+  it("should use custom short break duration", () => {
+    localStorage.setItem(
+      "luno-timer-settings",
+      JSON.stringify({
+        pomodoroDuration: 25,
+        shortBreakDuration: 10,
+        longBreakDuration: 15,
+        longBreakInterval: 4,
+      }),
+    );
+
+    const { result } = renderHook(() => useTimer());
+
+    act(() => {
+      result.current.changeMode("short-break");
+    });
+
+    expect(result.current.remainingSeconds).toBe(10);
+  });
+
+  it("should use custom long break duration", () => {
+    localStorage.setItem(
+      "luno-timer-settings",
+      JSON.stringify({
+        pomodoroDuration: 25,
+        shortBreakDuration: 5,
+        longBreakDuration: 20,
+        longBreakInterval: 4,
+      }),
+    );
+
+    const { result } = renderHook(() => useTimer());
+
+    act(() => {
+      result.current.changeMode("long-break");
+    });
+
+    expect(result.current.remainingSeconds).toBe(20);
+  });
+
+  it("should use custom long break interval", () => {
+    vi.useFakeTimers();
+
+    localStorage.setItem(
+      "luno-timer-settings",
+      JSON.stringify({
+        pomodoroDuration: 1,
+        shortBreakDuration: 1,
+        longBreakDuration: 2,
+        longBreakInterval: 2,
+      }),
+    );
+
+    const { result } = renderHook(() => useTimer());
+
+    // Pomodoro #1
+    act(() => {
+      result.current.start();
+    });
+
+    act(() => {
+      vi.advanceTimersByTime(60 * 1000);
+    });
+
+    expect(result.current.mode).toBe("short-break");
+    expect(result.current.completedPomodoros).toBe(1);
+
+    // Short break #1 runs automatically.
+    act(() => {
+      vi.advanceTimersByTime(60 * 1000);
+    });
+
+    expect(result.current.mode).toBe("pomodoro");
+
+    // Pomodoro #2 runs automatically.
+    act(() => {
+      vi.advanceTimersByTime(60 * 1000);
+    });
+
+    expect(result.current.mode).toBe("long-break");
+    expect(result.current.completedPomodoros).toBe(2);
+  });
 });

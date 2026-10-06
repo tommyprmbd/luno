@@ -7,8 +7,8 @@ export const TIMER_DURATION: Record<TimerMode, number> = {
 };
 
 export const DEFAULT_TIMER_SETTINGS = {
-  pomodoroDuration: TIMER_DURATION.pomodoro / 60,
-  shortBreakDuration: TIMER_DURATION["short-break"] / 60,
-  longBreakDuration: TIMER_DURATION["long-break"] / 60,
+  pomodoroDuration: TIMER_DURATION.pomodoro,
+  shortBreakDuration: TIMER_DURATION["short-break"],
+  longBreakDuration: TIMER_DURATION["long-break"],
   longBreakInterval: 4,
 } as const;
