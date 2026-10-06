@@ -1,7 +1,7 @@
-button:focus-visible,
-input:focus-visible {
-  outline: 2px solid #000;
-  outline-offset: 2px;
+button:disabled,
+input:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 
 .app {
@@ -20,9 +20,11 @@ input:focus-visible {
   font-weight: 700;
 }
 
+/* Timer */
+
 .timer {
-  text-align: center;
   margin: 48px 0;
+  text-align: center;
 }
 
 .timer-task {
@@ -32,14 +34,6 @@ input:focus-visible {
   font-weight: 500;
 }
 
-.timer-display {
-  margin: 24px 0;
-  font-size: clamp(72px, 18vw, 120px);
-  font-weight: 700;
-  line-height: 1;
-  letter-spacing: -4px;
-}
-
 .timer-mode {
   display: flex;
   justify-content: center;
@@ -47,12 +41,15 @@ input:focus-visible {
 }
 
 .timer-mode button {
-  border: 0;
-  background: transparent;
   padding: 8px 12px;
+  border: 0;
   border-radius: 6px;
+  background: transparent;
   cursor: pointer;
   font: inherit;
+  transition:
+    background 0.15s ease,
+    opacity 0.15s ease;
 }
 
 .timer-mode button:hover {
@@ -60,9 +57,37 @@ input:focus-visible {
 }
 
 .timer-mode-active {
-  font-weight: 600;
   background: rgba(0, 0, 0, 0.08) !important;
+  font-weight: 600;
 }
+
+.timer-display {
+  margin: 24px 0;
+  font-size: clamp(72px, 18vw, 120px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -4px;
+  font-variant-numeric: tabular-nums;
+}
+
+.timer-progress {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin: 16px 0;
+}
+
+.timer-progress-dot {
+  font-size: 12px;
+  opacity: 0.3;
+  transition: opacity 0.15s ease;
+}
+
+.timer-progress-dot.completed {
+  opacity: 1;
+}
+
+/* Timer controls */
 
 .timer-controls {
   display: flex;
@@ -78,6 +103,17 @@ input:focus-visible {
   cursor: pointer;
   font: inherit;
   font-weight: 600;
+  transition:
+    opacity 0.15s ease,
+    transform 0.05s ease;
+}
+
+.timer-controls button:hover {
+  opacity: 0.85;
+}
+
+.timer-controls button:active {
+  transform: translateY(1px);
 }
 
 .start-button {
@@ -90,8 +126,71 @@ input:focus-visible {
   color: #222;
 }
 
-.timer-controls button:hover {
+/* Tasks */
+
+.tasks {
+  margin-top: 32px;
+}
+
+.tasks form {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.tasks form input {
+  flex: 1;
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: #fff;
+  color: #222;
+  font: inherit;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.tasks form input::placeholder {
+  color: #999;
+}
+
+.tasks form input:focus {
+  border-color: #222;
+}
+
+.tasks form button {
+  flex-shrink: 0;
+  padding: 12px 18px;
+  border: 0;
+  border-radius: 6px;
+  background: #222;
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+  transition:
+    opacity 0.15s ease,
+    transform 0.05s ease;
+}
+
+.tasks form button:hover {
   opacity: 0.85;
+}
+
+.tasks form button:active {
+  transform: translateY(1px);
+}
+
+/* Task list */
+
+.tasks ul {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 .task-item {
@@ -102,6 +201,9 @@ input:focus-visible {
   border: 1px solid #e5e5e5;
   border-radius: 8px;
   background: #fff;
+  transition:
+    border-color 0.15s ease,
+    opacity 0.15s ease;
 }
 
 .task-item-active {
@@ -123,9 +225,12 @@ input:focus-visible {
   white-space: nowrap;
 }
 
-.task-item-completed label span {
+.task-item-completed {
+  opacity: 0.6;
+}
+
+.task-title-completed {
   text-decoration: line-through;
-  opacity: 0.5;
 }
 
 .task-item button {
@@ -151,91 +256,15 @@ input:focus-visible {
   font-size: 14px;
 }
 
-.tasks {
-  margin-top: 32px;
-}
+/* Focus */
 
-.tasks form {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 16px;
-}
-
-.tasks form input {
-  flex: 1;
-  min-width: 0;
-  padding: 12px 14px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  background: #fff;
-  color: #222;
-  outline: none;
-}
-
-.tasks form input::placeholder {
-  color: #999;
-}
-
-.tasks form input:focus {
-  border-color: #222;
+button:focus-visible,
+input:focus-visible {
   outline: 2px solid #000;
-  outline-offset: 1px;
+  outline-offset: 2px;
 }
 
-.tasks form button {
-  flex-shrink: 0;
-  padding: 12px 18px;
-  border: 0;
-  border-radius: 6px;
-  background: #222;
-  color: #fff;
-  cursor: pointer;
-  font: inherit;
-  font-weight: 600;
-}
-
-.tasks form button:hover {
-  opacity: 0.85;
-}
-
-.tasks ul {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-@media (max-width: 480px) {
-  .tasks form button {
-    padding-inline: 14px;
-  }
-}
-
-.timer-progress {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  margin: 16px 0;
-}
-
-.timer-progress-dot {
-  font-size: 12px;
-  opacity: 0.3;
-}
-
-.timer-progress-dot.completed {
-  opacity: 1;
-}
-
-.task-item-completed {
-  opacity: 0.6;
-}
-
-.task-title-completed {
-  text-decoration: line-through;
-}
+/* Mobile */
 
 @media (max-width: 480px) {
   .app {
@@ -266,5 +295,9 @@ input:focus-visible {
 
   .task-item label span {
     overflow-wrap: anywhere;
+  }
+
+  .tasks form button {
+    padding-inline: 14px;
   }
 }
