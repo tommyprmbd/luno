@@ -26,6 +26,11 @@ function TaskList({
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    if (!newTask.trim()) {
+      return;
+    }
+    
     onAddTask(newTask);
     setNewTask("");
   }

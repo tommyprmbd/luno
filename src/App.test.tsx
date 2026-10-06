@@ -507,4 +507,48 @@ describe("App", () => {
       vi.useRealTimers();
     }
   });
+
+  it("should not add an empty task", async () => {
+    const user = userEvent.setup();
+
+    render(<App />);
+
+    const input = screen.getByRole("textbox", {
+      name: "New Task",
+    });
+
+    await user.type(input, "   ");
+
+    await user.click(
+      screen.getByRole("button", {
+        name: "ADD",
+      }),
+    );
+
+    expect(screen.getByText("Add a task to get started.")).toBeInTheDocument();
+  });
+
+  it("should render a long task title", async () => {
+    const user = userEvent.setup();
+
+    render(<App />);
+
+    const longTitle =
+      "This is a very long task title that should remain usable on small screens";
+
+    await user.type(
+      screen.getByRole("textbox", {
+        name: "New Task",
+      }),
+      longTitle,
+    );
+
+    await user.click(
+      screen.getByRole("button", {
+        name: "ADD",
+      }),
+    );
+
+    expect(screen.getByText(longTitle)).toBeInTheDocument();
+  });
 });

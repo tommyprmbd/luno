@@ -210,4 +210,29 @@ describe("TaskItem", () => {
       }),
     ).not.toBeInTheDocument();
   });
+
+  it("should not show FOCUS for a completed task", () => {
+    const completedTask: Task = {
+      id: "task-1",
+      title: "Completed task",
+      completed: true,
+    };
+
+    render(
+      <TaskItem
+        task={completedTask}
+        isActive={false}
+        isTimerRunning={false}
+        onSelect={vi.fn()}
+        onToggle={vi.fn()}
+        onDelete={vi.fn()}
+      />,
+    );
+
+    expect(
+      screen.queryByRole("button", {
+        name: "FOCUS",
+      }),
+    ).not.toBeInTheDocument();
+  });
 });
