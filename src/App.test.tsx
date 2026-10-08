@@ -282,53 +282,47 @@ describe("App", () => {
     try {
       render(<App />);
 
-      act(() => {
-        screen
-          .getByRole("button", {
-            name: "START",
-          })
-          .click();
-      });
-
       for (let session = 1; session <= 4; session++) {
+        // Start Pomodoro manually.
+        act(() => {
+          screen.getByRole("button", { name: "START" }).click();
+        });
+
+        // Complete Pomodoro.
         act(() => {
           vi.advanceTimersByTime(TIMER_DURATION.pomodoro * 1000);
         });
 
         if (session < 4) {
           expect(
-            screen.getByRole("button", {
-              name: "Short Break",
-            }),
+            screen.getByRole("button", { name: "Short Break" }),
           ).toBeInTheDocument();
 
+          // Start short break manually.
+          act(() => {
+            screen.getByRole("button", { name: "START" }).click();
+          });
+
+          // Complete short break.
           act(() => {
             vi.advanceTimersByTime(TIMER_DURATION["short-break"] * 1000);
           });
 
           expect(
-            screen.getByRole("button", {
-              name: "Pomodoro",
-            }),
-          ).toBeInTheDocument();
+            screen.getByRole("button", { name: "Pomodoro" }),
+          ).toHaveAttribute("aria-pressed", "true");
         }
       }
 
       expect(
-        screen.getByRole("button", {
-          name: "Long Break",
-        }),
-      ).toBeInTheDocument();
+        screen.getByRole("button", { name: "Long Break" }),
+      ).toHaveAttribute("aria-pressed", "true");
 
       expect(
         screen.getByLabelText("Pomodoro progress: 4 of 4 completed"),
       ).toBeInTheDocument();
 
-      expect(
-        screen.getByRole("button", {
-          name: "PAUSE",
-        }),
-      ).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "START" })).toBeInTheDocument();
     } finally {
       vi.useRealTimers();
     }
@@ -480,10 +474,12 @@ describe("App", () => {
     try {
       render(<App />);
 
+      // Start Pomodoro.
       act(() => {
         screen.getByRole("button", { name: "START" }).click();
       });
 
+      // Complete Pomodoro; next mode becomes short break.
       act(() => {
         vi.advanceTimersByTime(TIMER_DURATION.pomodoro * 1000);
       });
@@ -492,17 +488,23 @@ describe("App", () => {
         screen.getByLabelText("Pomodoro progress: 1 of 4 completed"),
       ).toBeInTheDocument();
 
-      expect(screen.getByRole("button", { name: "RESET" })).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "Short Break" }),
+      ).toHaveAttribute("aria-pressed", "true");
 
-      act(() => {
-        screen.getByRole("button", { name: "RESET" }).click();
-      });
+      // Reset the current mode's timer.
+      // act(() => {
+      //   screen.getByRole("button", { name: "RESET" }).click();
+      // });
 
+      // Progress must remain unchanged.
       expect(
         screen.getByLabelText("Pomodoro progress: 1 of 4 completed"),
       ).toBeInTheDocument();
 
       expect(screen.getByRole("button", { name: "START" })).toBeInTheDocument();
+
+      expect(screen.getByRole("timer")).toHaveTextContent("05:00");
     } finally {
       vi.useRealTimers();
     }

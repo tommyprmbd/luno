@@ -58,18 +58,21 @@ export function useTimer() {
           return current - 1;
         }
 
+        // the current session has finished. the next session is selected, but never auto-started
+        setStatus("idle");
+
         if (mode === "pomodoro") {
           const nextCompletedPomodoros = completedPomodoros + 1;
 
           setCompletedPomodoros(nextCompletedPomodoros);
 
-          if (nextCompletedPomodoros % settings.longBreakInterval === 0) {
-            setMode("long-break");
-            return getDurationInSeconds("long-break", settings);
-          }
+          const nextMode: TimerMode =
+            nextCompletedPomodoros % settings.longBreakInterval === 0
+              ? "long-break"
+              : "short-break";
 
-          setMode("short-break");
-          return getDurationInSeconds("short-break", settings);
+          setMode(nextMode);
+          return getDurationInSeconds(nextMode, settings);
         }
 
         if (mode === "long-break") {
