@@ -99,7 +99,7 @@ describe("useTimer", () => {
 
     expect(result.current.remainingSeconds).toBe(TIMER_DURATION["short-break"]);
     expect(result.current.mode).toBe("short-break");
-    expect(result.current.status).toBe("running");
+    expect(result.current.status).toBe("idle");
   });
 
   it("should switch to short break when pomodoro finishes", () => {
@@ -116,7 +116,7 @@ describe("useTimer", () => {
     });
 
     expect(result.current.mode).toBe("short-break");
-    expect(result.current.status).toBe("running");
+    expect(result.current.status).toBe("idle");
     expect(result.current.remainingSeconds).toBe(TIMER_DURATION["short-break"]);
 
     vi.useRealTimers();
@@ -125,37 +125,46 @@ describe("useTimer", () => {
   it("should switch to long break after four completed pomodoros", () => {
     const { result } = renderHook(() => useTimer());
 
-    act(() => {
-      result.current.start();
-    });
-
     for (let session = 1; session <= 4; session++) {
+      act(() => {
+        result.current.start();
+      });
+
       act(() => {
         vi.advanceTimersByTime(TIMER_DURATION.pomodoro * 1000);
       });
 
       expect(result.current.completedPomodoros).toBe(session);
+      expect(result.current.status).toBe("idle");
 
       if (session < 4) {
         expect(result.current.mode).toBe("short-break");
+
+        // Start each short break manually.
+        act(() => {
+          result.current.start();
+        });
 
         act(() => {
           vi.advanceTimersByTime(TIMER_DURATION["short-break"] * 1000);
         });
 
         expect(result.current.mode).toBe("pomodoro");
-        expect(result.current.status).toBe("running");
+        expect(result.current.status).toBe("idle");
       }
     }
 
     expect(result.current.mode).toBe("long-break");
     expect(result.current.remainingSeconds).toBe(TIMER_DURATION["long-break"]);
-    expect(result.current.status).toBe("running");
+    expect(result.current.status).toBe("idle");
   });
 
   it("should not increment completed pomodoros when a break finishes", () => {
+    vi.useFakeTimers();
+
     const { result } = renderHook(() => useTimer());
 
+    // Finish the Pomodoro session.
     act(() => {
       result.current.start();
     });
@@ -166,6 +175,12 @@ describe("useTimer", () => {
 
     expect(result.current.completedPomodoros).toBe(1);
     expect(result.current.mode).toBe("short-break");
+    expect(result.current.status).toBe("idle");
+
+    // Manually start the short break.
+    act(() => {
+      result.current.start();
+    });
 
     act(() => {
       vi.advanceTimersByTime(TIMER_DURATION["short-break"] * 1000);
@@ -173,7 +188,9 @@ describe("useTimer", () => {
 
     expect(result.current.completedPomodoros).toBe(1);
     expect(result.current.mode).toBe("pomodoro");
-    expect(result.current.status).toBe("running");
+    expect(result.current.status).toBe("idle");
+
+    vi.useRealTimers();
   });
 
   it("should preserve completed pomodoros when timer is reset", () => {
@@ -253,7 +270,7 @@ describe("useTimer", () => {
             vi.advanceTimersByTime(TIMER_DURATION["short-break"] * 1000);
           });
 
-          expect(result.current.status).toBe("running");
+          expect(result.current.status).toBe("idle");
         }
       }
 
@@ -262,7 +279,7 @@ describe("useTimer", () => {
       expect(result.current.remainingSeconds).toBe(
         TIMER_DURATION["long-break"],
       );
-      expect(result.current.status).toBe("running");
+      expect(result.current.status).toBe("idle");
 
       act(() => {
         result.current.start();
@@ -275,13 +292,25 @@ describe("useTimer", () => {
       expect(result.current.completedPomodoros).toBe(0);
       expect(result.current.mode).toBe("pomodoro");
       expect(result.current.remainingSeconds).toBe(TIMER_DURATION.pomodoro);
-      expect(result.current.status).toBe("running");
+      expect(result.current.status).toBe("idle");
     } finally {
       vi.useRealTimers();
     }
   });
 
-  it("should automatically start short break after pomodoro finishes", () => {
+  it("should stop after pomodoro finishes", () => {
+    vi.useFakeTimers();
+
+    localStorage.setItem(
+      "luno-timer-settings",
+      JSON.stringify({
+        pomodoroDuration: 1,
+        shortBreakDuration: 5,
+        longBreakDuration: 15,
+        longBreakInterval: 4,
+      }),
+    );
+
     const { result } = renderHook(() => useTimer());
 
     act(() => {
@@ -289,65 +318,186 @@ describe("useTimer", () => {
     });
 
     act(() => {
-      vi.advanceTimersByTime(TIMER_DURATION.pomodoro * 1000);
+      vi.advanceTimersByTime(1000);
     });
 
     expect(result.current.mode).toBe("short-break");
-    expect(result.current.status).toBe("running");
-    expect(result.current.remainingSeconds).toBe(TIMER_DURATION["short-break"]);
+    expect(result.current.status).toBe("idle");
+    expect(result.current.remainingSeconds).toBe(5);
     expect(result.current.completedPomodoros).toBe(1);
+
+    vi.useRealTimers();
   });
 
-  it("should automatically start pomodoro after short break finishes", () => {
+  it("should stop after short break finishes", () => {
+    vi.useFakeTimers();
+
+    localStorage.setItem(
+      "luno-timer-settings",
+      JSON.stringify({
+        pomodoroDuration: 25,
+        shortBreakDuration: 1,
+        longBreakDuration: 15,
+        longBreakInterval: 4,
+      }),
+    );
+
     const { result } = renderHook(() => useTimer());
 
     act(() => {
+      result.current.changeMode("short-break");
       result.current.start();
     });
 
     act(() => {
-      vi.advanceTimersByTime(TIMER_DURATION.pomodoro * 1000);
-    });
-
-    act(() => {
-      vi.advanceTimersByTime(TIMER_DURATION["short-break"] * 1000);
+      vi.advanceTimersByTime(1000);
     });
 
     expect(result.current.mode).toBe("pomodoro");
-    expect(result.current.status).toBe("running");
-    expect(result.current.remainingSeconds).toBe(TIMER_DURATION.pomodoro);
+    expect(result.current.status).toBe("idle");
+    expect(result.current.remainingSeconds).toBe(25);
+
+    vi.useRealTimers();
   });
 
-  it("should automatically start pomodoro after long break finishes", () => {
+  it("should stop after long break finishes", () => {
+    vi.useFakeTimers();
+
+    localStorage.setItem(
+      "luno-timer-settings",
+      JSON.stringify({
+        pomodoroDuration: 25,
+        shortBreakDuration: 5,
+        longBreakDuration: 1,
+        longBreakInterval: 4,
+      }),
+    );
+
     const { result } = renderHook(() => useTimer());
 
     act(() => {
+      result.current.changeMode("long-break");
       result.current.start();
     });
 
-    for (let i = 0; i < 4; i += 1) {
-      act(() => {
-        vi.advanceTimersByTime(TIMER_DURATION.pomodoro * 1000);
-      });
+    act(() => {
+      vi.advanceTimersByTime(1000);
+    });
 
-      if (i < 3) {
-        act(() => {
-          vi.advanceTimersByTime(TIMER_DURATION["short-break"] * 1000);
-        });
-      }
-    }
+    expect(result.current.mode).toBe("pomodoro");
+    expect(result.current.status).toBe("idle");
+    expect(result.current.remainingSeconds).toBe(25);
+    expect(result.current.completedPomodoros).toBe(0);
+
+    vi.useRealTimers();
+  });
+
+  it("should use custom pomodoro duration", () => {
+    localStorage.setItem(
+      "luno-timer-settings",
+      JSON.stringify({
+        pomodoroDuration: 30,
+        shortBreakDuration: 5,
+        longBreakDuration: 15,
+        longBreakInterval: 4,
+      }),
+    );
+
+    const { result } = renderHook(() => useTimer());
+
+    expect(result.current.remainingSeconds).toBe(30);
+  });
+
+  it("should use custom short break duration", () => {
+    localStorage.setItem(
+      "luno-timer-settings",
+      JSON.stringify({
+        pomodoroDuration: 25,
+        shortBreakDuration: 10,
+        longBreakDuration: 15,
+        longBreakInterval: 4,
+      }),
+    );
+
+    const { result } = renderHook(() => useTimer());
+
+    act(() => {
+      result.current.changeMode("short-break");
+    });
+
+    expect(result.current.remainingSeconds).toBe(10);
+  });
+
+  it("should use custom long break duration", () => {
+    localStorage.setItem(
+      "luno-timer-settings",
+      JSON.stringify({
+        pomodoroDuration: 25,
+        shortBreakDuration: 5,
+        longBreakDuration: 20,
+        longBreakInterval: 4,
+      }),
+    );
+
+    const { result } = renderHook(() => useTimer());
+
+    act(() => {
+      result.current.changeMode("long-break");
+    });
+
+    expect(result.current.remainingSeconds).toBe(20);
+  });
+
+  it("should use custom long break interval", () => {
+    vi.useFakeTimers();
+
+    localStorage.setItem(
+      "luno-timer-settings",
+      JSON.stringify({
+        pomodoroDuration: 1,
+        shortBreakDuration: 1,
+        longBreakDuration: 2,
+        longBreakInterval: 2,
+      }),
+    );
+
+    const { result } = renderHook(() => useTimer());
+
+    // First Pomodoro.
+    act(() => {
+      result.current.start();
+    });
+    act(() => {
+      vi.advanceTimersByTime(1000);
+    });
+
+    expect(result.current.mode).toBe("short-break");
+    expect(result.current.status).toBe("idle");
+    expect(result.current.completedPomodoros).toBe(1);
+
+    // Short break.
+    act(() => {
+      result.current.start();
+    });
+    act(() => {
+      vi.advanceTimersByTime(1000);
+    });
+
+    expect(result.current.mode).toBe("pomodoro");
+    expect(result.current.status).toBe("idle");
+
+    // Second Pomodoro: interval is 2.
+    act(() => {
+      result.current.start();
+    });
+    act(() => {
+      vi.advanceTimersByTime(1000);
+    });
 
     expect(result.current.mode).toBe("long-break");
-    expect(result.current.status).toBe("running");
-    expect(result.current.completedPomodoros).toBe(4);
+    expect(result.current.status).toBe("idle");
+    expect(result.current.completedPomodoros).toBe(2);
 
-    act(() => {
-      vi.advanceTimersByTime(TIMER_DURATION["long-break"] * 1000);
-    });
-
-    expect(result.current.mode).toBe("pomodoro");
-    expect(result.current.status).toBe("running");
-    expect(result.current.remainingSeconds).toBe(TIMER_DURATION.pomodoro);
-    expect(result.current.completedPomodoros).toBe(0);
+    vi.useRealTimers();
   });
 });
