@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 
-export function useLocalStorage<T>(key: string, initialValue: T) {
+export function useLocalStorage<T>(
+  key: string,
+  initialValue: T,
+  validate?: (value: unknown) => T | null,
+) {
   const [value, setValue] = useState<T>(() => {
     const storedValue = localStorage.getItem(key);
 
@@ -9,7 +13,10 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
     }
 
     try {
-      return JSON.parse(storedValue) as T;
+      const parsed: unknown = JSON.parse(storedValue);
+
+      // validate guards the shape of persisted data, not just its JSON syntax
+      return validate ? (validate(parsed) ?? initialValue) : (parsed as T);
     } catch {
       return initialValue;
     }

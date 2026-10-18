@@ -1,7 +1,7 @@
 # Roadmap & Status Dashboard
 
-**Last reviewed:** 2026-10-18 · **Audited commit:** `fa9f60c`
-**Evidence:** `npm test` 84 passed / 11 files · `npm run build` pass · `npm run lint` clean.
+**Last reviewed:** 2026-10-19 · **Audited commit:** working tree (`feat/install-ponytail`)
+**Evidence:** `npm test` 90 passed / 11 files · `npm run build` pass · `npm run lint` clean.
 
 This dashboard reflects the **actual** repository state after the 2026-10-18
 audit. See the per-MVP files for the detailed checklist and the exact evidence.
@@ -38,7 +38,7 @@ Legend: `DONE` · `PARTIAL` · `IN PROGRESS` · `TODO` · `VERIFY` · `NOT IN SC
 | Every new mode waits for **START** | `DONE` | `useTimer` sets `idle` on completion; `App` blocks mode change while running. |
 | Session counters and long-break scheduling correct | `DONE` | Count + interval tests (default 4 and custom interval). |
 | Reload behavior consistent with intended persistence | `DONE` | Tasks/active-task/settings persist; timer runtime state intentionally does not. |
-| Automated tests and production build pass | `DONE` | 84 tests pass; build passes. |
+| Automated tests and production build pass | `DONE` | 90 tests pass; build passes. |
 | Main page remains minimal and responsive | `VERIFY` | Single page; CSS media queries exist; manual visual review recommended. |
 
 ## MVP 2 acceptance criteria
@@ -51,7 +51,7 @@ Legend: `DONE` · `PARTIAL` · `IN PROGRESS` · `TODO` · `VERIFY` · `NOT IN SC
 | Session history and daily totals correct | `TODO` | Belongs to MVP 2.3. |
 | Browser notifications degrade gracefully | `TODO` | Belongs to MVP 2.5. |
 | All intended data survives reload | `PARTIAL` | Tasks + settings persist; history/progress not implemented. |
-| Tests and production build pass | `DONE` | 84 tests pass; build passes. |
+| Tests and production build pass | `DONE` | 90 tests pass; build passes. |
 | App remains lightweight and easy to use | `DONE` | No router/dashboard; single page. |
 
 ## Priority order (suggested)

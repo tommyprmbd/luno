@@ -6,8 +6,8 @@ before adding productivity analytics or personalization.
 **Status:** `DONE` (behavior implemented and tested). A few items in Phase 5
 (responsive/a11y/polish) remain `VERIFY` because they need manual review.
 
-**Evidence:** `npm test` → 84 passed / 11 files; `npm run build` → pass;
-`npm run lint` → clean. Audited commit `fa9f60c`.
+**Evidence:** `npm test` → 90 passed / 11 files; `npm run build` → pass;
+`npm run lint` → clean. Audited against the working tree (`feat/install-ponytail`).
 
 ---
 

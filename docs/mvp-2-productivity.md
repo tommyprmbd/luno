@@ -29,9 +29,9 @@ not implemented.
 - [x] Defaults agreed: `25 / 5 / 15` minutes and interval `4`.
 - [x] Settings type/defaults are implemented and persisted; load-after-reload
       verified in `useTimerSettings.test.ts`.
-- [ ] `TODO`: validate settings shape/range. Currently only JSON parse errors are
-      handled (`useLocalStorage`), not invalid values (e.g. `0`, negative, missing
-      keys). See [`known-issues.md`](./known-issues.md).
+- [x] Settings are validated/normalized on load: each field must be a positive
+      integer within range, otherwise the default is used (`useTimerSettings`;
+      tested in `useTimerSettings.test.ts`).
 
 ### Subphase 2.1.2 — Integrate settings into `useTimer` — `DONE`
 
@@ -45,7 +45,7 @@ not implemented.
 - [x] Completed-Pomodoro counting and reset rules verified.
 - [x] Tests for zero/finish, reset, long-break completion, and manual starts exist
       and pass.
-- [x] The entire timer test suite passes (`npm test` → 84 tests green).
+- [x] The entire timer test suite passes (`npm test` → 90 tests green).
 
 ### Subphase 2.1.3 — Settings UI — `TODO`
 
@@ -106,8 +106,8 @@ Task Tracking (2.2) should use the same completed-session event/source of truth.
 - [x] Timer settings from MVP 2.1 exist in the model/persistence layer.
 - [ ] Define any additional preferences only when there is a concrete user need.
 - [x] Preferences (timer settings) persist locally.
-- [ ] Provide sensible defaults and safe handling for missing/invalid values
-      (defaults exist; invalid-value handling pending).
+- [x] Provide sensible defaults and safe handling for missing/invalid values
+      (defaults exist; invalid values now normalized in `useTimerSettings`).
 - [x] Tests for settings persistence exist (`useTimerSettings.test.ts`).
 - [ ] `TODO`: reset/default-behavior tests beyond initial-load defaults.
 
@@ -146,6 +146,8 @@ into a large preferences page prematurely.
       session history, and any other user preferences.
       *(Currently: tasks, active-task id, timer settings. See `constants/storage.ts`.)*
 - [ ] Define schema/versioning or migration behavior for persisted local data.
+- [x] Validate persisted timer settings shape/range (`useTimerSettings`; KI-6).
+- [x] Validate persisted task data shape (`useTasks`; KI-12).
 - [x] Handle malformed or unavailable local storage safely (per-key `try/catch` in
       `useLocalStorage`, with fallback to the initial value; tested).
 - [x] Reload behavior verified for tasks and settings.
