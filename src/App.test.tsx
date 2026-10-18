@@ -492,10 +492,22 @@ describe("App", () => {
         screen.getByRole("button", { name: "Short Break" }),
       ).toHaveAttribute("aria-pressed", "true");
 
-      // Reset the current mode's timer.
-      // act(() => {
-      //   screen.getByRole("button", { name: "RESET" }).click();
-      // });
+      // Start the short break, pause it, then reset it.
+      act(() => {
+        screen.getByRole("button", { name: "START" }).click();
+      });
+
+      act(() => {
+        vi.advanceTimersByTime(1000);
+      });
+
+      act(() => {
+        screen.getByRole("button", { name: "PAUSE" }).click();
+      });
+
+      act(() => {
+        screen.getByRole("button", { name: "RESET" }).click();
+      });
 
       // Progress must remain unchanged.
       expect(

@@ -2,8 +2,27 @@ import { STORAGE_KEY } from "../constants/storage";
 import type { Task } from "../types/task";
 import { useLocalStorage } from "./useLocalStorage";
 
+const isTask = (value: unknown): value is Task =>
+  typeof value === "object" &&
+  value !== null &&
+  typeof (value as Task).id === "string" &&
+  typeof (value as Task).title === "string" &&
+  typeof (value as Task).completed === "boolean";
+
+const readTasks = (value: unknown): Task[] | null =>
+  Array.isArray(value) ? value.filter(isTask) : null;
+
+// fallback keeps task creation working outside a secure context (no crypto.randomUUID)
+const createId = () =>
+  globalThis.crypto?.randomUUID?.() ??
+  `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
 export function useTasks() {
-  const [tasks, setTasks] = useLocalStorage<Task[]>(STORAGE_KEY.tasks, []);
+  const [tasks, setTasks] = useLocalStorage<Task[]>(
+    STORAGE_KEY.tasks,
+    [],
+    readTasks,
+  );
 
   const [activeTaskId, setActiveTaskId] = useLocalStorage<string | null>(
     STORAGE_KEY.activeTaskId,
@@ -18,7 +37,7 @@ export function useTasks() {
     }
 
     const task: Task = {
-      id: crypto.randomUUID(),
+      id: createId(),
       title: trimmedTitle,
       completed: false,
     };

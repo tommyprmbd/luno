@@ -180,4 +180,51 @@ describe("useTasks", () => {
     expect(tasks).toHaveLength(1);
     expect(tasks[0].title).toBe("Build Luno");
   });
+
+  it("should ignore persisted tasks that are not an array", () => {
+    localStorage.setItem("luno:tasks", JSON.stringify({}));
+
+    const { result } = renderHook(() => useTasks());
+
+    expect(result.current.tasks).toEqual([]);
+  });
+
+  it("should drop malformed persisted tasks", () => {
+    localStorage.setItem(
+      "luno:tasks",
+      JSON.stringify([
+        { id: "1", title: "Build Luno", completed: false },
+        null,
+        { id: 2 },
+      ]),
+    );
+
+    const { result } = renderHook(() => useTasks());
+
+    expect(result.current.tasks).toHaveLength(1);
+    expect(result.current.tasks[0].title).toBe("Build Luno");
+  });
+
+  it("should create a task id when crypto.randomUUID is unavailable", () => {
+    const original = crypto.randomUUID;
+    Object.defineProperty(crypto, "randomUUID", {
+      value: undefined,
+      configurable: true,
+    });
+
+    try {
+      const { result } = renderHook(() => useTasks());
+
+      act(() => {
+        result.current.addTask("Build Luno");
+      });
+
+      expect(result.current.tasks[0].id).toBeTruthy();
+    } finally {
+      Object.defineProperty(crypto, "randomUUID", {
+        value: original,
+        configurable: true,
+      });
+    }
+  });
 });
