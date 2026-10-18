@@ -98,5 +98,6 @@ export function useTimer() {
     reset,
     changeMode,
     completedPomodoros,
+    longBreakInterval: settings.longBreakInterval,
   };
 }

@@ -1,15 +1,19 @@
 type TimerProgressProps = {
   completedPomodoros: number;
+  longBreakInterval: number;
 };
 
-function TimerProgress({ completedPomodoros }: TimerProgressProps) {
+function TimerProgress({
+  completedPomodoros,
+  longBreakInterval,
+}: TimerProgressProps) {
   return (
     <div
       className="timer-progress"
       role="status"
-      aria-label={`Pomodoro progress: ${completedPomodoros} of 4 completed`}
+      aria-label={`Pomodoro progress: ${completedPomodoros} of ${longBreakInterval} completed`}
     >
-      {[0, 1, 2, 3].map((index) => (
+      {Array.from({ length: longBreakInterval }, (_, index) => (
         <span
           key={index}
           className={
