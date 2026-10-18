@@ -13,6 +13,7 @@ function App() {
     status,
     remainingSeconds,
     completedPomodoros,
+    longBreakInterval,
     start,
     pause,
     reset,
@@ -78,6 +79,7 @@ function App() {
         status={status}
         remainingSeconds={remainingSeconds}
         completedPomodoros={completedPomodoros}
+        longBreakInterval={longBreakInterval}
         onStart={start}
         onPause={pause}
         onReset={reset}

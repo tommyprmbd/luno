@@ -599,4 +599,22 @@ describe("App", () => {
       vi.useRealTimers();
     }
   });
+
+  it("should reflect the configured long break interval in the progress label", () => {
+    localStorage.setItem(
+      "luno-timer-settings",
+      JSON.stringify({
+        pomodoroDuration: 1500,
+        shortBreakDuration: 300,
+        longBreakDuration: 900,
+        longBreakInterval: 3,
+      }),
+    );
+
+    render(<App />);
+
+    expect(
+      screen.getByLabelText("Pomodoro progress: 0 of 3 completed"),
+    ).toBeInTheDocument();
+  });
 });
