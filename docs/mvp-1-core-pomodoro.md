@@ -3,11 +3,13 @@
 **Goal:** deliver a usable local-first Pomodoro timer with basic task management
 before adding productivity analytics or personalization.
 
-**Status:** `DONE` (behavior implemented and tested). A few items in Phase 5
-(responsive/a11y/polish) remain `VERIFY` because they need manual review.
+**Status:** `DONE` (behavior implemented and tested; Phase 5 responsive, a11y,
+and visual review completed on 2026-10-19).
 
 **Evidence:** `npm test` → 90 passed / 11 files; `npm run build` → pass;
-`npm run lint` → clean. Audited against the working tree (`feat/install-ponytail`).
+`npm run lint` → clean. Phase 5 review: Chrome screenshots at 1280/768/375/320 px,
+all-completed/no-active-task state checked, axe-core audit (0 violations) at
+empty/all-completed/running states. Audited against the working tree.
 
 ---
 
@@ -84,27 +86,29 @@ before adding productivity analytics or personalization.
       Pomodoros and now uses the configured `longBreakInterval` (see
       [`known-issues.md`](./known-issues.md)).
 
-### Phase 5.3 — Responsive UI — `VERIFY`
+### Phase 5.3 — Responsive UI — `DONE`
 
-- [x] Responsive styles implemented: `src/App.css` and `src/index.css` include
-      mobile media queries (`max-width: 480px`); the timer uses `clamp()` sizing.
-- [ ] `VERIFY`: manual inspection of desktop, tablet, and mobile layouts.
-- [ ] `VERIFY`: confirm timer and task list remain usable without unnecessary page
-      complexity.
-- Note: styles are duplicated across `index.css` and `App.css` — see tech debt in
-  [`known-issues.md`](./known-issues.md).
+- [x] Responsive styles implemented: `src/App.css` includes mobile media queries
+      (`max-width: 480px`); `src/index.css` holds the global base styles; the timer
+      uses `clamp()` sizing.
+- [x] `VERIFY`: manual inspection of desktop, tablet, and mobile layouts
+      (Chrome at 1280, 768, 375, and 320 px; no horizontal overflow, mode buttons
+      wrap, and long task titles stay contained).
+- [x] `VERIFY`: timer and task list remain usable without unnecessary page
+      complexity (single page; no router or extra views).
 
-### Phase 5.4 — Empty and edge states — `PARTIAL`
+### Phase 5.4 — Empty and edge states — `DONE`
 
 - [x] Empty task-list message exists.
 - [x] Deletion of the active task clears the active selection (tested).
 - [x] Timer completion, reset, and reload behavior covered by tests.
 - [x] Malformed persisted JSON fails safely to the initial value
       (`useLocalStorage` try/catch, tested).
-- [ ] `VERIFY`: explicit review of the "all tasks completed" and "no active task"
-      presentation (behavior is handled; no dedicated test).
+- [x] `VERIFY`: explicit review of the "all tasks completed" and "no active task"
+      presentation (completed rows dim/strike through, FOCUS disappears, and the
+      timer label clears; clearing behavior is covered by `useTasks` tests).
 
-### Phase 5.5 — Accessibility — `PARTIAL`
+### Phase 5.5 — Accessibility — `DONE`
 
 - [x] Semantic buttons/inputs and accessible labels:
       `aria-label="New Task"`, delete button `aria-label="Delete <title>"`,
@@ -113,10 +117,12 @@ before adding productivity analytics or personalization.
       via `:focus-visible` outlines.
 - [x] Disabled controls communicate state via the native `disabled` attribute and
       reduced opacity.
-- [ ] `VERIFY`: contrast/readability review and an automated a11y audit (e.g. axe)
-      are not present.
+- [x] `VERIFY`: contrast/readability reviewed and axe-core audit run at empty,
+      all-completed, and running states (0 violations). Fixed empty-state and
+      completed-task contrast, placeholder contrast, progress-dot contrast, and
+      added the `main` landmark. No in-repo axe regression test — tracked as KI-9.
 
-### Phase 5.6 — Final visual polish and release checks — `PARTIAL`
+### Phase 5.6 — Final visual polish and release checks — `DONE`
 
 - [x] Consistent spacing, typography, colors, and component states (see `App.css`).
 - [x] Browser tab title reflects the app: `App.tsx` sets
@@ -124,7 +130,8 @@ before adding productivity analytics or personalization.
       static fallback `<title>` (previously `app`).
 - [x] All tests and production build pass.
 - [x] No accidental debug output: no `console.*`/`debugger` in `src`.
-- [ ] `VERIFY`: final manual visual pass at release time.
+- [x] `VERIFY`: final manual visual pass completed at desktop/tablet/mobile
+      widths on 2026-10-19.
 
 ---
 
@@ -138,4 +145,5 @@ before adding productivity analytics or personalization.
 - [x] Reload behavior is consistent with the intended local persistence
       (tasks/active-task/settings persist; timer runtime state intentionally resets).
 - [x] Automated tests and production build pass.
-- [ ] `VERIFY`: main page remains minimal and responsive (manual review pending).
+- [x] `VERIFY`: main page remains minimal and responsive (single page; reviewed
+      at 1280/768/375/320 px).

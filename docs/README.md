@@ -4,8 +4,8 @@
 > task-focused web app. Written for both developers and AI coding agents.
 
 **Last reviewed:** 2026-10-19
-**Audited commit:** working tree (`feat/install-ponytail`)
-**Verification snapshot (2026-10-18):**
+**Audited commit:** working tree
+**Verification snapshot (2026-10-19):**
 
 | Check | Command | Result |
 | --- | --- | --- |

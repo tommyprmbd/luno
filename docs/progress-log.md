@@ -11,6 +11,7 @@ this consistent with [`roadmap.md`](./roadmap.md).
 | 2026-10-18 | Audit | Repo audited at commit `fa9f60c`; `npm test` 84 pass / 11 files, `npm run build` pass, `npm run lint` clean | Documentation split from `feature-plan.md`; statuses corrected to actual state |
 | 2026-10-18 | Fix | `TimerProgress` now uses `longBreakInterval` instead of a hard-coded `4`; `index.html` static title fixed; `coverage/` excluded from lint; added 2 tests | 84 tests pass, build pass, lint clean |
 | 2026-10-19 | Fix | Audited follow-up: validated persisted tasks (KI-12) and timer settings (KI-6); `crypto.randomUUID` fallback (KI-13); consolidated CSS and removed dead rules (KI-4); implemented the commented-out RESET test (KI-11); added 6 tests | 90 tests pass, build pass, lint clean |
+| 2026-10-19 | MVP 1 | Phase 5 review: responsive screenshots (1280/768/375/320 px), all-completed/no-active-task state, axe-core audit (0 violations), contrast fixes, `main` landmark | 90 tests pass, build pass, lint clean; Phase 5 `DONE` |
 
 ## Current next action
 

@@ -1,6 +1,6 @@
 # Roadmap & Status Dashboard
 
-**Last reviewed:** 2026-10-19 · **Audited commit:** working tree (`feat/install-ponytail`)
+**Last reviewed:** 2026-10-19 · **Audited commit:** working tree
 **Evidence:** `npm test` 90 passed / 11 files · `npm run build` pass · `npm run lint` clean.
 
 This dashboard reflects the **actual** repository state after the 2026-10-18
@@ -10,12 +10,12 @@ audit. See the per-MVP files for the detailed checklist and the exact evidence.
 
 | Area | Status | Notes / next action |
 | --- | --- | --- |
-| **MVP 1 — Core Pomodoro Experience** | `DONE` | All phases 1–5 implemented and covered by tests. Build/lint clean. Only manual visual/responsive/a11y review remains (see Phase 5). |
+| **MVP 1 — Core Pomodoro Experience** | `DONE` | All phases 1–5 implemented, tested, and manually reviewed. Build/lint clean. |
 | Phase 1 — App foundation and main UI | `DONE` | React+TS+Vite; `App` composes `Header`, `Timer`, `TaskList`. |
 | Phase 2 — Timer modes and countdown | `DONE` | Pomodoro/Short/Long modes with configurable durations and countdown display. |
 | Phase 3 — Timer controls and lifecycle | `DONE` | Start/pause/resume/reset; manual-start lifecycle enforced and tested. |
 | Phase 4 — Timer/task integration and cycle | `DONE` | Active task display, transitions, long-break interval, task completion not auto-triggered — all tested. |
-| Phase 5 — UX, responsive, quality | `PARTIAL` | Behavior implemented and tested; responsive/a11y items need manual review (`VERIFY`). |
+| Phase 5 — UX, responsive, quality | `DONE` | Responsive, edge-state, a11y (axe-core), and visual review completed 2026-10-19. |
 | **MVP 2.1 — Custom Timer** | `PARTIAL` | Settings model + `useTimer` integration `DONE` and tested. **Settings UI (`2.1.3`) not started** — next action. |
 | MVP 2.2 — Task Tracking | `TODO` | Pomodoro count/progress per task. |
 | MVP 2.3 — Session History | `TODO` | Session records + daily focus summary. |
@@ -39,7 +39,7 @@ Legend: `DONE` · `PARTIAL` · `IN PROGRESS` · `TODO` · `VERIFY` · `NOT IN SC
 | Session counters and long-break scheduling correct | `DONE` | Count + interval tests (default 4 and custom interval). |
 | Reload behavior consistent with intended persistence | `DONE` | Tasks/active-task/settings persist; timer runtime state intentionally does not. |
 | Automated tests and production build pass | `DONE` | 90 tests pass; build passes. |
-| Main page remains minimal and responsive | `VERIFY` | Single page; CSS media queries exist; manual visual review recommended. |
+| Main page remains minimal and responsive | `DONE` | Single page; reviewed at 1280/768/375/320 px with no horizontal overflow. |
 
 ## MVP 2 acceptance criteria
 
