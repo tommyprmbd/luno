@@ -12,6 +12,7 @@ describe("App", () => {
   it("should render the timer and task list", () => {
     render(<App />);
 
+    expect(screen.getByRole("main")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "START" })).toBeInTheDocument();
 
     expect(

@@ -70,7 +70,7 @@ function App() {
   }
 
   return (
-    <div className="app">
+    <main className="app">
       <Header />
 
       <Timer
@@ -95,7 +95,7 @@ function App() {
         onToggleTask={handleToggleTask}
         onDeleteTask={deleteTask}
       />
-    </div>
+    </main>
   );
 }
 

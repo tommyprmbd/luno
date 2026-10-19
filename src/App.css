@@ -36,6 +36,7 @@ input:disabled {
   margin-bottom: 20px;
   font-size: 16px;
   font-weight: 500;
+  overflow-wrap: anywhere;
 }
 
 .timer-mode {
@@ -83,7 +84,7 @@ input:disabled {
 
 .timer-progress-dot {
   font-size: 12px;
-  opacity: 0.3;
+  opacity: 0.5;
   transition: opacity 0.15s ease;
 }
 
@@ -156,7 +157,7 @@ input:disabled {
 }
 
 .tasks form input::placeholder {
-  color: #999;
+  color: #757575;
 }
 
 .tasks form input:focus {
@@ -230,7 +231,7 @@ input:disabled {
 }
 
 .task-item-completed {
-  opacity: 0.6;
+  opacity: 0.7;
 }
 
 .task-title-completed {
@@ -256,7 +257,7 @@ input:disabled {
 .task-empty {
   margin: 24px 0;
   text-align: center;
-  color: #777;
+  color: #666;
   font-size: 14px;
 }
 
