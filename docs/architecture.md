@@ -5,15 +5,18 @@
 Luno is a small React + TypeScript single-page app with a clear separation:
 
 - **Presentational components** (`Header`, `Timer*`, `Task*`) render state and
-  emit user actions via props. They contain no business rules.
+  emit user actions via props. `SettingsModal` additionally holds its own draft
+  form state and validates input before calling `onSave`. They contain no
+  business rules.
 - **Hooks / domain logic** own behavior:
   - `useTimer` — timer mode, status, countdown, completion, cycle counting.
   - `useTimerSettings` — persisted timer settings, layered on `useLocalStorage`.
-  - `useTasks` — task CRUD, active-task selection, and its guards.
+  - `useTasks` — task CRUD, active-task selection, its guards, and per-task
+    completed-Pomodoro counts.
   - `useLocalStorage` — generic persisted state with a safe fallback.
 - **`App`** composes the hooks and components and enforces cross-cutting rules
-  (e.g. blocking task/mode interactions while the timer is running, and updating
-  `document.title`).
+  (blocking task/mode interactions while the timer is running, attributing a
+  completed Pomodoro to the active task, and updating `document.title`).
 - **Constants** (`constants/timer.ts`, `constants/storage.ts`) and **types**
   (`types/timer.ts`, `types/task.ts`) are the shared vocabulary.
 
@@ -24,9 +27,12 @@ localStorage ──► useLocalStorage ──► useTimerSettings ──► useT
                                               │
                                               ▼
                                   App (composition + guards)
-                                   │              │
-                                   ▼              ▼
-                                 Timer         TaskList ──► TaskItem
+                                   │        │            │
+                                   ▼        ▼            ▼
+                                 Timer   TaskList   SettingsModal
+                                          │
+                                          ▼
+                                      TaskItem
 ```
 
 ## Rules when working on Luno

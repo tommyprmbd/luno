@@ -27,26 +27,31 @@ requirement to copy its exact design.
 - **Configuration over magic numbers:** timer durations and the long-break
   interval must come from settings, not hard-coded literals.
 
-## Current technical baseline (verified 2026-10-19)
+## Current technical baseline (verified 2026-10-20)
 
 Verified against the working tree by inspecting the repository and running the
 project scripts.
 
 - **Stack:** React 19 + TypeScript ~6.0 + Vite 8.
 - **Tests:** Vitest 5 + React Testing Library (`jsdom`), globals enabled, setup at
-  `src/test/setup.ts`. **90 tests across 11 files pass.**
+  `src/test/setup.ts`. **109 tests across 12 files pass.**
 - **Build:** `npm run build` (`tsc -b && vite build`) passes.
 - **Lint:** `npm run lint` is clean (`coverage/` and `dist/` ignored).
-- **Main app composition:** `App` composes `Header`, `Timer`, and `TaskList`.
+- **Main app composition:** `App` composes `Header`, `Timer`, `TaskList`, and the
+  `SettingsModal` (opened from the header).
 - **Hooks:** `useTimer`, `useTimerSettings`, `useTasks`, `useLocalStorage`.
 - **Timer UI:** `TimerDisplay`, `TimerMode`, `TimerControls`, `TimerProgress`.
 - **Task UI:** `TaskList`, `TaskItem`.
+- **Settings UI:** `SettingsModal` (durations + long-break interval).
 - **Types:** `src/types/timer.ts` (`TimerMode`, `TimerStatus`, `TimerSettings`),
   `src/types/task.ts` (`Task`).
 - **Constants:** `src/constants/timer.ts` (`TIMER_DURATION`,
   `DEFAULT_TIMER_SETTINGS`), `src/constants/storage.ts` (`STORAGE_KEY`).
-- **Local persistence:** tasks, active-task id, and timer settings are persisted
-  in `localStorage`. Timer runtime state is intentionally not persisted.
+- **Task tracking:** each task stores its completed-Pomodoro count; `App`
+  attributes a finished Pomodoro to the active task.
+- **Local persistence:** tasks (including per-task Pomodoro counts), active-task
+  id, and timer settings are persisted in `localStorage`. Timer runtime state is
+  intentionally not persisted.
 
 ## Repository map
 
@@ -54,6 +59,7 @@ project scripts.
 src/
 ├── components/
 │   ├── Header/        Header.tsx
+│   ├── Settings/      SettingsModal.tsx (+ __tests__)
 │   ├── Tasks/         TaskList.tsx, TaskItem.tsx (+ __tests__)
 │   └── Timer/         Timer.tsx, TimerDisplay.tsx, TimerMode.tsx,
 │                      TimerControls.tsx, TimerProgress.tsx (+ __tests__)
@@ -76,5 +82,7 @@ src/
    completed Pomodoros the next mode is the long break; finishing the long break
    resets `completedPomodoros` to `0`.
 3. **Task ↔ timer coupling is light.** The active task is shown above the mode
-   controls; finishing a Pomodoro does **not** auto-complete the task.
+   controls; finishing a Pomodoro increments that task's count but does **not**
+   auto-complete the task. Breaks and sessions with no active task are not
+   attributed.
 4. **Local-first.** No backend, accounts, or sync in MVP 1/2.

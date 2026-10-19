@@ -12,3 +12,6 @@ export const DEFAULT_TIMER_SETTINGS = {
   longBreakDuration: TIMER_DURATION["long-break"],
   longBreakInterval: 4,
 } as const;
+
+export const MAX_TIMER_DURATION_SECONDS = 24 * 60 * 60;
+export const MAX_LONG_BREAK_INTERVAL = 60;

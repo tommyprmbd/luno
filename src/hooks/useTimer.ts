@@ -16,7 +16,7 @@ const getDurationInSeconds = (mode: TimerMode, settings: TimerSettings) => {
 };
 
 export function useTimer() {
-  const { settings } = useTimerSettings();
+  const { settings, setSettings } = useTimerSettings();
 
   const [mode, setMode] = useState<TimerMode>("pomodoro");
   const [status, setStatus] = useState<TimerStatus>("idle");
@@ -45,6 +45,19 @@ export function useTimer() {
       setRemainingSeconds(getDurationInSeconds(newMode, settings));
     },
     [settings],
+  );
+
+  const updateSettings = useCallback(
+    (nextSettings: TimerSettings) => {
+      setSettings(nextSettings);
+
+      // Running/paused sessions keep their current duration; an idle timer
+      // reflects the new duration immediately.
+      if (status === "idle") {
+        setRemainingSeconds(getDurationInSeconds(mode, nextSettings));
+      }
+    },
+    [mode, setSettings, status],
   );
 
   useEffect(() => {
@@ -99,5 +112,7 @@ export function useTimer() {
     changeMode,
     completedPomodoros,
     longBreakInterval: settings.longBreakInterval,
+    settings,
+    updateSettings,
   };
 }

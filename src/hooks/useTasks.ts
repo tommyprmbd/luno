@@ -2,7 +2,11 @@ import { STORAGE_KEY } from "../constants/storage";
 import type { Task } from "../types/task";
 import { useLocalStorage } from "./useLocalStorage";
 
-const isTask = (value: unknown): value is Task =>
+type StoredTask = Pick<Task, "id" | "title" | "completed"> & {
+  completedPomodoros?: unknown;
+};
+
+const isTask = (value: unknown): value is StoredTask =>
   typeof value === "object" &&
   value !== null &&
   typeof (value as Task).id === "string" &&
@@ -10,7 +14,20 @@ const isTask = (value: unknown): value is Task =>
   typeof (value as Task).completed === "boolean";
 
 const readTasks = (value: unknown): Task[] | null =>
-  Array.isArray(value) ? value.filter(isTask) : null;
+  Array.isArray(value)
+    ? value.filter(isTask).map((task) => ({
+        id: task.id,
+        title: task.title,
+        completed: task.completed,
+        // older records predate task tracking; default to zero
+        completedPomodoros:
+          typeof task.completedPomodoros === "number" &&
+          Number.isInteger(task.completedPomodoros) &&
+          task.completedPomodoros >= 0
+            ? task.completedPomodoros
+            : 0,
+      }))
+    : null;
 
 // fallback keeps task creation working outside a secure context (no crypto.randomUUID)
 const createId = () =>
@@ -40,6 +57,7 @@ export function useTasks() {
       id: createId(),
       title: trimmedTitle,
       completed: false,
+      completedPomodoros: 0,
     };
 
     setTasks((current) => [...current, task]);
@@ -75,6 +93,16 @@ export function useTasks() {
     }
   }
 
+  function incrementTaskPomodoro(id: string) {
+    setTasks((current) =>
+      current.map((task) =>
+        task.id === id
+          ? { ...task, completedPomodoros: task.completedPomodoros + 1 }
+          : task,
+      ),
+    );
+  }
+
   const activeTask = tasks.find((task) => task.id === activeTaskId) ?? null;
 
   return {
@@ -85,5 +113,6 @@ export function useTasks() {
     selectTask,
     toggleTask,
     deleteTask,
+    incrementTaskPomodoro,
   };
 }

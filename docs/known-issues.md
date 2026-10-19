@@ -1,7 +1,7 @@
 # Known Issues & Tech Debt
 
-**Last reviewed:** 2026-10-19 (MVP 1 Phase 5 review, working tree).
-**Evidence:** `npm test` 90 passed / 11 files · `npm run build` pass · `npm run lint` clean.
+**Last reviewed:** 2026-10-20 (MVP 2.2 review, working tree).
+**Evidence:** `npm test` 109 passed / 12 files · `npm run build` pass · `npm run lint` clean.
 
 ## Resolved
 
@@ -24,14 +24,12 @@
 | KI-5 | Low | `useTimerSettings` hard-codes the storage key `"luno-timer-settings"` instead of using `constants/storage.ts`, unlike tasks/active-task. | Add the key to `STORAGE_KEY` and use it consistently. |
 | KI-7 | Info (by design) | Timer runtime state (`remainingSeconds`, `mode`, `status`, `completedPomodoros`) is not persisted; it resets on reload. | Confirm this is intended and document it as a decision (relates to MVP 2.1.1 acceptance). |
 | KI-8 | Low | Side effects occur inside a `setRemainingSeconds` updater in `useTimer` (calling `setStatus`, `setMode`, `setCompletedPomodoros` during the state updater). It works and is tested, but it is a code smell and fragile under React StrictMode double-invocation. | Consider moving completion handling into a dedicated effect/interval callback. |
-| KI-9 | Low | No in-repo accessibility regression test. A one-off axe-core audit was run on 2026-10-19 (0 violations), but nothing runs in CI. | Add an a11y test/lint (e.g. `jest-axe`/`vitest-axe`) when convenient. |
+| KI-9 | Low | No in-repo accessibility regression test. One-off axe-core audits were run on 2026-10-19 (main/settings) and 2026-10-20 (task tracking, desktop/mobile; 0 violations), but nothing runs in CI. | Add an a11y test/lint (e.g. `jest-axe`/`vitest-axe`) when convenient. |
 | KI-10 | Low | Test files use the literal string `"luno-timer-settings"` rather than the shared constant. | Follow KI-5 (introduce the constant) and update tests. |
 | KI-14 | Info (by design) | The countdown never renders `00:00`: at `00:01` the next tick selects the next mode and shows its full duration. | Kept as intended (showing `00:00` would add a one-second delay and rewrite the timer completion timing asserted across the suite). Revisit only if users ask for it. |
 
 ## Backlog (not yet implemented features)
 
-- MVP 2.1.3 — Settings UI.
-- MVP 2.2 — Task Tracking.
 - MVP 2.3 — Session History.
 - MVP 2.5 — Notifications.
 - MVP 2.6 — Productivity UX refinements.

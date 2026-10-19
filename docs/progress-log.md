@@ -12,21 +12,16 @@ this consistent with [`roadmap.md`](./roadmap.md).
 | 2026-10-18 | Fix | `TimerProgress` now uses `longBreakInterval` instead of a hard-coded `4`; `index.html` static title fixed; `coverage/` excluded from lint; added 2 tests | 84 tests pass, build pass, lint clean |
 | 2026-10-19 | Fix | Audited follow-up: validated persisted tasks (KI-12) and timer settings (KI-6); `crypto.randomUUID` fallback (KI-13); consolidated CSS and removed dead rules (KI-4); implemented the commented-out RESET test (KI-11); added 6 tests | 90 tests pass, build pass, lint clean |
 | 2026-10-19 | MVP 1 | Phase 5 review: responsive screenshots (1280/768/375/320 px), all-completed/no-active-task state, axe-core audit (0 violations), contrast fixes, `main` landmark | 90 tests pass, build pass, lint clean; Phase 5 `DONE` |
+| 2026-10-19 | MVP 2.1.3 | Settings UI: header entry point + modal, validation, save/cancel, idle/running integration, component + integration tests | 99 tests pass, build pass, lint clean; MVP 2.1 `DONE` |
+| 2026-10-20 | MVP 2.2 | Task Tracking: per-task `completedPomodoros`, compact badge, active-task attribution in `App`, persistence/normalization, hook/UI/integration tests | 109 tests pass, build pass, lint clean; MVP 2.2 `DONE` |
 
 ## Current next action
 
-**MVP 2.1.3 — Settings UI.**
+**MVP 2.3 — Session History.**
 
-Build a small, minimalist settings entry point + modal bound to the existing
-`useTimerSettings` hook, covering:
-
-- Pomodoro duration.
-- Short Break duration.
-- Long Break duration.
-- Long Break Interval.
-
-Requirements: input validation with clear feedback, predictable save/cancel,
-changes reflected in subsequent sessions, and component/integration tests.
+Define the session record model, then record completed sessions from the same
+timer completion source used for task attribution. Cover date boundaries,
+reload behavior, and duration calculations.
 
 ### Already verified (no action needed)
 

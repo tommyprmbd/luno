@@ -1,11 +1,12 @@
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./App.css";
 import Header from "./components/Header/Header";
+import SettingsModal from "./components/Settings/SettingsModal";
 import TaskList from "./components/Tasks/TaskList";
 import Timer from "./components/Timer/Timer";
 import { useTasks } from "./hooks/useTasks";
 import { useTimer } from "./hooks/useTimer";
-import type { TimerMode } from "./types/timer";
+import type { TimerMode, TimerSettings } from "./types/timer";
 
 function App() {
   const {
@@ -18,7 +19,11 @@ function App() {
     pause,
     reset,
     changeMode,
+    settings,
+    updateSettings,
   } = useTimer();
+
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const {
     tasks,
@@ -28,7 +33,10 @@ function App() {
     selectTask,
     toggleTask,
     deleteTask,
+    incrementTaskPomodoro,
   } = useTasks();
+
+  const previousCompletedPomodoros = useRef(completedPomodoros);
 
   useEffect(() => {
     const minutes = Math.floor(remainingSeconds / 60);
@@ -44,6 +52,17 @@ function App() {
 
     document.title = `${formattedTime} - ${modeLabels[mode]} | Luno`;
   }, [remainingSeconds, mode]);
+
+  useEffect(() => {
+    const previous = previousCompletedPomodoros.current;
+    previousCompletedPomodoros.current = completedPomodoros;
+
+    // attribute each completed Pomodoro to the active task; breaks are ignored.
+    // the previous-count ref keeps this idempotent if the effect re-runs.
+    if (completedPomodoros === previous + 1 && activeTaskId) {
+      incrementTaskPomodoro(activeTaskId);
+    }
+  }, [completedPomodoros, activeTaskId, incrementTaskPomodoro]);
 
   function handleSelectTask(id: string) {
     if (status === "running") {
@@ -69,9 +88,14 @@ function App() {
     changeMode(newMode);
   }
 
+  function handleSaveSettings(nextSettings: TimerSettings) {
+    updateSettings(nextSettings);
+    setIsSettingsOpen(false);
+  }
+
   return (
     <main className="app">
-      <Header />
+      <Header onOpenSettings={() => setIsSettingsOpen(true)} />
 
       <Timer
         activeTask={activeTask}
@@ -95,6 +119,14 @@ function App() {
         onToggleTask={handleToggleTask}
         onDeleteTask={deleteTask}
       />
+
+      {isSettingsOpen && (
+        <SettingsModal
+          settings={settings}
+          onSave={handleSaveSettings}
+          onClose={() => setIsSettingsOpen(false)}
+        />
+      )}
     </main>
   );
 }
