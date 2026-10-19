@@ -1,11 +1,12 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 import Header from "./components/Header/Header";
+import SettingsModal from "./components/Settings/SettingsModal";
 import TaskList from "./components/Tasks/TaskList";
 import Timer from "./components/Timer/Timer";
 import { useTasks } from "./hooks/useTasks";
 import { useTimer } from "./hooks/useTimer";
-import type { TimerMode } from "./types/timer";
+import type { TimerMode, TimerSettings } from "./types/timer";
 
 function App() {
   const {
@@ -18,7 +19,11 @@ function App() {
     pause,
     reset,
     changeMode,
+    settings,
+    updateSettings,
   } = useTimer();
+
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const {
     tasks,
@@ -69,9 +74,14 @@ function App() {
     changeMode(newMode);
   }
 
+  function handleSaveSettings(nextSettings: TimerSettings) {
+    updateSettings(nextSettings);
+    setIsSettingsOpen(false);
+  }
+
   return (
     <main className="app">
-      <Header />
+      <Header onOpenSettings={() => setIsSettingsOpen(true)} />
 
       <Timer
         activeTask={activeTask}
@@ -95,6 +105,14 @@ function App() {
         onToggleTask={handleToggleTask}
         onDeleteTask={deleteTask}
       />
+
+      {isSettingsOpen && (
+        <SettingsModal
+          settings={settings}
+          onSave={handleSaveSettings}
+          onClose={() => setIsSettingsOpen(false)}
+        />
+      )}
     </main>
   );
 }

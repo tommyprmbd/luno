@@ -1,4 +1,4 @@
-import { act, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import App from "./App";
@@ -20,6 +20,112 @@ describe("App", () => {
     ).toBeInTheDocument();
 
     expect(screen.getByText("Add a task to get started.")).toBeInTheDocument();
+  });
+
+  it("should apply saved timer settings and persist them", async () => {
+    const user = userEvent.setup();
+
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: "Settings" }));
+
+    const pomodoro = screen.getByLabelText("Pomodoro duration (minutes)");
+    const shortBreak = screen.getByLabelText(
+      "Short break duration (minutes)",
+    );
+    const longBreak = screen.getByLabelText("Long break duration (minutes)");
+    const interval = screen.getByLabelText(
+      "Long break interval (Pomodoros)",
+    );
+
+    await user.clear(pomodoro);
+    await user.type(pomodoro, "30");
+    await user.clear(shortBreak);
+    await user.type(shortBreak, "10");
+    await user.clear(longBreak);
+    await user.type(longBreak, "20");
+    await user.clear(interval);
+    await user.type(interval, "3");
+
+    await user.click(screen.getByRole("button", { name: "SAVE" }));
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(screen.getByRole("timer")).toHaveTextContent("30:00");
+
+    expect(
+      screen.getByLabelText("Pomodoro progress: 0 of 3 completed"),
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Short Break" }));
+
+    expect(screen.getByRole("timer")).toHaveTextContent("10:00");
+
+    expect(JSON.parse(localStorage.getItem("luno-timer-settings")!)).toEqual({
+      pomodoroDuration: 1800,
+      shortBreakDuration: 600,
+      longBreakDuration: 1200,
+      longBreakInterval: 3,
+    });
+  });
+
+  it("should discard timer settings when cancelled", async () => {
+    const user = userEvent.setup();
+
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: "Settings" }));
+
+    const pomodoro = screen.getByLabelText("Pomodoro duration (minutes)");
+
+    await user.clear(pomodoro);
+    await user.type(pomodoro, "30");
+    await user.click(screen.getByRole("button", { name: "CANCEL" }));
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(screen.getByRole("timer")).toHaveTextContent("25:00");
+
+    expect(
+      JSON.parse(localStorage.getItem("luno-timer-settings")!).pomodoroDuration,
+    ).toBe(1500);
+  });
+
+  it("should keep a running session duration and apply settings on reset", () => {
+    vi.useFakeTimers();
+
+    try {
+      render(<App />);
+
+      act(() => {
+        screen.getByRole("button", { name: "START" }).click();
+      });
+
+      act(() => {
+        vi.advanceTimersByTime(3000);
+      });
+
+      act(() => {
+        screen.getByRole("button", { name: "Settings" }).click();
+      });
+
+      fireEvent.change(
+        screen.getByLabelText("Pomodoro duration (minutes)"),
+        { target: { value: "30" } },
+      );
+
+      act(() => {
+        screen.getByRole("button", { name: "SAVE" }).click();
+      });
+
+      expect(screen.getByRole("timer")).toHaveTextContent("24:57");
+
+      act(() => {
+        screen.getByRole("button", { name: "RESET" }).click();
+      });
+
+      expect(screen.getByRole("timer")).toHaveTextContent("30:00");
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("should select a task while timer is idle", async () => {

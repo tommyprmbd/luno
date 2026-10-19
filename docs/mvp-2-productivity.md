@@ -3,13 +3,12 @@
 **Goal:** make Luno useful for tracking focused work while preserving the
 minimalist single-page experience.
 
-**Overall status:** `PARTIAL`. MVP 2.1 backend-side work (settings model +
-`useTimer` integration) is `DONE`; the Settings UI and milestones 2.2–2.7 are
-not implemented.
+**Overall status:** `PARTIAL`. MVP 2.1 (Custom Timer, including the Settings UI)
+is `DONE`; milestones 2.2–2.7 are not implemented.
 
 ---
 
-## MVP 2.1 — Custom Timer (`P0`) — `PARTIAL`
+## MVP 2.1 — Custom Timer (`P0`) — `DONE`
 
 **Goal:** let users customize session durations and the long-break interval.
 
@@ -22,7 +21,7 @@ not implemented.
 | Long Break duration | 15 minutes (`900` s) |
 | Long Break interval | 4 completed Pomodoros |
 
-### Subphase 2.1.1 — Settings model and defaults — `PARTIAL`
+### Subphase 2.1.1 — Settings model and defaults — `DONE`
 
 - [x] Configurable timer durations and interval are defined
       (`TimerSettings` type; `useTimerSettings` hook).
@@ -45,20 +44,29 @@ not implemented.
 - [x] Completed-Pomodoro counting and reset rules verified.
 - [x] Tests for zero/finish, reset, long-break completion, and manual starts exist
       and pass.
-- [x] The entire timer test suite passes (`npm test` → 90 tests green).
+- [x] The entire timer test suite passes (`npm test` → 99 tests green).
 
-### Subphase 2.1.3 — Settings UI — `TODO`
+### Subphase 2.1.3 — Settings UI — `DONE`
 
-- [ ] `TODO`: add a settings entry point that does not clutter the main screen.
-- [ ] `TODO`: create a simple modal for Pomodoro duration, Short Break duration,
-      Long Break duration, and Long Break Interval.
-- [ ] `TODO`: validate inputs and provide clear feedback.
-- [ ] `TODO`: save/cancel behavior is predictable.
-- [ ] `TODO`: changes are reflected in subsequent timer sessions.
-- [ ] `TODO`: add component and integration tests.
+- [x] Settings entry point: a small "Settings" button in the header
+      (`Header.tsx`) opens the modal without adding controls to the main screen.
+- [x] Simple modal for Pomodoro duration, Short Break duration, Long Break
+      duration, and Long Break Interval (`components/Settings/SettingsModal.tsx`).
+- [x] Inputs validated on save with per-field feedback (whole minutes
+      `1–1440`; interval `1–60`), `aria-invalid`, and `aria-describedby`.
+- [x] Save applies and persists settings; Cancel/Escape/backdrop close without
+      saving. Focus stays inside the dialog.
+- [x] Changes are reflected in the timer immediately when idle and on the next
+      session (reset/mode change); a running/paused session keeps its duration.
+- [x] Component and integration tests added
+      (`SettingsModal.test.tsx`, `App.test.tsx`); axe-core audit of the modal and
+      main page: 0 violations.
 
-**Next action:** implement Subphase **2.1.3 — Settings UI**, wiring it to the
-existing `useTimerSettings` hook.
+**Evidence:** `npm test` → 99 passed / 12 files; `npm run build` → pass;
+`npm run lint` → clean.
+
+**Next action:** MVP **2.2 — Task Tracking** (agree the completed-session model
+with MVP 2.3 first).
 
 ---
 
@@ -102,7 +110,7 @@ Task Tracking (2.2) should use the same completed-session event/source of truth.
 
 ## MVP 2.4 — Settings & Personalization — `PARTIAL`
 
-- [ ] Provide a settings modal consistent with the minimalist UI. *(depends on 2.1.3)*
+- [x] Provide a settings modal consistent with the minimalist UI (2.1.3).
 - [x] Timer settings from MVP 2.1 exist in the model/persistence layer.
 - [ ] Define any additional preferences only when there is a concrete user need.
 - [x] Preferences (timer settings) persist locally.
@@ -162,8 +170,8 @@ synchronization. Cloud sync is not part of MVP 2.
 
 ## MVP 2 acceptance criteria
 
-- [ ] Users can configure and persist timer durations and long-break interval
-      (`PARTIAL`: persist works, UI missing).
+- [x] Users can configure and persist timer durations and long-break interval
+      (settings modal; `SettingsModal.test.tsx`, `App.test.tsx`).
 - [x] Mode transitions remain manual-start.
 - [ ] Completed Pomodoros are reliably attributed to tasks when appropriate.
 - [ ] Session history and daily focus totals are correct.

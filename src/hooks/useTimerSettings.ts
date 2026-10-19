@@ -1,12 +1,13 @@
-import { DEFAULT_TIMER_SETTINGS } from "../constants/timer";
+import {
+  DEFAULT_TIMER_SETTINGS,
+  MAX_LONG_BREAK_INTERVAL,
+  MAX_TIMER_DURATION_SECONDS,
+} from "../constants/timer";
 import type { TimerSettings } from "../types/timer";
 import { useLocalStorage } from "./useLocalStorage";
 
 // durations are seconds; interval is a whole number of Pomodoros.
 // cap the interval so the progress dots cannot hang the UI.
-const MAX_DURATION_SECONDS = 24 * 60 * 60;
-const MAX_LONG_BREAK_INTERVAL = 60;
-
 const toPositiveInt = (value: unknown, fallback: number, max: number) =>
   typeof value === "number" && Number.isInteger(value) && value > 0 && value <= max
     ? value
@@ -23,17 +24,17 @@ function readTimerSettings(value: unknown): TimerSettings | null {
     pomodoroDuration: toPositiveInt(
       stored.pomodoroDuration,
       DEFAULT_TIMER_SETTINGS.pomodoroDuration,
-      MAX_DURATION_SECONDS,
+      MAX_TIMER_DURATION_SECONDS,
     ),
     shortBreakDuration: toPositiveInt(
       stored.shortBreakDuration,
       DEFAULT_TIMER_SETTINGS.shortBreakDuration,
-      MAX_DURATION_SECONDS,
+      MAX_TIMER_DURATION_SECONDS,
     ),
     longBreakDuration: toPositiveInt(
       stored.longBreakDuration,
       DEFAULT_TIMER_SETTINGS.longBreakDuration,
-      MAX_DURATION_SECONDS,
+      MAX_TIMER_DURATION_SECONDS,
     ),
     longBreakInterval: toPositiveInt(
       stored.longBreakInterval,

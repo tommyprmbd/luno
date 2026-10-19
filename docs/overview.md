@@ -34,13 +34,15 @@ project scripts.
 
 - **Stack:** React 19 + TypeScript ~6.0 + Vite 8.
 - **Tests:** Vitest 5 + React Testing Library (`jsdom`), globals enabled, setup at
-  `src/test/setup.ts`. **90 tests across 11 files pass.**
+  `src/test/setup.ts`. **99 tests across 12 files pass.**
 - **Build:** `npm run build` (`tsc -b && vite build`) passes.
 - **Lint:** `npm run lint` is clean (`coverage/` and `dist/` ignored).
-- **Main app composition:** `App` composes `Header`, `Timer`, and `TaskList`.
+- **Main app composition:** `App` composes `Header`, `Timer`, `TaskList`, and the
+  `SettingsModal` (opened from the header).
 - **Hooks:** `useTimer`, `useTimerSettings`, `useTasks`, `useLocalStorage`.
 - **Timer UI:** `TimerDisplay`, `TimerMode`, `TimerControls`, `TimerProgress`.
 - **Task UI:** `TaskList`, `TaskItem`.
+- **Settings UI:** `SettingsModal` (durations + long-break interval).
 - **Types:** `src/types/timer.ts` (`TimerMode`, `TimerStatus`, `TimerSettings`),
   `src/types/task.ts` (`Task`).
 - **Constants:** `src/constants/timer.ts` (`TIMER_DURATION`,
@@ -54,6 +56,7 @@ project scripts.
 src/
 ├── components/
 │   ├── Header/        Header.tsx
+│   ├── Settings/      SettingsModal.tsx (+ __tests__)
 │   ├── Tasks/         TaskList.tsx, TaskItem.tsx (+ __tests__)
 │   └── Timer/         Timer.tsx, TimerDisplay.tsx, TimerMode.tsx,
 │                      TimerControls.tsx, TimerProgress.tsx (+ __tests__)

@@ -5,7 +5,9 @@
 Luno is a small React + TypeScript single-page app with a clear separation:
 
 - **Presentational components** (`Header`, `Timer*`, `Task*`) render state and
-  emit user actions via props. They contain no business rules.
+  emit user actions via props. `SettingsModal` additionally holds its own draft
+  form state and validates input before calling `onSave`. They contain no
+  business rules.
 - **Hooks / domain logic** own behavior:
   - `useTimer` — timer mode, status, countdown, completion, cycle counting.
   - `useTimerSettings` — persisted timer settings, layered on `useLocalStorage`.
@@ -24,9 +26,12 @@ localStorage ──► useLocalStorage ──► useTimerSettings ──► useT
                                               │
                                               ▼
                                   App (composition + guards)
-                                   │              │
-                                   ▼              ▼
-                                 Timer         TaskList ──► TaskItem
+                                   │        │            │
+                                   ▼        ▼            ▼
+                                 Timer   TaskList   SettingsModal
+                                          │
+                                          ▼
+                                      TaskItem
 ```
 
 ## Rules when working on Luno
