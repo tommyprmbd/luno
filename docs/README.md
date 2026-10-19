@@ -3,13 +3,13 @@
 > Working documentation for **Luno**, a minimalist, local-first Pomodoro and
 > task-focused web app. Written for both developers and AI coding agents.
 
-**Last reviewed:** 2026-10-19
+**Last reviewed:** 2026-10-20
 **Audited commit:** working tree
-**Verification snapshot (2026-10-19):**
+**Verification snapshot (2026-10-20):**
 
 | Check | Command | Result |
 | --- | --- | --- |
-| Tests | `npm test` | 99 passed / 12 files |
+| Tests | `npm test` | 109 passed / 12 files |
 | Build | `npm run build` | pass (`tsc -b && vite build`) |
 | Lint | `npm run lint` | clean (0 errors, 0 warnings) |
 

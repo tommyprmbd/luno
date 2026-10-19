@@ -27,14 +27,14 @@ requirement to copy its exact design.
 - **Configuration over magic numbers:** timer durations and the long-break
   interval must come from settings, not hard-coded literals.
 
-## Current technical baseline (verified 2026-10-19)
+## Current technical baseline (verified 2026-10-20)
 
 Verified against the working tree by inspecting the repository and running the
 project scripts.
 
 - **Stack:** React 19 + TypeScript ~6.0 + Vite 8.
 - **Tests:** Vitest 5 + React Testing Library (`jsdom`), globals enabled, setup at
-  `src/test/setup.ts`. **99 tests across 12 files pass.**
+  `src/test/setup.ts`. **109 tests across 12 files pass.**
 - **Build:** `npm run build` (`tsc -b && vite build`) passes.
 - **Lint:** `npm run lint` is clean (`coverage/` and `dist/` ignored).
 - **Main app composition:** `App` composes `Header`, `Timer`, `TaskList`, and the
@@ -47,8 +47,11 @@ project scripts.
   `src/types/task.ts` (`Task`).
 - **Constants:** `src/constants/timer.ts` (`TIMER_DURATION`,
   `DEFAULT_TIMER_SETTINGS`), `src/constants/storage.ts` (`STORAGE_KEY`).
-- **Local persistence:** tasks, active-task id, and timer settings are persisted
-  in `localStorage`. Timer runtime state is intentionally not persisted.
+- **Task tracking:** each task stores its completed-Pomodoro count; `App`
+  attributes a finished Pomodoro to the active task.
+- **Local persistence:** tasks (including per-task Pomodoro counts), active-task
+  id, and timer settings are persisted in `localStorage`. Timer runtime state is
+  intentionally not persisted.
 
 ## Repository map
 
@@ -79,5 +82,7 @@ src/
    completed Pomodoros the next mode is the long break; finishing the long break
    resets `completedPomodoros` to `0`.
 3. **Task ↔ timer coupling is light.** The active task is shown above the mode
-   controls; finishing a Pomodoro does **not** auto-complete the task.
+   controls; finishing a Pomodoro increments that task's count but does **not**
+   auto-complete the task. Breaks and sessions with no active task are not
+   attributed.
 4. **Local-first.** No backend, accounts, or sync in MVP 1/2.

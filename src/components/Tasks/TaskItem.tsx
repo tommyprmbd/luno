@@ -1,5 +1,8 @@
 import type { Task } from "../../types/task";
 
+const formatPomodoros = (count: number) =>
+  `${count} ${count === 1 ? "pomodoro" : "pomodoros"}`;
+
 type TaskItemProps = {
   task: Task;
   isActive: boolean;
@@ -39,6 +42,12 @@ function TaskItem({
           {task.title}
         </span>
       </label>
+
+      {task.completedPomodoros > 0 && (
+        <span className="task-pomodoros">
+          {formatPomodoros(task.completedPomodoros)}
+        </span>
+      )}
 
       {!task.completed && (
         <button

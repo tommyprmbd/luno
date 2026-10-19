@@ -1,7 +1,7 @@
 # Roadmap & Status Dashboard
 
-**Last reviewed:** 2026-10-19 · **Audited commit:** working tree
-**Evidence:** `npm test` 99 passed / 12 files · `npm run build` pass · `npm run lint` clean.
+**Last reviewed:** 2026-10-20 · **Audited commit:** working tree
+**Evidence:** `npm test` 109 passed / 12 files · `npm run build` pass · `npm run lint` clean.
 
 This dashboard reflects the **actual** repository state after the 2026-10-18
 audit. See the per-MVP files for the detailed checklist and the exact evidence.
@@ -17,7 +17,7 @@ audit. See the per-MVP files for the detailed checklist and the exact evidence.
 | Phase 4 — Timer/task integration and cycle | `DONE` | Active task display, transitions, long-break interval, task completion not auto-triggered — all tested. |
 | Phase 5 — UX, responsive, quality | `DONE` | Responsive, edge-state, a11y (axe-core), and visual review completed 2026-10-19. |
 | **MVP 2.1 — Custom Timer** | `DONE` | Settings model, `useTimer` integration, and Settings UI (modal + validation + tests) complete. |
-| MVP 2.2 — Task Tracking | `TODO` | Pomodoro count/progress per task. |
+| MVP 2.2 — Task Tracking | `DONE` | Per-task Pomodoro count persisted with the task, shown inline; attributed only to the active task. |
 | MVP 2.3 — Session History | `TODO` | Session records + daily focus summary. |
 | MVP 2.4 — Settings & Personalization | `PARTIAL` | Settings modal + persistence exist; additional preferences not defined. |
 | MVP 2.5 — Notifications | `TODO` | Browser notifications on session completion. |
@@ -38,7 +38,7 @@ Legend: `DONE` · `PARTIAL` · `IN PROGRESS` · `TODO` · `VERIFY` · `NOT IN SC
 | Every new mode waits for **START** | `DONE` | `useTimer` sets `idle` on completion; `App` blocks mode change while running. |
 | Session counters and long-break scheduling correct | `DONE` | Count + interval tests (default 4 and custom interval). |
 | Reload behavior consistent with intended persistence | `DONE` | Tasks/active-task/settings persist; timer runtime state intentionally does not. |
-| Automated tests and production build pass | `DONE` | 99 tests pass; build passes. |
+| Automated tests and production build pass | `DONE` | 109 tests pass; build passes. |
 | Main page remains minimal and responsive | `DONE` | Single page; reviewed at 1280/768/375/320 px with no horizontal overflow. |
 
 ## MVP 2 acceptance criteria
@@ -47,16 +47,16 @@ Legend: `DONE` · `PARTIAL` · `IN PROGRESS` · `TODO` · `VERIFY` · `NOT IN SC
 | --- | --- | --- |
 | Configure and persist timer durations/interval | `DONE` | Settings modal saves/validates; persistence and timer integration tested. |
 | Mode transitions remain manual-start | `DONE` | Invariant enforced in `useTimer`. |
-| Completed Pomodoros attributed to tasks | `TODO` | Belongs to MVP 2.2. |
+| Completed Pomodoros attributed to tasks | `DONE` | Active-task attribution tested in `App.test.tsx`; breaks/no-task ignored. |
 | Session history and daily totals correct | `TODO` | Belongs to MVP 2.3. |
 | Browser notifications degrade gracefully | `TODO` | Belongs to MVP 2.5. |
-| All intended data survives reload | `PARTIAL` | Tasks + settings persist; history/progress not implemented. |
-| Tests and production build pass | `DONE` | 99 tests pass; build passes. |
+| All intended data survives reload | `PARTIAL` | Tasks + per-task counts + settings persist; history not implemented. |
+| Tests and production build pass | `DONE` | 109 tests pass; build passes. |
 | App remains lightweight and easy to use | `DONE` | No router/dashboard; single page. |
 
 ## Priority order (suggested)
 
-1. **MVP 2.2 — Task Tracking**, then **MVP 2.3 — Session History** (share one
-   completed-session source of truth).
-2. **MVP 2.7 — Persistence hardening** alongside 2.2/2.3 (schema/migration).
+1. **MVP 2.3 — Session History** (reuse the timer completion source introduced
+   for task attribution).
+2. **MVP 2.7 — Persistence hardening** alongside 2.3 (schema/migration).
 3. **MVP 2.5 — Notifications**, then **MVP 2.6 — Productivity UX polish**.

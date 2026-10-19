@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./App.css";
 import Header from "./components/Header/Header";
 import SettingsModal from "./components/Settings/SettingsModal";
@@ -33,7 +33,10 @@ function App() {
     selectTask,
     toggleTask,
     deleteTask,
+    incrementTaskPomodoro,
   } = useTasks();
+
+  const previousCompletedPomodoros = useRef(completedPomodoros);
 
   useEffect(() => {
     const minutes = Math.floor(remainingSeconds / 60);
@@ -49,6 +52,17 @@ function App() {
 
     document.title = `${formattedTime} - ${modeLabels[mode]} | Luno`;
   }, [remainingSeconds, mode]);
+
+  useEffect(() => {
+    const previous = previousCompletedPomodoros.current;
+    previousCompletedPomodoros.current = completedPomodoros;
+
+    // attribute each completed Pomodoro to the active task; breaks are ignored.
+    // the previous-count ref keeps this idempotent if the effect re-runs.
+    if (completedPomodoros === previous + 1 && activeTaskId) {
+      incrementTaskPomodoro(activeTaskId);
+    }
+  }, [completedPomodoros, activeTaskId, incrementTaskPomodoro]);
 
   function handleSelectTask(id: string) {
     if (status === "running") {

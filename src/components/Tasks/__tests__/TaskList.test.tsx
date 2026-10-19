@@ -27,11 +27,13 @@ describe("TaskList", () => {
         id: "task-1",
         title: "Build Luno",
         completed: false,
+        completedPomodoros: 0,
       },
       {
         id: "task-2",
         title: "Write tests",
         completed: false,
+        completedPomodoros: 0,
       },
     ];
 

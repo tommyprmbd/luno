@@ -25,6 +25,57 @@ describe("useTasks", () => {
     expect(result.current.tasks).toHaveLength(1);
     expect(result.current.tasks[0].title).toBe("Build Luno");
     expect(result.current.tasks[0].completed).toBe(false);
+    expect(result.current.tasks[0].completedPomodoros).toBe(0);
+  });
+
+  it("should increment completed pomodoros for a task", () => {
+    const { result } = renderHook(() => useTasks());
+
+    act(() => {
+      result.current.addTask("Build Luno");
+    });
+
+    const taskId = result.current.tasks[0].id;
+
+    act(() => {
+      result.current.incrementTaskPomodoro(taskId);
+      result.current.incrementTaskPomodoro(taskId);
+    });
+
+    expect(result.current.tasks[0].completedPomodoros).toBe(2);
+  });
+
+  it("should ignore increments for an unknown task", () => {
+    const { result } = renderHook(() => useTasks());
+
+    act(() => {
+      result.current.addTask("Build Luno");
+    });
+
+    const taskId = result.current.tasks[0].id;
+
+    act(() => {
+      result.current.incrementTaskPomodoro("missing");
+    });
+
+    expect(result.current.tasks[0].id).toBe(taskId);
+    expect(result.current.tasks[0].completedPomodoros).toBe(0);
+  });
+
+  it("should persist completed pomodoros", () => {
+    const { result } = renderHook(() => useTasks());
+
+    act(() => {
+      result.current.addTask("Build Luno");
+    });
+
+    act(() => {
+      result.current.incrementTaskPomodoro(result.current.tasks[0].id);
+    });
+
+    const stored = JSON.parse(localStorage.getItem("luno:tasks")!);
+
+    expect(stored[0].completedPomodoros).toBe(1);
   });
 
   it("should trim task title", () => {
@@ -203,6 +254,23 @@ describe("useTasks", () => {
 
     expect(result.current.tasks).toHaveLength(1);
     expect(result.current.tasks[0].title).toBe("Build Luno");
+  });
+
+  it("should default missing or invalid persisted pomodoro counts to zero", () => {
+    localStorage.setItem(
+      "luno:tasks",
+      JSON.stringify([
+        { id: "1", title: "No count", completed: false },
+        { id: "2", title: "Bad count", completed: false, completedPomodoros: -3 },
+        { id: "3", title: "Good count", completed: false, completedPomodoros: 5 },
+      ]),
+    );
+
+    const { result } = renderHook(() => useTasks());
+
+    expect(
+      result.current.tasks.map((task) => task.completedPomodoros),
+    ).toEqual([0, 0, 5]);
   });
 
   it("should create a task id when crypto.randomUUID is unavailable", () => {

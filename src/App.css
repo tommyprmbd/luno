@@ -256,6 +256,17 @@ input:disabled {
   text-decoration: line-through;
 }
 
+.task-pomodoros {
+  flex-shrink: 0;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #f0f0f0;
+  color: #222;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
 .task-item button {
   flex-shrink: 0;
   border: 0;

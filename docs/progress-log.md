@@ -13,14 +13,15 @@ this consistent with [`roadmap.md`](./roadmap.md).
 | 2026-10-19 | Fix | Audited follow-up: validated persisted tasks (KI-12) and timer settings (KI-6); `crypto.randomUUID` fallback (KI-13); consolidated CSS and removed dead rules (KI-4); implemented the commented-out RESET test (KI-11); added 6 tests | 90 tests pass, build pass, lint clean |
 | 2026-10-19 | MVP 1 | Phase 5 review: responsive screenshots (1280/768/375/320 px), all-completed/no-active-task state, axe-core audit (0 violations), contrast fixes, `main` landmark | 90 tests pass, build pass, lint clean; Phase 5 `DONE` |
 | 2026-10-19 | MVP 2.1.3 | Settings UI: header entry point + modal, validation, save/cancel, idle/running integration, component + integration tests | 99 tests pass, build pass, lint clean; MVP 2.1 `DONE` |
+| 2026-10-20 | MVP 2.2 | Task Tracking: per-task `completedPomodoros`, compact badge, active-task attribution in `App`, persistence/normalization, hook/UI/integration tests | 109 tests pass, build pass, lint clean; MVP 2.2 `DONE` |
 
 ## Current next action
 
-**MVP 2.2 — Task Tracking.**
+**MVP 2.3 — Session History.**
 
-Agree the completed-session model with MVP 2.3, then attribute completed
-Pomodoros to the active task, show compact progress in the task list, and cover
-the no-task/deleted/completed edge cases with hook and UI tests.
+Define the session record model, then record completed sessions from the same
+timer completion source used for task attribution. Cover date boundaries,
+reload behavior, and duration calculations.
 
 ### Already verified (no action needed)
 

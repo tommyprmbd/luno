@@ -34,10 +34,12 @@ a status.
 - State ownership:
   - `useTimer` — mode, status, countdown, session completion, cycle count.
   - `useTimerSettings` — persisted durations + interval, layered on `useLocalStorage`.
-  - `useTasks` — task CRUD, active-task selection, and its guards.
+  - `useTasks` — task CRUD, active-task selection, its guards, and per-task
+    completed-Pomodoro counts.
   - `useLocalStorage` — generic persisted state with a safe fallback on bad JSON.
 - `App.tsx` composes hooks/components and holds cross-cutting rules: it blocks
-  task/mode interaction while the timer is `running` and sets `document.title`.
+  task/mode interaction while the timer is `running`, attributes a completed
+  Pomodoro to the active task, and sets `document.title`.
 - Shared vocabulary: `src/types/{timer,task}.ts`, `src/constants/{timer,storage}.ts`.
 
 ## Invariants — do not break these
@@ -51,7 +53,9 @@ a status.
   `useTimer → App → Timer → TimerProgress`.)
 - **Long-break cycle:** when `completedPomodoros % longBreakInterval === 0`, the
   next mode is `long-break`; finishing the long break resets the count to `0`.
-- Finishing a Pomodoro must **not** auto-complete the active task.
+- Finishing a Pomodoro increments the active task's `completedPomodoros` but
+  must **not** auto-complete the task. Breaks and sessions with no active task
+  are not attributed.
 
 ## Testing quirks
 
@@ -69,7 +73,8 @@ a status.
 
 ## Persistence
 
-- localStorage keys: `luno:tasks` and `luno:active-task-id` (via `STORAGE_KEY`);
+- localStorage keys: `luno:tasks` (including per-task `completedPomodoros`) and
+  `luno:active-task-id` (via `STORAGE_KEY`);
   timer settings still use the literal `"luno-timer-settings"` (not yet a
   constant — see `docs/known-issues.md` KI-5).
 - Timer runtime state (remaining time, mode, count) is intentionally **not**

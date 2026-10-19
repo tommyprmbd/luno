@@ -4,7 +4,7 @@
 minimalist single-page experience.
 
 **Overall status:** `PARTIAL`. MVP 2.1 (Custom Timer, including the Settings UI)
-is `DONE`; milestones 2.2–2.7 are not implemented.
+and MVP 2.2 (Task Tracking) are `DONE`; milestones 2.3–2.7 are not implemented.
 
 ---
 
@@ -65,26 +65,43 @@ is `DONE`; milestones 2.2–2.7 are not implemented.
 **Evidence:** `npm test` → 99 passed / 12 files; `npm run build` → pass;
 `npm run lint` → clean.
 
-**Next action:** MVP **2.2 — Task Tracking** (agree the completed-session model
-with MVP 2.3 first).
+**Next action:** MVP **2.3 — Session History** (build on the timer's completion
+source used by 2.2).
 
 ---
 
-## MVP 2.2 — Task Tracking (`P0`) — `TODO`
+## MVP 2.2 — Task Tracking (`P0`) — `DONE`
 
 **Goal:** connect focus sessions to individual tasks.
 
-- [ ] Track the number of completed Pomodoro sessions per task.
-- [ ] Display task progress in a compact form.
-- [ ] Associate each completed focus session with the active task at the time of
-      the session.
-- [ ] Define behavior when no task is selected.
-- [ ] Define behavior when a task is deleted or completed.
-- [ ] Persist task tracking locally.
-- [ ] Add hook/unit tests and UI/integration tests.
+- [x] Track the number of completed Pomodoro sessions per task: `Task` now has
+      `completedPomodoros`, incremented by `useTasks.incrementTaskPomodoro`.
+- [x] Display task progress in a compact form: a small "N pomodoro(s)" pill in
+      `TaskItem`, shown only when the count is above zero.
+- [x] Associate each completed focus session with the active task at the time of
+      the session: `App` watches the timer's completed-Pomodoro counter and
+      increments the active task. Task selection is already blocked while the
+      timer runs.
+- [x] Define behavior when no task is selected: the session is not attributed;
+      the global cycle count still increments.
+- [x] Define behavior when a task is deleted or completed: deleting a task
+      removes its count with it; completing a task keeps its count and the row
+      stays visible.
+- [x] Persist task tracking locally: the count lives on the task in `luno:tasks`;
+      older records without a count load with `0`, and invalid counts are
+      normalized to `0`.
+- [x] Add hook/unit tests and UI/integration tests (`useTasks.test.ts`,
+      `TaskItem.test.tsx`, `App.test.tsx`); axe-core audit: 0 violations.
 
-**Design constraint:** progress should enrich the existing task list, not
-introduce a large dashboard.
+**Evidence:** `npm test` → 109 passed / 12 files; `npm run build` → pass;
+`npm run lint` → clean. Browser check: a completed 1-minute Pomodoro incremented
+the active task from 2 to 3 and persisted the value.
+
+**Design constraint:** progress enriches the existing task list; no dashboard or
+separate history UI was added. Breaks are never counted as task Pomodoros. The
+attribution uses the timer's completed-Pomodoro counter as the single completion
+source; MVP 2.3 should record session history from that same source instead of
+adding a second completion detector.
 
 ---
 
@@ -104,7 +121,8 @@ introduce a large dashboard.
 - [ ] Test date boundaries, reload behavior, and duration calculations.
 
 **Dependency:** agree on the session data model before implementing history UI.
-Task Tracking (2.2) should use the same completed-session event/source of truth.
+Task Tracking (2.2) uses the timer's completed-Pomodoro counter as the single
+completion source; history must build on that source, not add another.
 
 ---
 
@@ -152,7 +170,8 @@ into a large preferences page prematurely.
 
 - [ ] Document which data is persisted: tasks, timer settings, task progress,
       session history, and any other user preferences.
-      *(Currently: tasks, active-task id, timer settings. See `constants/storage.ts`.)*
+      *(Currently: tasks including per-task Pomodoro counts, active-task id, and
+      timer settings. See `constants/storage.ts`.)*
 - [ ] Define schema/versioning or migration behavior for persisted local data.
 - [x] Validate persisted timer settings shape/range (`useTimerSettings`; KI-6).
 - [x] Validate persisted task data shape (`useTasks`; KI-12).
@@ -173,9 +192,11 @@ synchronization. Cloud sync is not part of MVP 2.
 - [x] Users can configure and persist timer durations and long-break interval
       (settings modal; `SettingsModal.test.tsx`, `App.test.tsx`).
 - [x] Mode transitions remain manual-start.
-- [ ] Completed Pomodoros are reliably attributed to tasks when appropriate.
+- [x] Completed Pomodoros are reliably attributed to tasks when appropriate
+      (only when a task is active; breaks and no-task sessions are ignored).
 - [ ] Session history and daily focus totals are correct.
 - [ ] Browser notifications degrade gracefully.
-- [ ] All data intended to persist survives reload (`PARTIAL`).
+- [ ] All data intended to persist survives reload (`PARTIAL`: tasks, task
+      progress, and settings persist; session history is not implemented).
 - [x] Tests and production build pass.
 - [x] The app remains lightweight and easy to use.

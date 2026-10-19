@@ -498,6 +498,105 @@ describe("App", () => {
     }
   });
 
+  it("should count a completed pomodoro on the active task", () => {
+    localStorage.setItem(
+      "luno:tasks",
+      JSON.stringify([
+        { id: "task-1", title: "Build Luno", completed: false, completedPomodoros: 0 },
+      ]),
+    );
+    localStorage.setItem("luno:active-task-id", JSON.stringify("task-1"));
+
+    vi.useFakeTimers();
+
+    try {
+      render(<App />);
+
+      act(() => {
+        screen.getByRole("button", { name: "START" }).click();
+      });
+
+      act(() => {
+        vi.advanceTimersByTime(TIMER_DURATION.pomodoro * 1000);
+      });
+
+      expect(screen.getByText("1 pomodoro")).toBeInTheDocument();
+
+      const stored = JSON.parse(localStorage.getItem("luno:tasks")!);
+
+      expect(stored[0].completedPomodoros).toBe(1);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("should not count a completed break", () => {
+    localStorage.setItem(
+      "luno:tasks",
+      JSON.stringify([
+        { id: "task-1", title: "Build Luno", completed: false, completedPomodoros: 0 },
+      ]),
+    );
+    localStorage.setItem("luno:active-task-id", JSON.stringify("task-1"));
+
+    vi.useFakeTimers();
+
+    try {
+      render(<App />);
+
+      act(() => {
+        screen.getByRole("button", { name: "START" }).click();
+      });
+
+      act(() => {
+        vi.advanceTimersByTime(TIMER_DURATION.pomodoro * 1000);
+      });
+
+      act(() => {
+        screen.getByRole("button", { name: "START" }).click();
+      });
+
+      act(() => {
+        vi.advanceTimersByTime(TIMER_DURATION["short-break"] * 1000);
+      });
+
+      expect(screen.getByText("1 pomodoro")).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("should not count a pomodoro when no task is active", () => {
+    localStorage.setItem(
+      "luno:tasks",
+      JSON.stringify([
+        { id: "task-1", title: "Build Luno", completed: false, completedPomodoros: 0 },
+      ]),
+    );
+
+    vi.useFakeTimers();
+
+    try {
+      render(<App />);
+
+      act(() => {
+        screen.getByRole("button", { name: "START" }).click();
+      });
+
+      act(() => {
+        vi.advanceTimersByTime(TIMER_DURATION.pomodoro * 1000);
+      });
+
+      expect(screen.queryByText("1 pomodoro")).not.toBeInTheDocument();
+
+      const stored = JSON.parse(localStorage.getItem("luno:tasks")!);
+
+      expect(stored[0].completedPomodoros).toBe(0);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("should not allow changing timer mode while running", () => {
     render(<App />);
 
