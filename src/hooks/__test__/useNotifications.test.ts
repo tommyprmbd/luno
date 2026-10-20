@@ -91,6 +91,23 @@ describe("useNotifications", () => {
     expect(result.current.permission).toBe("unsupported");
   });
 
+  it("should not throw when the notification API fails", () => {
+    vi.stubGlobal(
+      "Notification",
+      class {
+        static get permission(): NotificationPermission {
+          throw new Error("notifications blocked");
+        }
+      },
+    );
+
+    const { result } = renderHook(() => useNotifications());
+
+    expect(() => {
+      result.current.notifySessionComplete(session());
+    }).not.toThrow();
+  });
+
   it("should notify for every completed mode when granted", () => {
     MockNotification.permission = "granted";
 

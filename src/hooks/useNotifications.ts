@@ -21,9 +21,13 @@ const NOTIFICATION_COPY: Record<
 };
 
 function getPermission(): NotificationPermissionState {
-  return typeof Notification === "undefined"
-    ? "unsupported"
-    : Notification.permission;
+  try {
+    return typeof Notification === "undefined"
+      ? "unsupported"
+      : Notification.permission;
+  } catch {
+    return "unsupported";
+  }
 }
 
 export function useNotifications() {
@@ -47,16 +51,16 @@ export function useNotifications() {
   }, []);
 
   const notifySessionComplete = useCallback((session: CompletedSession) => {
-    if (
-      typeof Notification === "undefined" ||
-      Notification.permission !== "granted"
-    ) {
-      return;
-    }
-
-    const { title, body } = NOTIFICATION_COPY[session.mode];
-
     try {
+      if (
+        typeof Notification === "undefined" ||
+        Notification.permission !== "granted"
+      ) {
+        return;
+      }
+
+      const { title, body } = NOTIFICATION_COPY[session.mode];
+
       new Notification(title, { body, tag: "luno-session-complete" });
     } catch {
       // notifications are best-effort; timer completion must still work.

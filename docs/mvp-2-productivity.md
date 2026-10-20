@@ -193,7 +193,7 @@ notifications a requirement for using the timer.
       notifications, denied/unsupported browsers, reset, and StrictMode dedupe
       (`useNotifications.test.ts`, `SettingsModal.test.tsx`, `App.test.tsx`).
 
-**Evidence:** `npm test` → 152 passed / 15 files; `npm run build` → pass;
+**Evidence:** `npm test` → 154 passed / 15 files; `npm run build` → pass;
 `npm run lint` → clean.
 
 **Scope note:** notification permission is owned by the browser and is not stored

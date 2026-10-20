@@ -810,6 +810,41 @@ describe("App", () => {
     }
   });
 
+  it("should record history when the notification API fails", () => {
+    vi.stubGlobal(
+      "Notification",
+      class {
+        static get permission(): NotificationPermission {
+          throw new Error("notifications blocked");
+        }
+      },
+    );
+
+    vi.useFakeTimers();
+
+    try {
+      render(<App />);
+
+      act(() => {
+        screen.getByRole("button", { name: "START" }).click();
+      });
+
+      act(() => {
+        vi.advanceTimersByTime(TIMER_DURATION.pomodoro * 1000);
+      });
+
+      expect(JSON.parse(localStorage.getItem("luno:sessions")!)).toHaveLength(1);
+
+      act(() => {
+        screen.getByRole("button", { name: "History" }).click();
+      });
+
+      expect(screen.getByText("1 focus session")).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("should record and notify only once per completion in StrictMode", () => {
     MockNotification.permission = "granted";
     localStorage.setItem(

@@ -6,7 +6,7 @@ before adding productivity analytics or personalization.
 **Status:** `DONE` (behavior implemented and tested; Phase 5 responsive, a11y,
 and visual review completed on 2026-10-19).
 
-**Evidence:** `npm test` → 152 passed / 15 files (current suite); `npm run build` → pass;
+**Evidence:** `npm test` → 154 passed / 15 files (current suite); `npm run build` → pass;
 `npm run lint` → clean. Phase 5 review: Chrome screenshots at 1280/768/375/320 px,
 all-completed/no-active-task state checked, axe-core audit (0 violations) at
 empty/all-completed/running states. Audited against the working tree.

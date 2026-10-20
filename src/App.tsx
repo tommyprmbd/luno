@@ -75,7 +75,6 @@ function App() {
     }
 
     handledSession.current = lastCompletedSession;
-    notifySessionComplete(lastCompletedSession);
 
     if (lastCompletedSession.mode === "pomodoro" && activeTaskId) {
       incrementTaskPomodoro(activeTaskId);
@@ -88,6 +87,8 @@ function App() {
           ? (activeTask?.title ?? null)
           : null,
     });
+
+    notifySessionComplete(lastCompletedSession);
   }, [
     lastCompletedSession,
     activeTaskId,
