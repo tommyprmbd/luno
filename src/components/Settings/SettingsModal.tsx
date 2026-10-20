@@ -118,8 +118,10 @@ function SettingsModal({ settings, onSave, onClose }: SettingsModalProps) {
   }
 
   return (
+    // shortcut: keep the legacy settings-* classes so a stale dev-CSS cache
+    // still styles the dialog; remove once clients have reloaded the rename.
     <div
-      className="modal-backdrop"
+      className="modal-backdrop settings-backdrop"
       onClick={(event) => {
         if (event.target === event.currentTarget) {
           onClose();
@@ -127,7 +129,7 @@ function SettingsModal({ settings, onSave, onClose }: SettingsModalProps) {
       }}
     >
       <div
-        className="modal"
+        className="modal settings-modal"
         role="dialog"
         aria-modal="true"
         aria-labelledby="settings-title"
