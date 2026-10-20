@@ -34,7 +34,7 @@ project scripts.
 
 - **Stack:** React 19 + TypeScript ~6.0 + Vite 8.
 - **Tests:** Vitest 5 + React Testing Library (`jsdom`), globals enabled, setup at
-  `src/test/setup.ts`. **154 tests across 15 files pass.**
+  `src/test/setup.ts`. **155 tests across 15 files pass.**
 - **Build:** `npm run build` (`tsc -b && vite build`) passes.
 - **Lint:** `npm run lint` is clean (`coverage/` and `dist/` ignored).
 - **Main app composition:** `App` composes `Header`, `Timer`, `TaskList`, and the
@@ -48,8 +48,9 @@ project scripts.
   notification permission request).
 - **Notifications:** `useNotifications` reads the browser permission and sends
   one best-effort notification per completed focus/break session when granted.
-  Denied/unsupported browsers remain fully usable; permission is not persisted by
-  the app.
+  It uses a small service worker when available (required by mobile browsers)
+  and falls back to the `Notification` constructor. Denied/unsupported browsers
+  remain fully usable; permission is not persisted by the app.
 - **Types:** `src/types/timer.ts` (`TimerMode`, `TimerStatus`, `TimerSettings`),
   `src/types/task.ts` (`Task`), `src/types/session.ts` (`SessionRecord`),
   `src/types/notification.ts` (`NotificationPermissionState`).

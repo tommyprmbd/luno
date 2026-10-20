@@ -183,6 +183,10 @@ notifications a requirement for using the timer.
 - [x] When permission is granted, every completed focus/break session sends one
       browser notification with mode-specific copy (`useNotifications`,
       `App` completion event).
+- [x] Notification delivery prefers a service worker when supported (required by
+      mobile browsers), with a direct `Notification` constructor fallback.
+      `public/sw.js` only handles notification clicks; it adds no caching or
+      background work.
 - [x] Denied permission, unsupported browsers, and rejected permission requests
       are no-ops. The timer, task attribution, and history keep working; creating
       a notification is also best-effort (`useNotifications`).
@@ -193,7 +197,7 @@ notifications a requirement for using the timer.
       notifications, denied/unsupported browsers, reset, and StrictMode dedupe
       (`useNotifications.test.ts`, `SettingsModal.test.tsx`, `App.test.tsx`).
 
-**Evidence:** `npm test` → 154 passed / 15 files; `npm run build` → pass;
+**Evidence:** `npm test` → 155 passed / 15 files; `npm run build` → pass;
 `npm run lint` → clean.
 
 **Scope note:** notification permission is owned by the browser and is not stored

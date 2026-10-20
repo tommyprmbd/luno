@@ -1,7 +1,7 @@
 # Roadmap & Status Dashboard
 
 **Last reviewed:** 2026-10-20 · **Audited commit:** working tree
-**Evidence:** `npm test` 154 passed / 15 files · `npm run build` pass · `npm run lint` clean.
+**Evidence:** `npm test` 155 passed / 15 files · `npm run build` pass · `npm run lint` clean.
 
 This dashboard reflects the **actual** repository state after the 2026-10-18
 audit. See the per-MVP files for the detailed checklist and the exact evidence.
@@ -38,7 +38,7 @@ Legend: `DONE` · `PARTIAL` · `IN PROGRESS` · `TODO` · `VERIFY` · `NOT IN SC
 | Every new mode waits for **START** | `DONE` | `useTimer` sets `idle` on completion; `App` blocks mode change while running. |
 | Session counters and long-break scheduling correct | `DONE` | Count + interval tests (default 4 and custom interval). |
 | Reload behavior consistent with intended persistence | `DONE` | Tasks/active-task/settings persist; timer runtime state intentionally does not. |
-| Automated tests and production build pass | `DONE` | 154 tests pass; build passes. |
+| Automated tests and production build pass | `DONE` | 155 tests pass; build passes. |
 | Main page remains minimal and responsive | `DONE` | Single page; reviewed at 1280/768/375/320 px with no horizontal overflow. |
 
 ## MVP 2 acceptance criteria
@@ -51,7 +51,7 @@ Legend: `DONE` · `PARTIAL` · `IN PROGRESS` · `TODO` · `VERIFY` · `NOT IN SC
 | Session history and daily totals correct | `DONE` | History modal + local-day focus summary; date-boundary and duration tests pass. |
 | Browser notifications degrade gracefully | `DONE` | Explicit permission request; denied/unsupported browsers are no-ops; completion still works. |
 | All intended data survives reload | `DONE` | Tasks, per-task counts, active task, settings, and session history persist; reload tested. |
-| Tests and production build pass | `DONE` | 154 tests pass; build passes. |
+| Tests and production build pass | `DONE` | 155 tests pass; build passes. |
 | App remains lightweight and easy to use | `DONE` | No router/dashboard; single page. |
 
 ## Priority order (suggested)

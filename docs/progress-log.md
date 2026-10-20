@@ -18,6 +18,7 @@ this consistent with [`roadmap.md`](./roadmap.md).
 | 2026-10-20 | MVP 2.4 | Settings & Personalization: no additional preferences (no concrete need), saved-settings modal/reload tests, reset/default behavior coverage | 137 tests pass, build pass, lint clean; MVP 2.4 `DONE` |
 | 2026-10-20 | MVP 2.5 | Notifications: explicit permission request in Settings, one notification per completed focus/break session, denied/unsupported/reset handling, StrictMode dedupe | 152 tests pass, build pass, lint clean; MVP 2.5 `DONE` |
 | 2026-10-20 | Fix | History: a failing Notification API can no longer abort completion handling before the session is recorded; regression test added | 154 tests pass, build pass, lint clean |
+| 2026-10-20 | Fix | Notifications: prefer a service worker when available so browsers that reject `new Notification` still show completion notifications; direct constructor fallback; click opens the app | 155 tests pass, build pass, lint clean |
 
 ## Current next action
 

@@ -1,7 +1,7 @@
 # Known Issues & Tech Debt
 
 **Last reviewed:** 2026-10-20 (MVP 2.5 review, working tree).
-**Evidence:** `npm test` 154 passed / 15 files · `npm run build` pass · `npm run lint` clean.
+**Evidence:** `npm test` 155 passed / 15 files · `npm run build` pass · `npm run lint` clean.
 
 ## Resolved
 

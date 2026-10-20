@@ -16,7 +16,8 @@ Luno is a small React + TypeScript single-page app with a clear separation:
   - `useSessions` — persisted completed-session history plus local-day focus
     summary/duration helpers.
   - `useNotifications` — browser permission state and best-effort completion
-    notifications; no-op when denied or unsupported.
+    notifications; uses a service worker when available and falls back to the
+    `Notification` constructor; no-op when denied or unsupported.
   - `useLocalStorage` — generic persisted state with a safe fallback.
 - **`App`** composes the hooks and components and enforces cross-cutting rules
   (blocking task/mode interactions while the timer is running, handling the

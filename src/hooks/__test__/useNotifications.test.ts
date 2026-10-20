@@ -9,6 +9,10 @@ type SentNotification = {
 };
 
 let sentNotifications: SentNotification[] = [];
+const originalServiceWorker = Object.getOwnPropertyDescriptor(
+  navigator,
+  "serviceWorker",
+);
 
 class MockNotification {
   static permission: NotificationPermission = "default";
@@ -38,6 +42,12 @@ describe("useNotifications", () => {
   });
 
   afterEach(() => {
+    if (originalServiceWorker) {
+      Object.defineProperty(navigator, "serviceWorker", originalServiceWorker);
+    } else {
+      delete (navigator as unknown as { serviceWorker?: unknown }).serviceWorker;
+    }
+
     vi.unstubAllGlobals();
   });
 
@@ -106,6 +116,37 @@ describe("useNotifications", () => {
     expect(() => {
       result.current.notifySessionComplete(session());
     }).not.toThrow();
+  });
+
+  it("should prefer service worker notifications when supported", async () => {
+    const showNotification = vi.fn().mockResolvedValue(undefined);
+    const registration = {
+      showNotification,
+    } as unknown as ServiceWorkerRegistration;
+    const register = vi.fn().mockResolvedValue(registration);
+
+    Object.defineProperty(navigator, "serviceWorker", {
+      configurable: true,
+      value: {
+        register,
+        ready: Promise.resolve(registration),
+      },
+    });
+    MockNotification.permission = "granted";
+
+    const { result } = renderHook(() => useNotifications());
+
+    await act(async () => {
+      result.current.notifySessionComplete(session());
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+
+    expect(register).toHaveBeenCalledWith("/sw.js");
+    expect(showNotification).toHaveBeenCalledWith("Pomodoro complete", {
+      body: "Time for a break.",
+      tag: "luno-session-complete",
+    });
+    expect(sentNotifications).toEqual([]);
   });
 
   it("should notify for every completed mode when granted", () => {
