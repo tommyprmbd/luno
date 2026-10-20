@@ -1,12 +1,39 @@
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { StrictMode } from "react";
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import App from "./App";
 import { TIMER_DURATION } from "./constants/timer";
+
+type SentNotification = {
+  title: string;
+  options?: NotificationOptions;
+};
+
+let sentNotifications: SentNotification[] = [];
+
+class MockNotification {
+  static permission: NotificationPermission = "default";
+  static requestPermission = vi.fn(async () => MockNotification.permission);
+
+  constructor(title: string, options?: NotificationOptions) {
+    sentNotifications.push({ title, options });
+  }
+}
 
 describe("App", () => {
   beforeEach(() => {
     localStorage.clear();
+    sentNotifications = [];
+    MockNotification.permission = "default";
+    MockNotification.requestPermission = vi.fn(
+      async () => MockNotification.permission,
+    );
+    vi.stubGlobal("Notification", MockNotification);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
   });
 
   it("should render the timer and task list", () => {
@@ -87,6 +114,73 @@ describe("App", () => {
     expect(
       JSON.parse(localStorage.getItem("luno-timer-settings")!).pomodoroDuration,
     ).toBe(1500);
+  });
+
+  it("should show saved settings when reopened", async () => {
+    const user = userEvent.setup();
+
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: "Settings" }));
+
+    const pomodoro = screen.getByLabelText("Pomodoro duration (minutes)");
+
+    await user.clear(pomodoro);
+    await user.type(pomodoro, "30");
+    await user.click(screen.getByRole("button", { name: "SAVE" }));
+
+    await user.click(screen.getByRole("button", { name: "Settings" }));
+
+    expect(
+      screen.getByLabelText("Pomodoro duration (minutes)"),
+    ).toHaveValue(30);
+  });
+
+  it("should keep saved settings after reload", async () => {
+    const user = userEvent.setup();
+    const { unmount } = render(<App />);
+
+    await user.click(screen.getByRole("button", { name: "Settings" }));
+
+    const pomodoro = screen.getByLabelText("Pomodoro duration (minutes)");
+
+    await user.clear(pomodoro);
+    await user.type(pomodoro, "30");
+    await user.click(screen.getByRole("button", { name: "SAVE" }));
+
+    expect(screen.getByRole("timer")).toHaveTextContent("30:00");
+
+    unmount();
+    render(<App />);
+
+    expect(screen.getByRole("timer")).toHaveTextContent("30:00");
+  });
+
+  it("should request notification permission from settings", async () => {
+    const user = userEvent.setup();
+
+    MockNotification.requestPermission.mockImplementation(async () => {
+      MockNotification.permission = "granted";
+      return "granted";
+    });
+
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: "Settings" }));
+
+    expect(
+      screen.getByText(
+        "Get a browser notification when a timer session finishes.",
+      ),
+    ).toBeInTheDocument();
+
+    await user.click(
+      screen.getByRole("button", { name: "ENABLE NOTIFICATIONS" }),
+    );
+
+    expect(
+      await screen.findByText("Notifications are enabled."),
+    ).toBeInTheDocument();
   });
 
   it("should keep a running session duration and apply settings on reset", () => {
@@ -595,6 +689,351 @@ describe("App", () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+
+  it("should record a completed pomodoro session", () => {
+    localStorage.setItem(
+      "luno:tasks",
+      JSON.stringify([
+        { id: "task-1", title: "Build Luno", completed: false, completedPomodoros: 0 },
+      ]),
+    );
+    localStorage.setItem("luno:active-task-id", JSON.stringify("task-1"));
+
+    vi.useFakeTimers();
+
+    try {
+      render(<App />);
+
+      act(() => {
+        screen.getByRole("button", { name: "START" }).click();
+      });
+
+      act(() => {
+        vi.advanceTimersByTime(TIMER_DURATION.pomodoro * 1000);
+      });
+
+      const stored = JSON.parse(localStorage.getItem("luno:sessions")!);
+
+      expect(stored).toHaveLength(1);
+      expect(stored[0]).toMatchObject({
+        mode: "pomodoro",
+        durationSeconds: TIMER_DURATION.pomodoro,
+        taskTitle: "Build Luno",
+      });
+      expect(stored[0].completedAt).toEqual(expect.any(Number));
+
+      act(() => {
+        screen.getByRole("button", { name: "History" }).click();
+      });
+
+      const dialog = screen.getByRole("dialog", { name: "Session history" });
+
+      expect(dialog).toBeInTheDocument();
+      expect(screen.getByText("1 focus session")).toBeInTheDocument();
+      expect(within(dialog).getAllByRole("listitem")).toHaveLength(1);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("should record breaks without attributing them to a task", () => {
+    localStorage.setItem(
+      "luno:tasks",
+      JSON.stringify([
+        { id: "task-1", title: "Build Luno", completed: false, completedPomodoros: 0 },
+      ]),
+    );
+    localStorage.setItem("luno:active-task-id", JSON.stringify("task-1"));
+
+    vi.useFakeTimers();
+
+    try {
+      render(<App />);
+
+      act(() => {
+        screen.getByRole("button", { name: "START" }).click();
+      });
+
+      act(() => {
+        vi.advanceTimersByTime(TIMER_DURATION.pomodoro * 1000);
+      });
+
+      act(() => {
+        screen.getByRole("button", { name: "START" }).click();
+      });
+
+      act(() => {
+        vi.advanceTimersByTime(TIMER_DURATION["short-break"] * 1000);
+      });
+
+      const stored = JSON.parse(localStorage.getItem("luno:sessions")!);
+
+      expect(stored.map((session: { mode: string }) => session.mode)).toEqual([
+        "pomodoro",
+        "short-break",
+      ]);
+      expect(stored[0].taskTitle).toBe("Build Luno");
+      expect(stored[1].taskTitle).toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("should record a focus session without an active task", () => {
+    localStorage.setItem(
+      "luno:tasks",
+      JSON.stringify([
+        { id: "task-1", title: "Build Luno", completed: false, completedPomodoros: 0 },
+      ]),
+    );
+
+    vi.useFakeTimers();
+
+    try {
+      render(<App />);
+
+      act(() => {
+        screen.getByRole("button", { name: "START" }).click();
+      });
+
+      act(() => {
+        vi.advanceTimersByTime(TIMER_DURATION.pomodoro * 1000);
+      });
+
+      const stored = JSON.parse(localStorage.getItem("luno:sessions")!);
+
+      expect(stored).toHaveLength(1);
+      expect(stored[0].taskTitle).toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("should record history when the notification API fails", () => {
+    vi.stubGlobal(
+      "Notification",
+      class {
+        static get permission(): NotificationPermission {
+          throw new Error("notifications blocked");
+        }
+      },
+    );
+
+    vi.useFakeTimers();
+
+    try {
+      render(<App />);
+
+      act(() => {
+        screen.getByRole("button", { name: "START" }).click();
+      });
+
+      act(() => {
+        vi.advanceTimersByTime(TIMER_DURATION.pomodoro * 1000);
+      });
+
+      expect(JSON.parse(localStorage.getItem("luno:sessions")!)).toHaveLength(1);
+
+      act(() => {
+        screen.getByRole("button", { name: "History" }).click();
+      });
+
+      expect(screen.getByText("1 focus session")).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("should record and notify only once per completion in StrictMode", () => {
+    MockNotification.permission = "granted";
+    localStorage.setItem(
+      "luno:tasks",
+      JSON.stringify([
+        { id: "task-1", title: "Build Luno", completed: false, completedPomodoros: 0 },
+      ]),
+    );
+    localStorage.setItem("luno:active-task-id", JSON.stringify("task-1"));
+
+    vi.useFakeTimers();
+
+    try {
+      render(
+        <StrictMode>
+          <App />
+        </StrictMode>,
+      );
+
+      act(() => {
+        screen.getByRole("button", { name: "START" }).click();
+      });
+
+      act(() => {
+        vi.advanceTimersByTime(TIMER_DURATION.pomodoro * 1000);
+      });
+
+      expect(JSON.parse(localStorage.getItem("luno:sessions")!)).toHaveLength(1);
+      expect(sentNotifications).toHaveLength(1);
+      expect(
+        JSON.parse(localStorage.getItem("luno:tasks")!)[0].completedPomodoros,
+      ).toBe(1);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("should notify when a focus or break session completes", () => {
+    MockNotification.permission = "granted";
+
+    vi.useFakeTimers();
+
+    try {
+      render(<App />);
+
+      act(() => {
+        screen.getByRole("button", { name: "START" }).click();
+      });
+
+      act(() => {
+        vi.advanceTimersByTime(TIMER_DURATION.pomodoro * 1000);
+      });
+
+      act(() => {
+        screen.getByRole("button", { name: "START" }).click();
+      });
+
+      act(() => {
+        vi.advanceTimersByTime(TIMER_DURATION["short-break"] * 1000);
+      });
+
+      expect(sentNotifications).toEqual([
+        {
+          title: "Pomodoro complete",
+          options: {
+            body: "Time for a break.",
+            tag: "luno-session-complete",
+          },
+        },
+        {
+          title: "Short break complete",
+          options: {
+            body: "Ready for another Pomodoro?",
+            tag: "luno-session-complete",
+          },
+        },
+      ]);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("should keep working without notifications when permission is denied", () => {
+    MockNotification.permission = "denied";
+
+    vi.useFakeTimers();
+
+    try {
+      render(<App />);
+
+      act(() => {
+        screen.getByRole("button", { name: "START" }).click();
+      });
+
+      act(() => {
+        vi.advanceTimersByTime(TIMER_DURATION.pomodoro * 1000);
+      });
+
+      expect(sentNotifications).toEqual([]);
+      expect(
+        screen.getByLabelText("Pomodoro progress: 1 of 4 completed"),
+      ).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("should keep working when notifications are unsupported", () => {
+    vi.stubGlobal("Notification", undefined);
+
+    vi.useFakeTimers();
+
+    try {
+      render(<App />);
+
+      act(() => {
+        screen.getByRole("button", { name: "START" }).click();
+      });
+
+      act(() => {
+        vi.advanceTimersByTime(TIMER_DURATION.pomodoro * 1000);
+      });
+
+      expect(sentNotifications).toEqual([]);
+      expect(
+        screen.getByLabelText("Pomodoro progress: 1 of 4 completed"),
+      ).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("should not notify when a session is reset", () => {
+    MockNotification.permission = "granted";
+
+    vi.useFakeTimers();
+
+    try {
+      render(<App />);
+
+      act(() => {
+        screen.getByRole("button", { name: "START" }).click();
+      });
+
+      act(() => {
+        vi.advanceTimersByTime(1000);
+      });
+
+      act(() => {
+        screen.getByRole("button", { name: "RESET" }).click();
+      });
+
+      expect(sentNotifications).toEqual([]);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("should show persisted history after reload", async () => {
+    const now = new Date();
+    const todayAt = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      10,
+      0,
+    ).getTime();
+
+    localStorage.setItem(
+      "luno:sessions",
+      JSON.stringify([
+        {
+          mode: "pomodoro",
+          completedAt: todayAt,
+          durationSeconds: 1500,
+          taskTitle: "Build Luno",
+        },
+      ]),
+    );
+
+    const user = userEvent.setup();
+
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: "History" }));
+
+    expect(screen.getByText("1 focus session")).toBeInTheDocument();
+    expect(screen.getByText("25m focused")).toBeInTheDocument();
+    expect(screen.getByText("Build Luno")).toBeInTheDocument();
   });
 
   it("should not allow changing timer mode while running", () => {

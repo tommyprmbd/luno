@@ -1,11 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import "./App.css";
 import Header from "./components/Header/Header";
+import HistoryModal from "./components/History/HistoryModal";
 import SettingsModal from "./components/Settings/SettingsModal";
 import TaskList from "./components/Tasks/TaskList";
 import Timer from "./components/Timer/Timer";
+import { useNotifications } from "./hooks/useNotifications";
+import { useSessions } from "./hooks/useSessions";
 import { useTasks } from "./hooks/useTasks";
 import { useTimer } from "./hooks/useTimer";
+import type { CompletedSession } from "./types/session";
 import type { TimerMode, TimerSettings } from "./types/timer";
 
 function App() {
@@ -14,6 +18,7 @@ function App() {
     status,
     remainingSeconds,
     completedPomodoros,
+    lastCompletedSession,
     longBreakInterval,
     start,
     pause,
@@ -23,6 +28,7 @@ function App() {
     updateSettings,
   } = useTimer();
 
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const {
@@ -36,7 +42,14 @@ function App() {
     incrementTaskPomodoro,
   } = useTasks();
 
-  const previousCompletedPomodoros = useRef(completedPomodoros);
+  const { sessions, addSession } = useSessions();
+  const {
+    permission: notificationPermission,
+    requestPermission,
+    notifySessionComplete,
+  } = useNotifications();
+
+  const handledSession = useRef<CompletedSession | null>(null);
 
   useEffect(() => {
     const minutes = Math.floor(remainingSeconds / 60);
@@ -54,15 +67,36 @@ function App() {
   }, [remainingSeconds, mode]);
 
   useEffect(() => {
-    const previous = previousCompletedPomodoros.current;
-    previousCompletedPomodoros.current = completedPomodoros;
+    if (
+      !lastCompletedSession ||
+      lastCompletedSession === handledSession.current
+    ) {
+      return;
+    }
 
-    // attribute each completed Pomodoro to the active task; breaks are ignored.
-    // the previous-count ref keeps this idempotent if the effect re-runs.
-    if (completedPomodoros === previous + 1 && activeTaskId) {
+    handledSession.current = lastCompletedSession;
+
+    if (lastCompletedSession.mode === "pomodoro" && activeTaskId) {
       incrementTaskPomodoro(activeTaskId);
     }
-  }, [completedPomodoros, activeTaskId, incrementTaskPomodoro]);
+
+    addSession({
+      ...lastCompletedSession,
+      taskTitle:
+        lastCompletedSession.mode === "pomodoro"
+          ? (activeTask?.title ?? null)
+          : null,
+    });
+
+    notifySessionComplete(lastCompletedSession);
+  }, [
+    lastCompletedSession,
+    activeTaskId,
+    activeTask,
+    incrementTaskPomodoro,
+    addSession,
+    notifySessionComplete,
+  ]);
 
   function handleSelectTask(id: string) {
     if (status === "running") {
@@ -95,7 +129,10 @@ function App() {
 
   return (
     <main className="app">
-      <Header onOpenSettings={() => setIsSettingsOpen(true)} />
+      <Header
+        onOpenHistory={() => setIsHistoryOpen(true)}
+        onOpenSettings={() => setIsSettingsOpen(true)}
+      />
 
       <Timer
         activeTask={activeTask}
@@ -120,9 +157,18 @@ function App() {
         onDeleteTask={deleteTask}
       />
 
+      {isHistoryOpen && (
+        <HistoryModal
+          sessions={sessions}
+          onClose={() => setIsHistoryOpen(false)}
+        />
+      )}
+
       {isSettingsOpen && (
         <SettingsModal
           settings={settings}
+          notificationPermission={notificationPermission}
+          onEnableNotifications={requestPermission}
           onSave={handleSaveSettings}
           onClose={() => setIsSettingsOpen(false)}
         />

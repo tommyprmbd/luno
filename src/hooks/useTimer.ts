@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import type { CompletedSession } from "../types/session";
 import type { TimerMode, TimerStatus, TimerSettings } from "../types/timer";
 import { useTimerSettings } from "./useTimerSettings";
 
@@ -24,10 +25,22 @@ export function useTimer() {
     getDurationInSeconds("pomodoro", settings),
   );
   const [completedPomodoros, setCompletedPomodoros] = useState(0);
+  const [lastCompletedSession, setLastCompletedSession] =
+    useState<CompletedSession | null>(null);
+
+  // the duration of the session currently running, captured at start so a
+  // settings change mid-session does not rewrite its history record.
+  const sessionDurationRef = useRef(
+    getDurationInSeconds("pomodoro", settings),
+  );
 
   const start = useCallback(() => {
+    if (status === "idle") {
+      sessionDurationRef.current = remainingSeconds;
+    }
+
     setStatus("running");
-  }, []);
+  }, [remainingSeconds, status]);
 
   const pause = useCallback(() => {
     setStatus("paused");
@@ -73,6 +86,11 @@ export function useTimer() {
 
         // the current session has finished. the next session is selected, but never auto-started
         setStatus("idle");
+        setLastCompletedSession({
+          mode,
+          completedAt: Date.now(),
+          durationSeconds: sessionDurationRef.current,
+        });
 
         if (mode === "pomodoro") {
           const nextCompletedPomodoros = completedPomodoros + 1;
@@ -111,6 +129,7 @@ export function useTimer() {
     reset,
     changeMode,
     completedPomodoros,
+    lastCompletedSession,
     longBreakInterval: settings.longBreakInterval,
     settings,
     updateSettings,

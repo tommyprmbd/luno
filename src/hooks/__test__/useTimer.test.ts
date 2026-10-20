@@ -1,10 +1,11 @@
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { useTimer } from "../useTimer";
-import { TIMER_DURATION } from "../../constants/timer";
+import { DEFAULT_TIMER_SETTINGS, TIMER_DURATION } from "../../constants/timer";
 
 describe("useTimer", () => {
   beforeEach(() => {
+    localStorage.clear();
     vi.useFakeTimers();
   });
 
@@ -100,6 +101,96 @@ describe("useTimer", () => {
     expect(result.current.remainingSeconds).toBe(TIMER_DURATION["short-break"]);
     expect(result.current.mode).toBe("short-break");
     expect(result.current.status).toBe("idle");
+  });
+
+  it("should expose a completed session event", () => {
+    const { result } = renderHook(() => useTimer());
+
+    expect(result.current.lastCompletedSession).toBeNull();
+
+    act(() => {
+      result.current.start();
+    });
+
+    act(() => {
+      vi.advanceTimersByTime(TIMER_DURATION.pomodoro * 1000);
+    });
+
+    expect(result.current.lastCompletedSession).toEqual({
+      mode: "pomodoro",
+      completedAt: expect.any(Number),
+      durationSeconds: TIMER_DURATION.pomodoro,
+    });
+  });
+
+  it("should expose completed break sessions", () => {
+    const { result } = renderHook(() => useTimer());
+
+    act(() => {
+      result.current.start();
+    });
+
+    act(() => {
+      vi.advanceTimersByTime(TIMER_DURATION.pomodoro * 1000);
+    });
+
+    act(() => {
+      result.current.start();
+    });
+
+    act(() => {
+      vi.advanceTimersByTime(TIMER_DURATION["short-break"] * 1000);
+    });
+
+    expect(result.current.lastCompletedSession).toEqual({
+      mode: "short-break",
+      completedAt: expect.any(Number),
+      durationSeconds: TIMER_DURATION["short-break"],
+    });
+  });
+
+  it("should keep the original duration when settings change mid-session", () => {
+    const { result } = renderHook(() => useTimer());
+
+    act(() => {
+      result.current.start();
+    });
+
+    act(() => {
+      vi.advanceTimersByTime(3000);
+    });
+
+    act(() => {
+      result.current.updateSettings({
+        ...DEFAULT_TIMER_SETTINGS,
+        pomodoroDuration: 1800,
+      });
+    });
+
+    act(() => {
+      vi.advanceTimersByTime(
+        (TIMER_DURATION.pomodoro - 3) * 1000,
+      );
+    });
+
+    expect(result.current.lastCompletedSession?.durationSeconds).toBe(
+      TIMER_DURATION.pomodoro,
+    );
+  });
+
+  it("should not create a session when the timer is reset", () => {
+    const { result } = renderHook(() => useTimer());
+
+    act(() => {
+      result.current.start();
+      vi.advanceTimersByTime(5000);
+    });
+
+    act(() => {
+      result.current.reset();
+    });
+
+    expect(result.current.lastCompletedSession).toBeNull();
   });
 
   it("should switch to short break when pomodoro finishes", () => {

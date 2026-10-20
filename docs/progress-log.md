@@ -14,14 +14,19 @@ this consistent with [`roadmap.md`](./roadmap.md).
 | 2026-10-19 | MVP 1 | Phase 5 review: responsive screenshots (1280/768/375/320 px), all-completed/no-active-task state, axe-core audit (0 violations), contrast fixes, `main` landmark | 90 tests pass, build pass, lint clean; Phase 5 `DONE` |
 | 2026-10-19 | MVP 2.1.3 | Settings UI: header entry point + modal, validation, save/cancel, idle/running integration, component + integration tests | 99 tests pass, build pass, lint clean; MVP 2.1 `DONE` |
 | 2026-10-20 | MVP 2.2 | Task Tracking: per-task `completedPomodoros`, compact badge, active-task attribution in `App`, persistence/normalization, hook/UI/integration tests | 109 tests pass, build pass, lint clean; MVP 2.2 `DONE` |
+| 2026-10-20 | MVP 2.3 | Session History: completion event from `useTimer`, persisted `SessionRecord[]`, History modal with local-day focus summary, date/duration/reload/StrictMode tests, a11y + 320px review | 134 tests pass, build pass, lint clean; MVP 2.3 `DONE` |
+| 2026-10-20 | MVP 2.4 | Settings & Personalization: no additional preferences (no concrete need), saved-settings modal/reload tests, reset/default behavior coverage | 137 tests pass, build pass, lint clean; MVP 2.4 `DONE` |
+| 2026-10-20 | MVP 2.5 | Notifications: explicit permission request in Settings, one notification per completed focus/break session, denied/unsupported/reset handling, StrictMode dedupe | 152 tests pass, build pass, lint clean; MVP 2.5 `DONE` |
+| 2026-10-20 | Fix | History: a failing Notification API can no longer abort completion handling before the session is recorded; regression test added | 154 tests pass, build pass, lint clean |
+| 2026-10-20 | Fix | Notifications: prefer a service worker when available so browsers that reject `new Notification` still show completion notifications; direct constructor fallback; click opens the app | 155 tests pass, build pass, lint clean |
 
 ## Current next action
 
-**MVP 2.3 — Session History.**
+**MVP 2.7 — Persistence hardening.**
 
-Define the session record model, then record completed sessions from the same
-timer completion source used for task attribution. Cover date boundaries,
-reload behavior, and duration calculations.
+Session history is shape-validated but unbounded (KI-16) and has no schema
+version. Decide on retention/migration behavior, then add tests for quota and
+version handling.
 
 ### Already verified (no action needed)
 

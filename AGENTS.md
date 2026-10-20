@@ -36,11 +36,17 @@ a status.
   - `useTimerSettings` — persisted durations + interval, layered on `useLocalStorage`.
   - `useTasks` — task CRUD, active-task selection, its guards, and per-task
     completed-Pomodoro counts.
+  - `useSessions` — persisted completed-session history and local-day focus
+    summary helpers.
+  - `useNotifications` — browser notification permission and best-effort
+    completion notifications; no-op when denied or unsupported.
   - `useLocalStorage` — generic persisted state with a safe fallback on bad JSON.
 - `App.tsx` composes hooks/components and holds cross-cutting rules: it blocks
-  task/mode interaction while the timer is `running`, attributes a completed
-  Pomodoro to the active task, and sets `document.title`.
-- Shared vocabulary: `src/types/{timer,task}.ts`, `src/constants/{timer,storage}.ts`.
+  task/mode interaction while the timer is `running`, uses the timer's completed-
+  session event for task attribution, history, and notifications, and sets
+  `document.title`.
+- Shared vocabulary: `src/types/{timer,task,session,notification}.ts`,
+  `src/constants/{timer,storage}.ts`.
 
 ## Invariants — do not break these
 
@@ -56,6 +62,17 @@ a status.
 - Finishing a Pomodoro increments the active task's `completedPomodoros` but
   must **not** auto-complete the task. Breaks and sessions with no active task
   are not attributed.
+- **Only completed sessions are recorded.** Reset, pause, or an abandoned
+  session must not create a history record. History uses one completion event
+  from `useTimer`; do not add a second completion detector.
+- **Focus totals exclude breaks.** Break sessions are listed for context but
+  only completed Pomodoros count toward the daily focus total.
+- **Notifications are optional and permission-driven.** Request permission only
+  from the explicit Settings action, never automatically. Notify only when the
+  browser permission is `granted`; denied/unsupported browsers and rejected
+  requests are no-ops. One completion event may notify at most once.
+- **Session duration is captured at start**, so changing settings mid-session
+  cannot rewrite the running session's recorded duration.
 
 ## Testing quirks
 
@@ -69,16 +86,20 @@ a status.
   `vi.useRealTimers()` in a `finally` block.
 - An active task's title renders **twice** (timer label + task row) → use
   `getAllByText`, not `getByText`/`getByRole` text queries.
+- jsdom has no `Notification` API. Tests that exercise it stub a mock on
+  `globalThis` and unstub after each test; unsupported-browser tests pass
+  `undefined`.
 - No coverage thresholds are enforced; `npm run test:coverage` exists.
 
 ## Persistence
 
-- localStorage keys: `luno:tasks` (including per-task `completedPomodoros`) and
-  `luno:active-task-id` (via `STORAGE_KEY`);
-  timer settings still use the literal `"luno-timer-settings"` (not yet a
-  constant — see `docs/known-issues.md` KI-5).
+- localStorage keys: `luno:tasks` (including per-task `completedPomodoros`),
+  `luno:active-task-id`, and `luno:sessions` (via `STORAGE_KEY`); timer settings
+  still use the literal `"luno-timer-settings"` (not yet a constant — see
+  `docs/known-issues.md` KI-5). Session history is currently unbounded (KI-16).
 - Timer runtime state (remaining time, mode, count) is intentionally **not**
-  persisted; the timer resets on reload.
+  persisted; the timer resets on reload. Notification permission is owned by the
+  browser, not `localStorage`.
 
 ## Workflow & docs
 
