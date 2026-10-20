@@ -27,14 +27,14 @@ requirement to copy its exact design.
 - **Configuration over magic numbers:** timer durations and the long-break
   interval must come from settings, not hard-coded literals.
 
-## Current technical baseline (verified 2026-10-20, MVP 2.3)
+## Current technical baseline (verified 2026-10-20, MVP 2.4)
 
 Verified against the working tree by inspecting the repository and running the
 project scripts.
 
 - **Stack:** React 19 + TypeScript ~6.0 + Vite 8.
 - **Tests:** Vitest 5 + React Testing Library (`jsdom`), globals enabled, setup at
-  `src/test/setup.ts`. **134 tests across 14 files pass.**
+  `src/test/setup.ts`. **137 tests across 14 files pass.**
 - **Build:** `npm run build` (`tsc -b && vite build`) passes.
 - **Lint:** `npm run lint` is clean (`coverage/` and `dist/` ignored).
 - **Main app composition:** `App` composes `Header`, `Timer`, `TaskList`, and the

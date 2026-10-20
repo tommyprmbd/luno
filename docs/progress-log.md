@@ -15,6 +15,7 @@ this consistent with [`roadmap.md`](./roadmap.md).
 | 2026-10-19 | MVP 2.1.3 | Settings UI: header entry point + modal, validation, save/cancel, idle/running integration, component + integration tests | 99 tests pass, build pass, lint clean; MVP 2.1 `DONE` |
 | 2026-10-20 | MVP 2.2 | Task Tracking: per-task `completedPomodoros`, compact badge, active-task attribution in `App`, persistence/normalization, hook/UI/integration tests | 109 tests pass, build pass, lint clean; MVP 2.2 `DONE` |
 | 2026-10-20 | MVP 2.3 | Session History: completion event from `useTimer`, persisted `SessionRecord[]`, History modal with local-day focus summary, date/duration/reload/StrictMode tests, a11y + 320px review | 134 tests pass, build pass, lint clean; MVP 2.3 `DONE` |
+| 2026-10-20 | MVP 2.4 | Settings & Personalization: no additional preferences (no concrete need), saved-settings modal/reload tests, reset/default behavior coverage | 137 tests pass, build pass, lint clean; MVP 2.4 `DONE` |
 
 ## Current next action
 

@@ -90,6 +90,46 @@ describe("App", () => {
     ).toBe(1500);
   });
 
+  it("should show saved settings when reopened", async () => {
+    const user = userEvent.setup();
+
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: "Settings" }));
+
+    const pomodoro = screen.getByLabelText("Pomodoro duration (minutes)");
+
+    await user.clear(pomodoro);
+    await user.type(pomodoro, "30");
+    await user.click(screen.getByRole("button", { name: "SAVE" }));
+
+    await user.click(screen.getByRole("button", { name: "Settings" }));
+
+    expect(
+      screen.getByLabelText("Pomodoro duration (minutes)"),
+    ).toHaveValue(30);
+  });
+
+  it("should keep saved settings after reload", async () => {
+    const user = userEvent.setup();
+    const { unmount } = render(<App />);
+
+    await user.click(screen.getByRole("button", { name: "Settings" }));
+
+    const pomodoro = screen.getByLabelText("Pomodoro duration (minutes)");
+
+    await user.clear(pomodoro);
+    await user.type(pomodoro, "30");
+    await user.click(screen.getByRole("button", { name: "SAVE" }));
+
+    expect(screen.getByRole("timer")).toHaveTextContent("30:00");
+
+    unmount();
+    render(<App />);
+
+    expect(screen.getByRole("timer")).toHaveTextContent("30:00");
+  });
+
   it("should keep a running session duration and apply settings on reset", () => {
     vi.useFakeTimers();
 

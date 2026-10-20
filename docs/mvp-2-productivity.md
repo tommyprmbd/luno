@@ -4,8 +4,8 @@
 minimalist single-page experience.
 
 **Overall status:** `PARTIAL`. MVP 2.1 (Custom Timer, including the Settings UI),
-MVP 2.2 (Task Tracking), and MVP 2.3 (Session History) are `DONE`. MVP 2.4, 2.6,
-and 2.7 remain `PARTIAL`; MVP 2.5 is `TODO`.
+MVP 2.2 (Task Tracking), MVP 2.3 (Session History), and MVP 2.4 (Settings &
+Personalization) are `DONE`. MVP 2.6 and 2.7 remain `PARTIAL`; MVP 2.5 is `TODO`.
 
 ---
 
@@ -145,19 +145,29 @@ dashboard. Session retention is currently unbounded (see KI-16).
 
 ---
 
-## MVP 2.4 — Settings & Personalization — `PARTIAL`
+## MVP 2.4 — Settings & Personalization — `DONE`
 
 - [x] Provide a settings modal consistent with the minimalist UI (2.1.3).
 - [x] Timer settings from MVP 2.1 exist in the model/persistence layer.
-- [ ] Define any additional preferences only when there is a concrete user need.
+- [x] Define any additional preferences only when there is a concrete user need.
+      **Decision: none added.** Durations and the long-break interval cover the
+      current need; no preferences page or extra toggles were introduced.
 - [x] Preferences (timer settings) persist locally.
 - [x] Provide sensible defaults and safe handling for missing/invalid values
-      (defaults exist; invalid values now normalized in `useTimerSettings`).
+      (defaults exist; invalid values are normalized in `useTimerSettings`).
 - [x] Tests for settings persistence exist (`useTimerSettings.test.ts`).
-- [ ] `TODO`: reset/default-behavior tests beyond initial-load defaults.
+- [x] Reset/default behavior is tested beyond initial-load defaults: saved
+      non-default values render when the modal reopens, settings survive reload,
+      reset after a mid-session settings change uses the new duration, cancel
+      discards the draft, and missing/invalid storage falls back to defaults
+      (`SettingsModal.test.tsx`, `App.test.tsx`, `useTimerSettings.test.ts`).
 
-**Scope note:** Custom Timer is the first settings feature. Avoid expanding this
-into a large preferences page prematurely.
+**Evidence:** `npm test` → 137 passed / 14 files; `npm run build` → pass;
+`npm run lint` → clean.
+
+**Scope note:** Custom Timer is the first settings feature. No further
+preferences were added without a concrete request; keep this from expanding into
+a large preferences page prematurely.
 
 ---
 

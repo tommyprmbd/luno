@@ -2,15 +2,16 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { DEFAULT_TIMER_SETTINGS } from "../../../constants/timer";
+import type { TimerSettings } from "../../../types/timer";
 import SettingsModal from "../SettingsModal";
 
-function renderModal() {
+function renderModal(settings: TimerSettings = { ...DEFAULT_TIMER_SETTINGS }) {
   const onSave = vi.fn();
   const onClose = vi.fn();
 
   render(
     <SettingsModal
-      settings={{ ...DEFAULT_TIMER_SETTINGS }}
+      settings={settings}
       onSave={onSave}
       onClose={onClose}
     />,
@@ -43,6 +44,28 @@ describe("SettingsModal", () => {
     expect(
       screen.getByLabelText("Pomodoro duration (minutes)"),
     ).toHaveFocus();
+  });
+
+  it("should show saved settings instead of defaults", () => {
+    renderModal({
+      pomodoroDuration: 1800,
+      shortBreakDuration: 600,
+      longBreakDuration: 1200,
+      longBreakInterval: 3,
+    });
+
+    expect(
+      screen.getByLabelText("Pomodoro duration (minutes)"),
+    ).toHaveValue(30);
+    expect(
+      screen.getByLabelText("Short break duration (minutes)"),
+    ).toHaveValue(10);
+    expect(
+      screen.getByLabelText("Long break duration (minutes)"),
+    ).toHaveValue(20);
+    expect(
+      screen.getByLabelText("Long break interval (Pomodoros)"),
+    ).toHaveValue(3);
   });
 
   it("should save minutes as seconds", async () => {
