@@ -13,10 +13,13 @@ Luno is a small React + TypeScript single-page app with a clear separation:
   - `useTimerSettings` — persisted timer settings, layered on `useLocalStorage`.
   - `useTasks` — task CRUD, active-task selection, its guards, and per-task
     completed-Pomodoro counts.
+  - `useSessions` — persisted completed-session history plus local-day focus
+    summary/duration helpers.
   - `useLocalStorage` — generic persisted state with a safe fallback.
 - **`App`** composes the hooks and components and enforces cross-cutting rules
-  (blocking task/mode interactions while the timer is running, attributing a
-  completed Pomodoro to the active task, and updating `document.title`).
+  (blocking task/mode interactions while the timer is running, handling the
+  timer's single completed-session event for both task attribution and history,
+  and updating `document.title`).
 - **Constants** (`constants/timer.ts`, `constants/storage.ts`) and **types**
   (`types/timer.ts`, `types/task.ts`) are the shared vocabulary.
 
@@ -24,15 +27,16 @@ Luno is a small React + TypeScript single-page app with a clear separation:
 
 ```text
 localStorage ──► useLocalStorage ──► useTimerSettings ──► useTimer
-                                              │
-                                              ▼
-                                  App (composition + guards)
-                                   │        │            │
-                                   ▼        ▼            ▼
-                                 Timer   TaskList   SettingsModal
-                                          │
-                                          ▼
-                                      TaskItem
+       │                                                      │
+       │                                                      ▼
+       │                          App (composition + guards + completion event)
+       │                           │        │          │            │
+       │                           ▼        ▼          ▼            ▼
+       │                         Timer   TaskList  HistoryModal  SettingsModal
+       │                                  │
+       │                                  ▼
+       │                              TaskItem
+       └──► useSessions ────────────────────────────────────────► (history data)
 ```
 
 ## Rules when working on Luno
@@ -47,7 +51,8 @@ localStorage ──► useLocalStorage ──► useTimerSettings ──► useT
    components present state and emit user actions.
 4. **Use a single source of truth.** Completed Pomodoro counts, mode selection,
    task attribution, and session history must not be independently calculated in
-   conflicting places.
+   conflicting places. `useTimer` emits one completed-session event; `App` uses it
+   for both task counts and history.
 5. **Respect manual lifecycle.** A mode transition sets up the next mode but does
    not start it. The user presses **START** for every new session.
 6. **Use configuration, not magic numbers.** Timer durations and the long-break
@@ -57,7 +62,7 @@ localStorage ──► useLocalStorage ──► useTimerSettings ──► useT
    title appears in the timer label and the task row.
 8. **Add regression tests with behavior changes.** Especially cover timer
    completion, reset, completed-session counts, long-break interval, manual start,
-   task deletion, and persistence.
+   task deletion, session history/date boundaries, and persistence.
 9. **Keep changes scoped.** Finish and verify the current subphase before
    beginning the next one.
 10. **Do not claim a phase is complete without evidence.** Run the relevant

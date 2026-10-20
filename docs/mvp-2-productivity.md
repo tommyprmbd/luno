@@ -3,8 +3,9 @@
 **Goal:** make Luno useful for tracking focused work while preserving the
 minimalist single-page experience.
 
-**Overall status:** `PARTIAL`. MVP 2.1 (Custom Timer, including the Settings UI)
-and MVP 2.2 (Task Tracking) are `DONE`; milestones 2.3–2.7 are not implemented.
+**Overall status:** `PARTIAL`. MVP 2.1 (Custom Timer, including the Settings UI),
+MVP 2.2 (Task Tracking), and MVP 2.3 (Session History) are `DONE`. MVP 2.4, 2.6,
+and 2.7 remain `PARTIAL`; MVP 2.5 is `TODO`.
 
 ---
 
@@ -65,8 +66,8 @@ and MVP 2.2 (Task Tracking) are `DONE`; milestones 2.3–2.7 are not implemented
 **Evidence:** `npm test` → 99 passed / 12 files; `npm run build` → pass;
 `npm run lint` → clean.
 
-**Next action:** MVP **2.3 — Session History** (build on the timer's completion
-source used by 2.2).
+**Next action:** MVP **2.7 — Persistence hardening** (session retention/schema),
+then MVP **2.5 — Notifications**.
 
 ---
 
@@ -98,31 +99,49 @@ source used by 2.2).
 the active task from 2 to 3 and persisted the value.
 
 **Design constraint:** progress enriches the existing task list; no dashboard or
-separate history UI was added. Breaks are never counted as task Pomodoros. The
-attribution uses the timer's completed-Pomodoro counter as the single completion
-source; MVP 2.3 should record session history from that same source instead of
-adding a second completion detector.
+separate task-progress UI was added. Breaks are never counted as task Pomodoros.
+The timer's completion event is the single source for both task attribution and
+history; do not add a second completion detector.
 
 ---
 
-## MVP 2.3 — Session History (`P0`) — `TODO`
+## MVP 2.3 — Session History (`P0`) — `DONE`
 
 **Goal:** let users understand how much focused work they have completed.
 
-- [ ] Define a session record model (mode/type, start/end or completion time,
-      duration, completion status, associated task where applicable).
-- [ ] Record completed sessions consistently.
-- [ ] Decide whether interrupted/abandoned sessions are stored; do not count them
-      as completed without an explicit rule.
-- [ ] Show a simple session history.
-- [ ] Calculate total focus duration.
-- [ ] Show a daily summary.
-- [ ] Persist history locally.
-- [ ] Test date boundaries, reload behavior, and duration calculations.
+- [x] Define a session record model: `SessionRecord` (`src/types/session.ts`)
+      stores `mode`, `completedAt`, `durationSeconds`, and a `taskTitle` snapshot.
+      Completion status is represented by existence: only completed sessions are
+      written.
+- [x] Record completed sessions consistently: `useTimer` emits one
+      `lastCompletedSession` event on every completion (Pomodoro or break);
+      `App` records it and uses the same event for task attribution.
+- [x] Decide whether interrupted/abandoned sessions are stored: **no**. Reset,
+      pause, and manual mode changes never create a record; a test covers reset.
+- [x] Show a simple session history: a header "History" button opens a modal
+      listing sessions newest first with local date/time, mode, task, and duration.
+- [x] Calculate total focus duration: the modal shows an all-time focus total as
+      well as today's; both sum only completed Pomodoro durations. Breaks are
+      listed but excluded from focus totals.
+- [x] Show a daily summary: "N focus session(s) · Xh Ym focused" for the current
+      local calendar day.
+- [x] Persist history locally: `luno:sessions`; malformed records are dropped on
+      load. The task title is snapshotted so history survives task deletion.
+- [x] Test date boundaries, reload behavior, and duration calculations
+      (`useSessions.test.ts`, `useTimer.test.ts`, `HistoryModal.test.tsx`,
+      `App.test.tsx`). Local-midnight boundaries use local date keys, not UTC.
 
-**Dependency:** agree on the session data model before implementing history UI.
-Task Tracking (2.2) uses the timer's completed-Pomodoro counter as the single
-completion source; history must build on that source, not add another.
+**Evidence:** `npm test` → 134 passed / 14 files; `npm run build` → pass;
+`npm run lint` → clean. Browser check: completing a session appended it to
+`luno:sessions`, incremented the task count, and updated the history summary;
+axe-core audits of the history modal at desktop/375/320 px: 0 violations.
+
+**Design decisions:** the completed-session event is the single source of truth
+for both task counts and history. The session duration is captured when the timer
+starts, so changing settings mid-session cannot rewrite an already-running
+session's recorded duration. Breaks are stored for context but never counted as
+focus. The modal is read-only and intentionally small: no charts, filters, or
+dashboard. Session retention is currently unbounded (see KI-16).
 
 ---
 
@@ -168,18 +187,19 @@ into a large preferences page prematurely.
 
 ## MVP 2.7 — Data & Persistence Improvements — `PARTIAL`
 
-- [ ] Document which data is persisted: tasks, timer settings, task progress,
-      session history, and any other user preferences.
-      *(Currently: tasks including per-task Pomodoro counts, active-task id, and
-      timer settings. See `constants/storage.ts`.)*
+- [x] Document which data is persisted: tasks (including per-task Pomodoro
+      counts), active-task id, timer settings, and session history.
+      See `constants/storage.ts` and `architecture.md`.
 - [ ] Define schema/versioning or migration behavior for persisted local data.
+      *(Session records are shape-validated, but there is no version field.)*
 - [x] Validate persisted timer settings shape/range (`useTimerSettings`; KI-6).
 - [x] Validate persisted task data shape (`useTasks`; KI-12).
+- [x] Validate persisted session history shape (`useSessions`).
 - [x] Handle malformed or unavailable local storage safely (per-key `try/catch` in
       `useLocalStorage`, with fallback to the initial value; tested).
-- [x] Reload behavior verified for tasks and settings.
-- [ ] Prevent duplicate session records after rerenders/repeated completions
-      (not applicable until session history exists).
+- [x] Reload behavior verified for tasks, settings, and session history.
+- [x] Prevent duplicate session records after rerenders/repeated completions
+      (the App effect dedupes the completion event; StrictMode test added).
 - [ ] Add tests for persistence and data consistency (broader coverage pending).
 
 **Important:** local persistence is not the same as cloud backup or cross-device
@@ -194,9 +214,10 @@ synchronization. Cloud sync is not part of MVP 2.
 - [x] Mode transitions remain manual-start.
 - [x] Completed Pomodoros are reliably attributed to tasks when appropriate
       (only when a task is active; breaks and no-task sessions are ignored).
-- [ ] Session history and daily focus totals are correct.
+- [x] Session history and daily focus totals are correct (local-day summary;
+      breaks excluded; date-boundary tests pass).
 - [ ] Browser notifications degrade gracefully.
-- [ ] All data intended to persist survives reload (`PARTIAL`: tasks, task
-      progress, and settings persist; session history is not implemented).
+- [x] All data intended to persist survives reload (tasks, task progress,
+      active task, settings, and session history).
 - [x] Tests and production build pass.
 - [x] The app remains lightweight and easy to use.

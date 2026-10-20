@@ -1,4 +1,5 @@
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { StrictMode } from "react";
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import App from "./App";
@@ -595,6 +596,193 @@ describe("App", () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+
+  it("should record a completed pomodoro session", () => {
+    localStorage.setItem(
+      "luno:tasks",
+      JSON.stringify([
+        { id: "task-1", title: "Build Luno", completed: false, completedPomodoros: 0 },
+      ]),
+    );
+    localStorage.setItem("luno:active-task-id", JSON.stringify("task-1"));
+
+    vi.useFakeTimers();
+
+    try {
+      render(<App />);
+
+      act(() => {
+        screen.getByRole("button", { name: "START" }).click();
+      });
+
+      act(() => {
+        vi.advanceTimersByTime(TIMER_DURATION.pomodoro * 1000);
+      });
+
+      const stored = JSON.parse(localStorage.getItem("luno:sessions")!);
+
+      expect(stored).toHaveLength(1);
+      expect(stored[0]).toMatchObject({
+        mode: "pomodoro",
+        durationSeconds: TIMER_DURATION.pomodoro,
+        taskTitle: "Build Luno",
+      });
+      expect(stored[0].completedAt).toEqual(expect.any(Number));
+
+      act(() => {
+        screen.getByRole("button", { name: "History" }).click();
+      });
+
+      const dialog = screen.getByRole("dialog", { name: "Session history" });
+
+      expect(dialog).toBeInTheDocument();
+      expect(screen.getByText("1 focus session")).toBeInTheDocument();
+      expect(within(dialog).getAllByRole("listitem")).toHaveLength(1);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("should record breaks without attributing them to a task", () => {
+    localStorage.setItem(
+      "luno:tasks",
+      JSON.stringify([
+        { id: "task-1", title: "Build Luno", completed: false, completedPomodoros: 0 },
+      ]),
+    );
+    localStorage.setItem("luno:active-task-id", JSON.stringify("task-1"));
+
+    vi.useFakeTimers();
+
+    try {
+      render(<App />);
+
+      act(() => {
+        screen.getByRole("button", { name: "START" }).click();
+      });
+
+      act(() => {
+        vi.advanceTimersByTime(TIMER_DURATION.pomodoro * 1000);
+      });
+
+      act(() => {
+        screen.getByRole("button", { name: "START" }).click();
+      });
+
+      act(() => {
+        vi.advanceTimersByTime(TIMER_DURATION["short-break"] * 1000);
+      });
+
+      const stored = JSON.parse(localStorage.getItem("luno:sessions")!);
+
+      expect(stored.map((session: { mode: string }) => session.mode)).toEqual([
+        "pomodoro",
+        "short-break",
+      ]);
+      expect(stored[0].taskTitle).toBe("Build Luno");
+      expect(stored[1].taskTitle).toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("should record a focus session without an active task", () => {
+    localStorage.setItem(
+      "luno:tasks",
+      JSON.stringify([
+        { id: "task-1", title: "Build Luno", completed: false, completedPomodoros: 0 },
+      ]),
+    );
+
+    vi.useFakeTimers();
+
+    try {
+      render(<App />);
+
+      act(() => {
+        screen.getByRole("button", { name: "START" }).click();
+      });
+
+      act(() => {
+        vi.advanceTimersByTime(TIMER_DURATION.pomodoro * 1000);
+      });
+
+      const stored = JSON.parse(localStorage.getItem("luno:sessions")!);
+
+      expect(stored).toHaveLength(1);
+      expect(stored[0].taskTitle).toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("should record only one session per completion in StrictMode", () => {
+    localStorage.setItem(
+      "luno:tasks",
+      JSON.stringify([
+        { id: "task-1", title: "Build Luno", completed: false, completedPomodoros: 0 },
+      ]),
+    );
+    localStorage.setItem("luno:active-task-id", JSON.stringify("task-1"));
+
+    vi.useFakeTimers();
+
+    try {
+      render(
+        <StrictMode>
+          <App />
+        </StrictMode>,
+      );
+
+      act(() => {
+        screen.getByRole("button", { name: "START" }).click();
+      });
+
+      act(() => {
+        vi.advanceTimersByTime(TIMER_DURATION.pomodoro * 1000);
+      });
+
+      expect(JSON.parse(localStorage.getItem("luno:sessions")!)).toHaveLength(1);
+      expect(
+        JSON.parse(localStorage.getItem("luno:tasks")!)[0].completedPomodoros,
+      ).toBe(1);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("should show persisted history after reload", async () => {
+    const now = new Date();
+    const todayAt = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      10,
+      0,
+    ).getTime();
+
+    localStorage.setItem(
+      "luno:sessions",
+      JSON.stringify([
+        {
+          mode: "pomodoro",
+          completedAt: todayAt,
+          durationSeconds: 1500,
+          taskTitle: "Build Luno",
+        },
+      ]),
+    );
+
+    const user = userEvent.setup();
+
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: "History" }));
+
+    expect(screen.getByText("1 focus session")).toBeInTheDocument();
+    expect(screen.getByText("25m focused")).toBeInTheDocument();
+    expect(screen.getByText("Build Luno")).toBeInTheDocument();
   });
 
   it("should not allow changing timer mode while running", () => {

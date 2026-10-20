@@ -27,31 +27,35 @@ requirement to copy its exact design.
 - **Configuration over magic numbers:** timer durations and the long-break
   interval must come from settings, not hard-coded literals.
 
-## Current technical baseline (verified 2026-10-20)
+## Current technical baseline (verified 2026-10-20, MVP 2.3)
 
 Verified against the working tree by inspecting the repository and running the
 project scripts.
 
 - **Stack:** React 19 + TypeScript ~6.0 + Vite 8.
 - **Tests:** Vitest 5 + React Testing Library (`jsdom`), globals enabled, setup at
-  `src/test/setup.ts`. **109 tests across 12 files pass.**
+  `src/test/setup.ts`. **134 tests across 14 files pass.**
 - **Build:** `npm run build` (`tsc -b && vite build`) passes.
 - **Lint:** `npm run lint` is clean (`coverage/` and `dist/` ignored).
 - **Main app composition:** `App` composes `Header`, `Timer`, `TaskList`, and the
   `SettingsModal` (opened from the header).
-- **Hooks:** `useTimer`, `useTimerSettings`, `useTasks`, `useLocalStorage`.
+- **Hooks:** `useTimer`, `useTimerSettings`, `useTasks`, `useSessions`,
+  `useLocalStorage`.
 - **Timer UI:** `TimerDisplay`, `TimerMode`, `TimerControls`, `TimerProgress`.
 - **Task UI:** `TaskList`, `TaskItem`.
+- **History UI:** `HistoryModal` (daily focus summary + session list).
 - **Settings UI:** `SettingsModal` (durations + long-break interval).
 - **Types:** `src/types/timer.ts` (`TimerMode`, `TimerStatus`, `TimerSettings`),
-  `src/types/task.ts` (`Task`).
+  `src/types/task.ts` (`Task`), `src/types/session.ts` (`SessionRecord`).
 - **Constants:** `src/constants/timer.ts` (`TIMER_DURATION`,
   `DEFAULT_TIMER_SETTINGS`), `src/constants/storage.ts` (`STORAGE_KEY`).
 - **Task tracking:** each task stores its completed-Pomodoro count; `App`
   attributes a finished Pomodoro to the active task.
+- **Session history:** each completed session stores mode, completion time,
+  duration, and a task-title snapshot. Only completed sessions are recorded.
 - **Local persistence:** tasks (including per-task Pomodoro counts), active-task
-  id, and timer settings are persisted in `localStorage`. Timer runtime state is
-  intentionally not persisted.
+  id, timer settings, and session history are persisted in `localStorage`. Timer
+  runtime state is intentionally not persisted.
 
 ## Repository map
 
@@ -59,14 +63,15 @@ project scripts.
 src/
 ├── components/
 │   ├── Header/        Header.tsx
+│   ├── History/       HistoryModal.tsx (+ __tests__)
 │   ├── Settings/      SettingsModal.tsx (+ __tests__)
 │   ├── Tasks/         TaskList.tsx, TaskItem.tsx (+ __tests__)
 │   └── Timer/         Timer.tsx, TimerDisplay.tsx, TimerMode.tsx,
 │                      TimerControls.tsx, TimerProgress.tsx (+ __tests__)
 ├── constants/         timer.ts, storage.ts
 ├── hooks/             useTimer.ts, useTimerSettings.ts, useTasks.ts,
-│                      useLocalStorage.ts (+ __test__)
-├── types/             timer.ts, task.ts
+│                      useSessions.ts, useLocalStorage.ts (+ __test__)
+├── types/             timer.ts, task.ts, session.ts
 ├── test/              setup.ts
 ├── App.tsx / App.css / App.test.tsx
 ├── index.css
@@ -85,4 +90,7 @@ src/
    controls; finishing a Pomodoro increments that task's count but does **not**
    auto-complete the task. Breaks and sessions with no active task are not
    attributed.
-4. **Local-first.** No backend, accounts, or sync in MVP 1/2.
+4. **History includes only completed sessions.** Reset, pause, or abandoned
+   sessions are never recorded. Breaks appear in history for context but are
+   excluded from daily focus totals.
+5. **Local-first.** No backend, accounts, or sync in MVP 1/2.

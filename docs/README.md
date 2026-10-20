@@ -9,7 +9,7 @@
 
 | Check | Command | Result |
 | --- | --- | --- |
-| Tests | `npm test` | 109 passed / 12 files |
+| Tests | `npm test` | 134 passed / 14 files |
 | Build | `npm run build` | pass (`tsc -b && vite build`) |
 | Lint | `npm run lint` | clean (0 errors, 0 warnings) |
 

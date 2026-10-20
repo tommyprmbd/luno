@@ -119,7 +119,7 @@ function SettingsModal({ settings, onSave, onClose }: SettingsModalProps) {
 
   return (
     <div
-      className="settings-backdrop"
+      className="modal-backdrop"
       onClick={(event) => {
         if (event.target === event.currentTarget) {
           onClose();
@@ -127,7 +127,7 @@ function SettingsModal({ settings, onSave, onClose }: SettingsModalProps) {
       }}
     >
       <div
-        className="settings-modal"
+        className="modal"
         role="dialog"
         aria-modal="true"
         aria-labelledby="settings-title"
