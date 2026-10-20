@@ -15,13 +15,16 @@ Luno is a small React + TypeScript single-page app with a clear separation:
     completed-Pomodoro counts.
   - `useSessions` — persisted completed-session history plus local-day focus
     summary/duration helpers.
+  - `useNotifications` — browser permission state and best-effort completion
+    notifications; no-op when denied or unsupported.
   - `useLocalStorage` — generic persisted state with a safe fallback.
 - **`App`** composes the hooks and components and enforces cross-cutting rules
   (blocking task/mode interactions while the timer is running, handling the
-  timer's single completed-session event for both task attribution and history,
-  and updating `document.title`).
+  timer's single completed-session event for both task attribution, history, and
+  notifications, and updating `document.title`).
 - **Constants** (`constants/timer.ts`, `constants/storage.ts`) and **types**
-  (`types/timer.ts`, `types/task.ts`) are the shared vocabulary.
+  (`types/timer.ts`, `types/task.ts`, `types/session.ts`,
+  `types/notification.ts`) are the shared vocabulary.
 
 ### Data flow
 
@@ -57,19 +60,24 @@ localStorage ──► useLocalStorage ──► useTimerSettings ──► useT
    not start it. The user presses **START** for every new session.
 6. **Use configuration, not magic numbers.** Timer durations and the long-break
    interval must come from settings (this now includes `TimerProgress`).
-7. **Test behavior, not implementation details.** Prefer observable outcomes and
+7. **Notifications are permission-driven and best-effort.** Request permission
+   only from the explicit Settings action, never automatically. Denied or
+   unsupported browsers stay fully usable, and one completion event must not
+   notify twice.
+8. **Test behavior, not implementation details.** Prefer observable outcomes and
    stable accessible queries. Avoid ambiguous text selectors when the same task
    title appears in the timer label and the task row.
-8. **Add regression tests with behavior changes.** Especially cover timer
+9. **Add regression tests with behavior changes.** Especially cover timer
    completion, reset, completed-session counts, long-break interval, manual start,
-   task deletion, session history/date boundaries, and persistence.
-9. **Keep changes scoped.** Finish and verify the current subphase before
-   beginning the next one.
-10. **Do not claim a phase is complete without evidence.** Run the relevant
+   task deletion, session history/date boundaries, persistence, and notification
+   permission/support states.
+10. **Keep changes scoped.** Finish and verify the current subphase before
+    beginning the next one.
+11. **Do not claim a phase is complete without evidence.** Run the relevant
     tests/build and update the docs with the actual outcome.
-11. **Keep UI minimal.** Prefer a small modal or inline feedback over a new page
+12. **Keep UI minimal.** Prefer a small modal or inline feedback over a new page
     or complex dashboard.
-12. **Do not implement MVP 3 scope without explicit approval.**
+13. **Do not implement MVP 3 scope without explicit approval.**
 
 ## Suggested workflow for each task
 

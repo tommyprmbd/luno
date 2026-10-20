@@ -2,22 +2,29 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { DEFAULT_TIMER_SETTINGS } from "../../../constants/timer";
+import type { NotificationPermissionState } from "../../../types/notification";
 import type { TimerSettings } from "../../../types/timer";
 import SettingsModal from "../SettingsModal";
 
-function renderModal(settings: TimerSettings = { ...DEFAULT_TIMER_SETTINGS }) {
+function renderModal(
+  settings: TimerSettings = { ...DEFAULT_TIMER_SETTINGS },
+  notificationPermission: NotificationPermissionState = "default",
+) {
   const onSave = vi.fn();
   const onClose = vi.fn();
+  const onEnableNotifications = vi.fn();
 
   render(
     <SettingsModal
       settings={settings}
+      notificationPermission={notificationPermission}
+      onEnableNotifications={onEnableNotifications}
       onSave={onSave}
       onClose={onClose}
     />,
   );
 
-  return { onSave, onClose, user: userEvent.setup() };
+  return { onSave, onClose, onEnableNotifications, user: userEvent.setup() };
 }
 
 describe("SettingsModal", () => {
@@ -25,7 +32,7 @@ describe("SettingsModal", () => {
     renderModal();
 
     expect(
-      screen.getByRole("dialog", { name: "Timer settings" }),
+      screen.getByRole("dialog", { name: "Settings" }),
     ).toBeInTheDocument();
 
     expect(
@@ -66,6 +73,38 @@ describe("SettingsModal", () => {
     expect(
       screen.getByLabelText("Long break interval (Pomodoros)"),
     ).toHaveValue(3);
+  });
+
+  it("should explain notifications and request permission", async () => {
+    const { onEnableNotifications, user } = renderModal();
+
+    expect(
+      screen.getByText(
+        "Get a browser notification when a timer session finishes.",
+      ),
+    ).toBeInTheDocument();
+
+    await user.click(
+      screen.getByRole("button", { name: "ENABLE NOTIFICATIONS" }),
+    );
+
+    expect(onEnableNotifications).toHaveBeenCalledOnce();
+  });
+
+  it.each([
+    ["granted", "Notifications are enabled."],
+    [
+      "denied",
+      "Notifications are blocked. Allow them in your browser settings.",
+    ],
+    ["unsupported", "This browser does not support notifications."],
+  ] as const)("should show the %s notification state", (permission, text) => {
+    renderModal(undefined, permission);
+
+    expect(screen.getByText(text)).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "ENABLE NOTIFICATIONS" }),
+    ).not.toBeInTheDocument();
   });
 
   it("should save minutes as seconds", async () => {

@@ -14,6 +14,7 @@ Luno helps you focus on one task at a time using the Pomodoro technique, with au
 - Customizable session durations and long-break interval
 - Per-task Pomodoro count
 - Session history with a daily focus summary
+- Optional browser notifications when a session ends
 - Pomodoro progress tracking
 - Pause, resume, and reset timer
 - Persistent tasks and timer-related state using local storage

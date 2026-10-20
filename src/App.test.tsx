@@ -1,13 +1,39 @@
 import { StrictMode } from "react";
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import App from "./App";
 import { TIMER_DURATION } from "./constants/timer";
+
+type SentNotification = {
+  title: string;
+  options?: NotificationOptions;
+};
+
+let sentNotifications: SentNotification[] = [];
+
+class MockNotification {
+  static permission: NotificationPermission = "default";
+  static requestPermission = vi.fn(async () => MockNotification.permission);
+
+  constructor(title: string, options?: NotificationOptions) {
+    sentNotifications.push({ title, options });
+  }
+}
 
 describe("App", () => {
   beforeEach(() => {
     localStorage.clear();
+    sentNotifications = [];
+    MockNotification.permission = "default";
+    MockNotification.requestPermission = vi.fn(
+      async () => MockNotification.permission,
+    );
+    vi.stubGlobal("Notification", MockNotification);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
   });
 
   it("should render the timer and task list", () => {
@@ -128,6 +154,33 @@ describe("App", () => {
     render(<App />);
 
     expect(screen.getByRole("timer")).toHaveTextContent("30:00");
+  });
+
+  it("should request notification permission from settings", async () => {
+    const user = userEvent.setup();
+
+    MockNotification.requestPermission.mockImplementation(async () => {
+      MockNotification.permission = "granted";
+      return "granted";
+    });
+
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: "Settings" }));
+
+    expect(
+      screen.getByText(
+        "Get a browser notification when a timer session finishes.",
+      ),
+    ).toBeInTheDocument();
+
+    await user.click(
+      screen.getByRole("button", { name: "ENABLE NOTIFICATIONS" }),
+    );
+
+    expect(
+      await screen.findByText("Notifications are enabled."),
+    ).toBeInTheDocument();
   });
 
   it("should keep a running session duration and apply settings on reset", () => {
@@ -757,7 +810,8 @@ describe("App", () => {
     }
   });
 
-  it("should record only one session per completion in StrictMode", () => {
+  it("should record and notify only once per completion in StrictMode", () => {
+    MockNotification.permission = "granted";
     localStorage.setItem(
       "luno:tasks",
       JSON.stringify([
@@ -784,9 +838,131 @@ describe("App", () => {
       });
 
       expect(JSON.parse(localStorage.getItem("luno:sessions")!)).toHaveLength(1);
+      expect(sentNotifications).toHaveLength(1);
       expect(
         JSON.parse(localStorage.getItem("luno:tasks")!)[0].completedPomodoros,
       ).toBe(1);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("should notify when a focus or break session completes", () => {
+    MockNotification.permission = "granted";
+
+    vi.useFakeTimers();
+
+    try {
+      render(<App />);
+
+      act(() => {
+        screen.getByRole("button", { name: "START" }).click();
+      });
+
+      act(() => {
+        vi.advanceTimersByTime(TIMER_DURATION.pomodoro * 1000);
+      });
+
+      act(() => {
+        screen.getByRole("button", { name: "START" }).click();
+      });
+
+      act(() => {
+        vi.advanceTimersByTime(TIMER_DURATION["short-break"] * 1000);
+      });
+
+      expect(sentNotifications).toEqual([
+        {
+          title: "Pomodoro complete",
+          options: {
+            body: "Time for a break.",
+            tag: "luno-session-complete",
+          },
+        },
+        {
+          title: "Short break complete",
+          options: {
+            body: "Ready for another Pomodoro?",
+            tag: "luno-session-complete",
+          },
+        },
+      ]);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("should keep working without notifications when permission is denied", () => {
+    MockNotification.permission = "denied";
+
+    vi.useFakeTimers();
+
+    try {
+      render(<App />);
+
+      act(() => {
+        screen.getByRole("button", { name: "START" }).click();
+      });
+
+      act(() => {
+        vi.advanceTimersByTime(TIMER_DURATION.pomodoro * 1000);
+      });
+
+      expect(sentNotifications).toEqual([]);
+      expect(
+        screen.getByLabelText("Pomodoro progress: 1 of 4 completed"),
+      ).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("should keep working when notifications are unsupported", () => {
+    vi.stubGlobal("Notification", undefined);
+
+    vi.useFakeTimers();
+
+    try {
+      render(<App />);
+
+      act(() => {
+        screen.getByRole("button", { name: "START" }).click();
+      });
+
+      act(() => {
+        vi.advanceTimersByTime(TIMER_DURATION.pomodoro * 1000);
+      });
+
+      expect(sentNotifications).toEqual([]);
+      expect(
+        screen.getByLabelText("Pomodoro progress: 1 of 4 completed"),
+      ).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("should not notify when a session is reset", () => {
+    MockNotification.permission = "granted";
+
+    vi.useFakeTimers();
+
+    try {
+      render(<App />);
+
+      act(() => {
+        screen.getByRole("button", { name: "START" }).click();
+      });
+
+      act(() => {
+        vi.advanceTimersByTime(1000);
+      });
+
+      act(() => {
+        screen.getByRole("button", { name: "RESET" }).click();
+      });
+
+      expect(sentNotifications).toEqual([]);
     } finally {
       vi.useRealTimers();
     }

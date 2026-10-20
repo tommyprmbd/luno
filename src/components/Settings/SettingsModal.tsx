@@ -4,10 +4,13 @@ import {
   MAX_LONG_BREAK_INTERVAL,
   MAX_TIMER_DURATION_SECONDS,
 } from "../../constants/timer";
+import type { NotificationPermissionState } from "../../types/notification";
 import type { TimerSettings } from "../../types/timer";
 
 type SettingsModalProps = {
   settings: TimerSettings;
+  notificationPermission: NotificationPermissionState;
+  onEnableNotifications: () => void;
   onSave: (settings: TimerSettings) => void;
   onClose: () => void;
 };
@@ -44,7 +47,13 @@ function parseWholeNumber(value: string, max: number) {
   return number >= 1 && number <= max ? number : null;
 }
 
-function SettingsModal({ settings, onSave, onClose }: SettingsModalProps) {
+function SettingsModal({
+  settings,
+  notificationPermission,
+  onEnableNotifications,
+  onSave,
+  onClose,
+}: SettingsModalProps) {
   const [draft, setDraft] = useState<Draft>(() => toDraft(settings));
   const [errors, setErrors] = useState<DraftErrors>({});
 
@@ -135,7 +144,7 @@ function SettingsModal({ settings, onSave, onClose }: SettingsModalProps) {
         aria-labelledby="settings-title"
         onKeyDown={handleKeyDown}
       >
-        <h2 id="settings-title">Timer settings</h2>
+        <h2 id="settings-title">Settings</h2>
 
         <form onSubmit={handleSubmit} noValidate>
           <div className="settings-fields">
@@ -260,6 +269,40 @@ function SettingsModal({ settings, onSave, onClose }: SettingsModalProps) {
               )}
             </div>
           </div>
+
+          <section
+            className="settings-notifications"
+            aria-labelledby="settings-notifications-title"
+          >
+            <h3 id="settings-notifications-title">Notifications</h3>
+            <p>Get a browser notification when a timer session finishes.</p>
+
+            {notificationPermission === "default" && (
+              <button
+                type="button"
+                className="settings-enable-button"
+                onClick={onEnableNotifications}
+              >
+                ENABLE NOTIFICATIONS
+              </button>
+            )}
+
+            {notificationPermission === "granted" && (
+              <p role="status">Notifications are enabled.</p>
+            )}
+
+            {notificationPermission === "denied" && (
+              <p role="status">
+                Notifications are blocked. Allow them in your browser settings.
+              </p>
+            )}
+
+            {notificationPermission === "unsupported" && (
+              <p role="status">
+                This browser does not support notifications.
+              </p>
+            )}
+          </section>
 
           <div className="settings-actions">
             <button type="button" className="reset-button" onClick={onClose}>

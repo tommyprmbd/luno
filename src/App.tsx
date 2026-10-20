@@ -5,6 +5,7 @@ import HistoryModal from "./components/History/HistoryModal";
 import SettingsModal from "./components/Settings/SettingsModal";
 import TaskList from "./components/Tasks/TaskList";
 import Timer from "./components/Timer/Timer";
+import { useNotifications } from "./hooks/useNotifications";
 import { useSessions } from "./hooks/useSessions";
 import { useTasks } from "./hooks/useTasks";
 import { useTimer } from "./hooks/useTimer";
@@ -42,6 +43,11 @@ function App() {
   } = useTasks();
 
   const { sessions, addSession } = useSessions();
+  const {
+    permission: notificationPermission,
+    requestPermission,
+    notifySessionComplete,
+  } = useNotifications();
 
   const handledSession = useRef<CompletedSession | null>(null);
 
@@ -69,6 +75,7 @@ function App() {
     }
 
     handledSession.current = lastCompletedSession;
+    notifySessionComplete(lastCompletedSession);
 
     if (lastCompletedSession.mode === "pomodoro" && activeTaskId) {
       incrementTaskPomodoro(activeTaskId);
@@ -87,6 +94,7 @@ function App() {
     activeTask,
     incrementTaskPomodoro,
     addSession,
+    notifySessionComplete,
   ]);
 
   function handleSelectTask(id: string) {
@@ -158,6 +166,8 @@ function App() {
       {isSettingsOpen && (
         <SettingsModal
           settings={settings}
+          notificationPermission={notificationPermission}
+          onEnableNotifications={requestPermission}
           onSave={handleSaveSettings}
           onClose={() => setIsSettingsOpen(false)}
         />

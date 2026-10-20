@@ -38,11 +38,14 @@ a status.
     completed-Pomodoro counts.
   - `useSessions` — persisted completed-session history and local-day focus
     summary helpers.
+  - `useNotifications` — browser notification permission and best-effort
+    completion notifications; no-op when denied or unsupported.
   - `useLocalStorage` — generic persisted state with a safe fallback on bad JSON.
 - `App.tsx` composes hooks/components and holds cross-cutting rules: it blocks
   task/mode interaction while the timer is `running`, uses the timer's completed-
-  session event for task attribution and history, and sets `document.title`.
-- Shared vocabulary: `src/types/{timer,task,session}.ts`,
+  session event for task attribution, history, and notifications, and sets
+  `document.title`.
+- Shared vocabulary: `src/types/{timer,task,session,notification}.ts`,
   `src/constants/{timer,storage}.ts`.
 
 ## Invariants — do not break these
@@ -64,6 +67,10 @@ a status.
   from `useTimer`; do not add a second completion detector.
 - **Focus totals exclude breaks.** Break sessions are listed for context but
   only completed Pomodoros count toward the daily focus total.
+- **Notifications are optional and permission-driven.** Request permission only
+  from the explicit Settings action, never automatically. Notify only when the
+  browser permission is `granted`; denied/unsupported browsers and rejected
+  requests are no-ops. One completion event may notify at most once.
 - **Session duration is captured at start**, so changing settings mid-session
   cannot rewrite the running session's recorded duration.
 
@@ -79,6 +86,9 @@ a status.
   `vi.useRealTimers()` in a `finally` block.
 - An active task's title renders **twice** (timer label + task row) → use
   `getAllByText`, not `getByText`/`getByRole` text queries.
+- jsdom has no `Notification` API. Tests that exercise it stub a mock on
+  `globalThis` and unstub after each test; unsupported-browser tests pass
+  `undefined`.
 - No coverage thresholds are enforced; `npm run test:coverage` exists.
 
 ## Persistence
@@ -88,7 +98,8 @@ a status.
   still use the literal `"luno-timer-settings"` (not yet a constant — see
   `docs/known-issues.md` KI-5). Session history is currently unbounded (KI-16).
 - Timer runtime state (remaining time, mode, count) is intentionally **not**
-  persisted; the timer resets on reload.
+  persisted; the timer resets on reload. Notification permission is owned by the
+  browser, not `localStorage`.
 
 ## Workflow & docs
 

@@ -355,6 +355,43 @@ input:disabled {
   font-weight: 500;
 }
 
+.settings-notifications {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e5e5;
+}
+
+.settings-notifications h3 {
+  margin: 0 0 6px;
+  font-size: 15px;
+}
+
+.settings-notifications p {
+  margin: 0;
+  color: #555;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.settings-notifications p + p {
+  margin-top: 8px;
+}
+
+.settings-enable-button {
+  margin-top: 10px;
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 6px;
+  background: #222;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.settings-enable-button:hover {
+  opacity: 0.85;
+}
+
 .settings-actions {
   display: flex;
   justify-content: flex-end;

@@ -4,8 +4,9 @@
 minimalist single-page experience.
 
 **Overall status:** `PARTIAL`. MVP 2.1 (Custom Timer, including the Settings UI),
-MVP 2.2 (Task Tracking), MVP 2.3 (Session History), and MVP 2.4 (Settings &
-Personalization) are `DONE`. MVP 2.6 and 2.7 remain `PARTIAL`; MVP 2.5 is `TODO`.
+MVP 2.2 (Task Tracking), MVP 2.3 (Session History), MVP 2.4 (Settings &
+Personalization), and MVP 2.5 (Notifications) are `DONE`. MVP 2.6 and 2.7 remain
+`PARTIAL`.
 
 ---
 
@@ -66,8 +67,7 @@ Personalization) are `DONE`. MVP 2.6 and 2.7 remain `PARTIAL`; MVP 2.5 is `TODO`
 **Evidence:** `npm test` → 99 passed / 12 files; `npm run build` → pass;
 `npm run lint` → clean.
 
-**Next action:** MVP **2.7 — Persistence hardening** (session retention/schema),
-then MVP **2.5 — Notifications**.
+**Next action:** MVP **2.7 — Persistence hardening** (session retention/schema).
 
 ---
 
@@ -171,14 +171,35 @@ a large preferences page prematurely.
 
 ---
 
-## MVP 2.5 — Notifications — `TODO`
+## MVP 2.5 — Notifications — `DONE`
 
-- [ ] Request browser notification permission at an appropriate moment, with a
-      clear explanation.
-- [ ] Notify the user when a timer session completes, if permission is granted.
-- [ ] Keep the app usable when permission is denied or notifications are unsupported.
-- [ ] Avoid duplicate notifications.
-- [ ] Test completion, permission-denied, unsupported-browser, and reset scenarios.
+**Goal:** notify users when a focus or break session finishes without making
+notifications a requirement for using the timer.
+
+- [x] Permission is requested only after an explicit **ENABLE NOTIFICATIONS**
+      action in Settings, with the explanation "Get a browser notification when
+      a timer session finishes." It is never requested automatically on load or
+      on START (`SettingsModal`, `useNotifications`).
+- [x] When permission is granted, every completed focus/break session sends one
+      browser notification with mode-specific copy (`useNotifications`,
+      `App` completion event).
+- [x] Denied permission, unsupported browsers, and rejected permission requests
+      are no-ops. The timer, task attribution, and history keep working; creating
+      a notification is also best-effort (`useNotifications`).
+- [x] The single completion event still drives task counts, history, and
+      notifications. `App` dedupes it, and the notification uses a stable `tag`
+      so a completion cannot produce a duplicate (`App.test.tsx`, StrictMode).
+- [x] Tests cover permission request/state, completed focus and break
+      notifications, denied/unsupported browsers, reset, and StrictMode dedupe
+      (`useNotifications.test.ts`, `SettingsModal.test.tsx`, `App.test.tsx`).
+
+**Evidence:** `npm test` → 152 passed / 15 files; `npm run build` → pass;
+`npm run lint` → clean.
+
+**Scope note:** notification permission is owned by the browser and is not stored
+in `localStorage`. The app only reads the current permission and reacts to the
+completion event; it does not add background notifications, sounds, or a
+notification settings page.
 
 ---
 
@@ -226,7 +247,9 @@ synchronization. Cloud sync is not part of MVP 2.
       (only when a task is active; breaks and no-task sessions are ignored).
 - [x] Session history and daily focus totals are correct (local-day summary;
       breaks excluded; date-boundary tests pass).
-- [ ] Browser notifications degrade gracefully.
+- [x] Browser notifications degrade gracefully (denied/unsupported browsers are
+      no-ops; timer completion still works; `useNotifications.test.ts`,
+      `App.test.tsx`).
 - [x] All data intended to persist survives reload (tasks, task progress,
       active task, settings, and session history).
 - [x] Tests and production build pass.
