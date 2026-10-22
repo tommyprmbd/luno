@@ -27,14 +27,14 @@ requirement to copy its exact design.
 - **Configuration over magic numbers:** timer durations and the long-break
   interval must come from settings, not hard-coded literals.
 
-## Current technical baseline (verified 2026-10-20, MVP 2.5)
+## Current technical baseline (verified 2026-10-22, MVP 2.6)
 
 Verified against the working tree by inspecting the repository and running the
 project scripts.
 
 - **Stack:** React 19 + TypeScript ~6.0 + Vite 8.
 - **Tests:** Vitest 5 + React Testing Library (`jsdom`), globals enabled, setup at
-  `src/test/setup.ts`. **155 tests across 15 files pass.**
+  `src/test/setup.ts`. **156 tests across 15 files pass.**
 - **Build:** `npm run build` (`tsc -b && vite build`) passes.
 - **Lint:** `npm run lint` is clean (`coverage/` and `dist/` ignored).
 - **Main app composition:** `App` composes `Header`, `Timer`, `TaskList`, and the
@@ -51,6 +51,10 @@ project scripts.
   It uses a small service worker when available (required by mobile browsers)
   and falls back to the `Notification` constructor. Denied/unsupported browsers
   remain fully usable; permission is not persisted by the app.
+- **Completion feedback:** the timer card shows a status message after every
+  finished session ("Pomodoro complete. Time for a break."), using the same
+  copy as the notification (`SESSION_COMPLETE_COPY` in `constants/timer.ts`).
+  It stays until the next session starts.
 - **Types:** `src/types/timer.ts` (`TimerMode`, `TimerStatus`, `TimerSettings`),
   `src/types/task.ts` (`Task`), `src/types/session.ts` (`SessionRecord`),
   `src/types/notification.ts` (`NotificationPermissionState`).

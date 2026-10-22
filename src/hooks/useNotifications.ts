@@ -1,4 +1,5 @@
 import { useCallback, useState } from "react";
+import { SESSION_COMPLETE_COPY } from "../constants/timer";
 import type { NotificationPermissionState } from "../types/notification";
 import type { CompletedSession } from "../types/session";
 
@@ -25,24 +26,6 @@ function showDirectNotification(title: string, body: string) {
     // notifications are best-effort; timer completion must still work.
   }
 }
-
-const NOTIFICATION_COPY: Record<
-  CompletedSession["mode"],
-  { title: string; body: string }
-> = {
-  pomodoro: {
-    title: "Pomodoro complete",
-    body: "Time for a break.",
-  },
-  "short-break": {
-    title: "Short break complete",
-    body: "Ready for another Pomodoro?",
-  },
-  "long-break": {
-    title: "Long break complete",
-    body: "Ready for another Pomodoro?",
-  },
-};
 
 function getPermission(): NotificationPermissionState {
   try {
@@ -83,7 +66,7 @@ export function useNotifications() {
         return;
       }
 
-      const { title, body } = NOTIFICATION_COPY[session.mode];
+      const { title, body } = SESSION_COMPLETE_COPY[session.mode];
       const options: NotificationOptions = {
         body,
         tag: NOTIFICATION_TAG,

@@ -15,3 +15,23 @@ export const DEFAULT_TIMER_SETTINGS = {
 
 export const MAX_TIMER_DURATION_SECONDS = 24 * 60 * 60;
 export const MAX_LONG_BREAK_INTERVAL = 60;
+
+// shared by the browser notification and the in-app completion message, so
+// both say the same thing.
+export const SESSION_COMPLETE_COPY: Record<
+  TimerMode,
+  { title: string; body: string }
+> = {
+  pomodoro: {
+    title: "Pomodoro complete",
+    body: "Time for a break.",
+  },
+  "short-break": {
+    title: "Short break complete",
+    body: "Ready for another Pomodoro?",
+  },
+  "long-break": {
+    title: "Long break complete",
+    body: "Ready for another Pomodoro?",
+  },
+};

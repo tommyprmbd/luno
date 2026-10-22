@@ -19,6 +19,7 @@ this consistent with [`roadmap.md`](./roadmap.md).
 | 2026-10-20 | MVP 2.5 | Notifications: explicit permission request in Settings, one notification per completed focus/break session, denied/unsupported/reset handling, StrictMode dedupe | 152 tests pass, build pass, lint clean; MVP 2.5 `DONE` |
 | 2026-10-20 | Fix | History: a failing Notification API can no longer abort completion handling before the session is recorded; regression test added | 154 tests pass, build pass, lint clean |
 | 2026-10-20 | Fix | Notifications: prefer a service worker when available so browsers that reject `new Notification` still show completion notifications; direct constructor fallback; click opens the app | 155 tests pass, build pass, lint clean |
+| 2026-10-22 | MVP 2.6 | Productivity UX: in-app completion message after every finished session (shared copy with the notification), empty/error/confirmation and keyboard/responsive review; no charts | 156 tests pass, build pass, lint clean; browser check at 1280/320 px; MVP 2.6 `DONE` |
 
 ## Current next action
 
@@ -27,6 +28,10 @@ this consistent with [`roadmap.md`](./roadmap.md).
 Session history is shape-validated but unbounded (KI-16) and has no schema
 version. Decide on retention/migration behavior, then add tests for quota and
 version handling.
+
+Note: browser notifications are only visible while the OS shows them (GNOME
+Do Not Disturb hides them). The in-app completion message (MVP 2.6) covers that
+gap.
 
 ### Already verified (no action needed)
 

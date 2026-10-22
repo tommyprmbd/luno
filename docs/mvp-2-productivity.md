@@ -5,8 +5,8 @@ minimalist single-page experience.
 
 **Overall status:** `PARTIAL`. MVP 2.1 (Custom Timer, including the Settings UI),
 MVP 2.2 (Task Tracking), MVP 2.3 (Session History), MVP 2.4 (Settings &
-Personalization), and MVP 2.5 (Notifications) are `DONE`. MVP 2.6 and 2.7 remain
-`PARTIAL`.
+Personalization), MVP 2.5 (Notifications), and MVP 2.6 (Productivity UX) are
+`DONE`. MVP 2.7 remains `PARTIAL`.
 
 ---
 
@@ -207,16 +207,45 @@ notification settings page.
 
 ---
 
-## MVP 2.6 — Productivity UX — `PARTIAL`
+## MVP 2.6 — Productivity UX — `DONE`
 
-- [ ] Improve completion feedback for Pomodoro and break sessions.
-- [ ] Refine task progress and session summaries.
+- [x] Improve completion feedback for Pomodoro and break sessions. The timer
+      card shows a `role="status"` message after a session ends
+      ("Pomodoro complete. Time for a break."), using the same copy as the
+      browser notification (`SESSION_COMPLETE_COPY` in `constants/timer.ts`).
+      The message stays until the next session starts or the mode changes.
+- [x] Refine task progress and session summaries. Reviewed: the inline
+      "N pomodoro(s)" pill on the task row and the History summary (today +
+      all time) are enough; no charts or extra indicators added.
 - [x] Progress indicator exists (`TimerProgress`, now interval-driven).
-- [ ] Review loading, empty, error, and confirmation states.
-- [ ] Keep secondary information in compact components or modals.
-- [ ] Test keyboard flow and responsive layouts.
-- [ ] Do not add charts/dashboard complexity unless the underlying history data
-      makes it useful.
+- [x] Review loading, empty, error, and confirmation states. Luno is
+      local-first, so there is no loading state. Empty states exist for tasks
+      ("Add a task to get started.") and history ("No sessions yet."). Storage
+      read/parse failures fall back to defaults silently — kept that way, an
+      error banner for a corrupt local key is not worth the UI. Task deletion
+      stays immediate with no confirmation dialog (local, cheap, and the task
+      can be re-added).
+- [x] Keep secondary information in compact components or modals. History and
+      settings live in modals; task progress is an inline pill; the completion
+      message is a single line in the timer card.
+- [x] Test keyboard flow and responsive layouts. All controls are native
+      buttons/inputs; the modals have Escape + focus-trap tests
+      (`SettingsModal.test.tsx`, `HistoryModal.test.tsx`). The completion
+      message was re-checked in Chrome at 1280 px and 320 px (no horizontal
+      overflow); the full responsive review was done in Phase 5.
+- [x] Do not add charts/dashboard complexity unless the underlying history data
+      makes it useful. **Decision: no charts.** The history data is a flat
+      session list; a chart would add nothing yet.
+
+**Evidence:** `npm test` → 156 passed / 15 files; `npm run build` → pass;
+`npm run lint` → clean. Browser check (headless Chrome, 1-minute sessions):
+after a Pomodoro the timer card shows "Pomodoro complete. Time for a break.",
+the mode switches to Short Break, and `luno:sessions` records the session.
+
+**Scope note:** the in-app message exists because browser notifications depend
+on OS settings (they stay hidden while the OS is in Do Not Disturb). It is not
+a replacement for the notification and adds no animation, sound, or toast
+queue.
 
 ---
 
@@ -254,6 +283,8 @@ synchronization. Cloud sync is not part of MVP 2.
 - [x] Browser notifications degrade gracefully (denied/unsupported browsers are
       no-ops; timer completion still works; `useNotifications.test.ts`,
       `App.test.tsx`).
+- [x] Completion is visible in the app (in-app status message in the timer
+      card) and optionally through a browser notification.
 - [x] All data intended to persist survives reload (tasks, task progress,
       active task, settings, and session history).
 - [x] Tests and production build pass.

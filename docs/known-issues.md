@@ -1,7 +1,7 @@
 # Known Issues & Tech Debt
 
-**Last reviewed:** 2026-10-20 (MVP 2.5 review, working tree).
-**Evidence:** `npm test` 155 passed / 15 files · `npm run build` pass · `npm run lint` clean.
+**Last reviewed:** 2026-10-22 (MVP 2.6 review, working tree).
+**Evidence:** `npm test` 156 passed / 15 files · `npm run build` pass · `npm run lint` clean.
 
 ## Resolved
 
@@ -28,6 +28,7 @@
 | KI-10 | Low | Test files use the literal string `"luno-timer-settings"` rather than the shared constant. | Follow KI-5 (introduce the constant) and update tests. |
 | KI-14 | Info (by design) | The countdown never renders `00:00`: at `00:01` the next tick selects the next mode and shows its full duration. | Kept as intended (showing `00:00` would add a one-second delay and rewrite the timer completion timing asserted across the suite). Revisit only if users ask for it. |
 | KI-16 | Low | Session history in `luno:sessions` is unbounded. A very long history could reach the localStorage quota, and `useLocalStorage` does not catch `QuotaExceededError` on write. | Add a retention cap or explicit export/prune control, and handle quota errors safely as part of MVP 2.7. |
+| KI-17 | Info (by design) | Browser notifications are rendered by the OS. With GNOME Do Not Disturb (`org.gnome.desktop.notifications show-banners=false`) the browser still generates them (Chrome counts them) but nothing is shown. | No app fix. The in-app completion message (MVP 2.6) covers the gap; the user must allow notifications in the OS. |
 
 ## Backlog (not yet implemented features)
 

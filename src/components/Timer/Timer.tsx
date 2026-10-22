@@ -15,6 +15,7 @@ type TimerProps = {
   remainingSeconds: number;
   completedPomodoros: number;
   longBreakInterval: number;
+  feedback: string | null;
   onStart: () => void;
   onPause: () => void;
   onReset: () => void;
@@ -28,6 +29,7 @@ function Timer({
   remainingSeconds,
   completedPomodoros,
   longBreakInterval,
+  feedback,
   onStart,
   onPause,
   onReset,
@@ -40,6 +42,12 @@ function Timer({
       <TimerMode mode={mode} onChange={onChangeMode} />
 
       <TimerDisplay remainingSeconds={remainingSeconds} />
+
+      {feedback && (
+        <p className="timer-feedback" role="status">
+          {feedback}
+        </p>
+      )}
 
       <TimerProgress
         completedPomodoros={completedPomodoros}

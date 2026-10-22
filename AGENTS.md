@@ -43,8 +43,8 @@ a status.
   - `useLocalStorage` — generic persisted state with a safe fallback on bad JSON.
 - `App.tsx` composes hooks/components and holds cross-cutting rules: it blocks
   task/mode interaction while the timer is `running`, uses the timer's completed-
-  session event for task attribution, history, and notifications, and sets
-  `document.title`.
+  session event for task attribution, history, notifications, and the in-app
+  completion message, and sets `document.title`.
 - Shared vocabulary: `src/types/{timer,task,session,notification}.ts`,
   `src/constants/{timer,storage}.ts`.
 
