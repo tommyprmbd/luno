@@ -3,10 +3,8 @@
 **Goal:** make Luno useful for tracking focused work while preserving the
 minimalist single-page experience.
 
-**Overall status:** `PARTIAL`. MVP 2.1 (Custom Timer, including the Settings UI),
-MVP 2.2 (Task Tracking), MVP 2.3 (Session History), MVP 2.4 (Settings &
-Personalization), MVP 2.5 (Notifications), and MVP 2.6 (Productivity UX) are
-`DONE`. MVP 2.7 remains `PARTIAL`.
+**Overall status:** `DONE`. MVP 2.1–2.7 are complete: custom timer, tasks,
+history, settings, notifications, productivity UX, and persistence hardening.
 
 ---
 
@@ -141,7 +139,7 @@ for both task counts and history. The session duration is captured when the time
 starts, so changing settings mid-session cannot rewrite an already-running
 session's recorded duration. Breaks are stored for context but never counted as
 focus. The modal is read-only and intentionally small: no charts, filters, or
-dashboard. Session retention is currently unbounded (see KI-16).
+dashboard. Session history keeps the latest 5,000 records (see MVP 2.7).
 
 ---
 
@@ -249,22 +247,40 @@ queue.
 
 ---
 
-## MVP 2.7 — Data & Persistence Improvements — `PARTIAL`
+## MVP 2.7 — Data & Persistence Improvements — `DONE`
 
 - [x] Document which data is persisted: tasks (including per-task Pomodoro
       counts), active-task id, timer settings, and session history.
       See `constants/storage.ts` and `architecture.md`.
-- [ ] Define schema/versioning or migration behavior for persisted local data.
-      *(Session records are shape-validated, but there is no version field.)*
+- [x] Define schema/versioning or migration behavior for persisted local data.
+      **Decision: no version field.** Each store is validated and normalized on
+      read (`useTasks`, `useTimerSettings`, `useSessions`): missing fields get
+      defaults, malformed records are dropped, and unknown fields are ignored.
+      That is the migration mechanism. Add a version key only if a future change
+      cannot be expressed as a validator change.
 - [x] Validate persisted timer settings shape/range (`useTimerSettings`; KI-6).
+      The storage key is now `STORAGE_KEY.timerSettings` (KI-5 resolved).
 - [x] Validate persisted task data shape (`useTasks`; KI-12).
 - [x] Validate persisted session history shape (`useSessions`).
-- [x] Handle malformed or unavailable local storage safely (per-key `try/catch` in
-      `useLocalStorage`, with fallback to the initial value; tested).
+- [x] Handle malformed or unavailable local storage safely. `useLocalStorage`
+      now catches read *and* write errors: blocked storage falls back to the
+      initial value, and failed writes (quota) leave the in-memory state usable.
 - [x] Reload behavior verified for tasks, settings, and session history.
 - [x] Prevent duplicate session records after rerenders/repeated completions
       (the App effect dedupes the completion event; StrictMode test added).
-- [ ] Add tests for persistence and data consistency (broader coverage pending).
+- [x] Add tests for persistence and data consistency: blocked reads, failed
+      writes, invalid JSON/shape, and session retention.
+- [x] Cap stored session history at the latest 5,000 records
+      (`MAX_STORED_SESSIONS`), so `luno:sessions` cannot grow without bound
+      (KI-16 resolved).
+
+**Evidence:** `npm test` → 159 passed / 15 files; `npm run build` → pass;
+`npm run lint` → clean.
+
+**Scope note:** the cap keeps the latest 5,000 sessions (~0.5 MB) — years of
+typical use. "All time" in History therefore means all retained sessions; if
+users need more, paginate the history and raise the cap. There is no export,
+cloud backup, or cross-device sync.
 
 **Important:** local persistence is not the same as cloud backup or cross-device
 synchronization. Cloud sync is not part of MVP 2.

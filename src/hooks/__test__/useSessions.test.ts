@@ -1,6 +1,6 @@
 import { act, renderHook } from "@testing-library/react";
 import { beforeEach, describe, expect, it } from "vitest";
-import { STORAGE_KEY } from "../../constants/storage";
+import { MAX_STORED_SESSIONS, STORAGE_KEY } from "../../constants/storage";
 import type { SessionRecord } from "../../types/session";
 import {
   formatDuration,
@@ -85,6 +85,33 @@ describe("useSessions", () => {
     const { result } = renderHook(() => useSessions());
 
     expect(result.current.sessions).toEqual([valid]);
+  });
+
+  it("should keep only the most recent sessions", () => {
+    const seeded = Array.from(
+      { length: MAX_STORED_SESSIONS + 1 },
+      (_, index) => makeSession({ completedAt: index + 1 }),
+    );
+
+    localStorage.setItem(STORAGE_KEY.sessions, JSON.stringify(seeded));
+
+    const { result } = renderHook(() => useSessions());
+
+    expect(result.current.sessions).toHaveLength(MAX_STORED_SESSIONS);
+    expect(result.current.sessions[0].completedAt).toBe(2);
+    expect(result.current.sessions.at(-1)?.completedAt).toBe(
+      MAX_STORED_SESSIONS + 1,
+    );
+
+    const newest = makeSession({ completedAt: MAX_STORED_SESSIONS + 2 });
+
+    act(() => {
+      result.current.addSession(newest);
+    });
+
+    expect(result.current.sessions).toHaveLength(MAX_STORED_SESSIONS);
+    expect(result.current.sessions[0].completedAt).toBe(3);
+    expect(result.current.sessions.at(-1)).toEqual(newest);
   });
 });
 

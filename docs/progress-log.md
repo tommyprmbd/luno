@@ -20,14 +20,15 @@ this consistent with [`roadmap.md`](./roadmap.md).
 | 2026-10-20 | Fix | History: a failing Notification API can no longer abort completion handling before the session is recorded; regression test added | 154 tests pass, build pass, lint clean |
 | 2026-10-20 | Fix | Notifications: prefer a service worker when available so browsers that reject `new Notification` still show completion notifications; direct constructor fallback; click opens the app | 155 tests pass, build pass, lint clean |
 | 2026-10-22 | MVP 2.6 | Productivity UX: in-app completion message after every finished session (shared copy with the notification), empty/error/confirmation and keyboard/responsive review; no charts | 156 tests pass, build pass, lint clean; browser check at 1280/320 px; MVP 2.6 `DONE` |
+| 2026-10-24 | MVP 2.7 | Persistence hardening: `useLocalStorage` catches blocked reads and quota-failed writes; session history capped at 5,000 (`MAX_STORED_SESSIONS`); `STORAGE_KEY.timerSettings` added (KI-5, KI-16); tests for read/write failures, malformed data, and retention | 159 tests pass, build pass, lint clean; MVP 2.7 `DONE`; MVP 2 `DONE` |
 
 ## Current next action
 
-**MVP 2.7 — Persistence hardening.**
+**MVP 2 is complete.** There is no approved next milestone. MVP 3
+(backend/accounts/sync) remains **not in scope** without explicit approval.
 
-Session history is shape-validated but unbounded (KI-16) and has no schema
-version. Decide on retention/migration behavior, then add tests for quota and
-version handling.
+Useful non-feature work if requested: manual QA pass, an in-repo a11y regression
+check (KI-9), and the optional test-key cleanup (KI-10).
 
 Note: browser notifications are only visible while the OS shows them (GNOME
 Do Not Disturb hides them). The in-app completion message (MVP 2.6) covers that

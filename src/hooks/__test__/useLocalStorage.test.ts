@@ -1,10 +1,14 @@
 import { act, renderHook } from "@testing-library/react";
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { useLocalStorage } from "../useLocalStorage";
 
 describe("useLocalStorage", () => {
   beforeEach(() => {
     localStorage.clear();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it("should return initial value when storage is empty", () => {
@@ -38,5 +42,31 @@ describe("useLocalStorage", () => {
     const { result } = renderHook(() => useLocalStorage("test-key", "initial"));
 
     expect(result.current[0]).toBe("initial");
+  });
+
+  it("should use the initial value when storage cannot be read", () => {
+    vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
+      throw new DOMException("blocked", "SecurityError");
+    });
+
+    const { result } = renderHook(() => useLocalStorage("test-key", "initial"));
+
+    expect(result.current[0]).toBe("initial");
+  });
+
+  it("should keep state when storage cannot be written", () => {
+    vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+      throw new DOMException("full", "QuotaExceededError");
+    });
+
+    const { result } = renderHook(() => useLocalStorage("test-key", "initial"));
+
+    expect(() => {
+      act(() => {
+        result.current[1]("updated");
+      });
+    }).not.toThrow();
+
+    expect(result.current[0]).toBe("updated");
   });
 });
