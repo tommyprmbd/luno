@@ -21,8 +21,9 @@ Luno is a small React + TypeScript single-page app with a clear separation:
   - `useLocalStorage` — generic persisted state with a safe fallback.
 - **`App`** composes the hooks and components and enforces cross-cutting rules
   (blocking task/mode interactions while the timer is running, handling the
-  timer's single completed-session event for both task attribution, history, and
-  notifications, and updating `document.title`).
+  timer's single completed-session event for task attribution, history,
+  notifications, and the in-app completion message, and updating
+  `document.title`).
 - **Constants** (`constants/timer.ts`, `constants/storage.ts`) and **types**
   (`types/timer.ts`, `types/task.ts`, `types/session.ts`,
   `types/notification.ts`) are the shared vocabulary.
@@ -42,6 +43,21 @@ localStorage ──► useLocalStorage ──► useTimerSettings ──► useT
        │                              TaskItem
        └──► useSessions ────────────────────────────────────────► (history data)
 ```
+
+## Persistence policy
+
+- Keys live in `STORAGE_KEY` (`constants/storage.ts`): `tasks`,
+  `activeTaskId`, `timerSettings`, and `sessions`.
+- `useLocalStorage` validates on read via each store's `validate` function and
+  catches both read and write failures. Blocked storage falls back to the
+  in-memory initial value; failed writes (quota) are dropped.
+- **No schema version field.** Validation is the migration mechanism: missing
+  fields fall back to defaults, malformed records are dropped, and unknown
+  fields are ignored. Add a version key only if a future change cannot be
+  expressed as a validator change.
+- Session history keeps the latest `MAX_STORED_SESSIONS` (5,000) records.
+  "All time" in History means all retained history. Paginate before raising the
+  cap.
 
 ## Rules when working on Luno
 

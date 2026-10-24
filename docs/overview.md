@@ -27,14 +27,14 @@ requirement to copy its exact design.
 - **Configuration over magic numbers:** timer durations and the long-break
   interval must come from settings, not hard-coded literals.
 
-## Current technical baseline (verified 2026-10-20, MVP 2.5)
+## Current technical baseline (verified 2026-10-24, MVP 2.7)
 
 Verified against the working tree by inspecting the repository and running the
 project scripts.
 
 - **Stack:** React 19 + TypeScript ~6.0 + Vite 8.
 - **Tests:** Vitest 5 + React Testing Library (`jsdom`), globals enabled, setup at
-  `src/test/setup.ts`. **155 tests across 15 files pass.**
+  `src/test/setup.ts`. **159 tests across 15 files pass.**
 - **Build:** `npm run build` (`tsc -b && vite build`) passes.
 - **Lint:** `npm run lint` is clean (`coverage/` and `dist/` ignored).
 - **Main app composition:** `App` composes `Header`, `Timer`, `TaskList`, and the
@@ -51,19 +51,28 @@ project scripts.
   It uses a small service worker when available (required by mobile browsers)
   and falls back to the `Notification` constructor. Denied/unsupported browsers
   remain fully usable; permission is not persisted by the app.
+- **Completion feedback:** the timer card shows a status message after every
+  finished session ("Pomodoro complete. Time for a break."), using the same
+  copy as the notification (`SESSION_COMPLETE_COPY` in `constants/timer.ts`).
+  It stays until the next session starts.
 - **Types:** `src/types/timer.ts` (`TimerMode`, `TimerStatus`, `TimerSettings`),
   `src/types/task.ts` (`Task`), `src/types/session.ts` (`SessionRecord`),
   `src/types/notification.ts` (`NotificationPermissionState`).
 - **Constants:** `src/constants/timer.ts` (`TIMER_DURATION`,
-  `DEFAULT_TIMER_SETTINGS`), `src/constants/storage.ts` (`STORAGE_KEY`).
+  `DEFAULT_TIMER_SETTINGS`, `SESSION_COMPLETE_COPY`), `src/constants/storage.ts`
+  (`STORAGE_KEY`, `MAX_STORED_SESSIONS`).
 - **Task tracking:** each task stores its completed-Pomodoro count; `App`
   attributes a finished Pomodoro to the active task.
 - **Session history:** each completed session stores mode, completion time,
   duration, and a task-title snapshot. Only completed sessions are recorded; the
   same completion event also sends an optional notification.
 - **Local persistence:** tasks (including per-task Pomodoro counts), active-task
-  id, timer settings, and session history are persisted in `localStorage`. Timer
-  runtime state is intentionally not persisted.
+  id, timer settings, and session history are persisted in `localStorage` via
+  `useLocalStorage`. Reads are shape-validated; blocked storage falls back to
+  in-memory defaults, and failed writes (quota) are ignored so the app keeps
+  working. Session history keeps the latest 5,000 records. There is no schema
+  version field: validators are the migration mechanism. Timer runtime state is
+  intentionally not persisted.
 
 ## Repository map
 

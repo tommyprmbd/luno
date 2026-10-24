@@ -43,8 +43,8 @@ a status.
   - `useLocalStorage` — generic persisted state with a safe fallback on bad JSON.
 - `App.tsx` composes hooks/components and holds cross-cutting rules: it blocks
   task/mode interaction while the timer is `running`, uses the timer's completed-
-  session event for task attribution, history, and notifications, and sets
-  `document.title`.
+  session event for task attribution, history, notifications, and the in-app
+  completion message, and sets `document.title`.
 - Shared vocabulary: `src/types/{timer,task,session,notification}.ts`,
   `src/constants/{timer,storage}.ts`.
 
@@ -94,9 +94,11 @@ a status.
 ## Persistence
 
 - localStorage keys: `luno:tasks` (including per-task `completedPomodoros`),
-  `luno:active-task-id`, and `luno:sessions` (via `STORAGE_KEY`); timer settings
-  still use the literal `"luno-timer-settings"` (not yet a constant — see
-  `docs/known-issues.md` KI-5). Session history is currently unbounded (KI-16).
+  `luno:active-task-id`, `luno:sessions`, and `luno-timer-settings` — all in
+  `STORAGE_KEY` (`src/constants/storage.ts`). Session history is capped at the
+  latest `MAX_STORED_SESSIONS` (5,000); `useLocalStorage` catches read/write
+  failures (blocked storage, quota). There is no schema version field:
+  per-store validators are the migration mechanism.
 - Timer runtime state (remaining time, mode, count) is intentionally **not**
   persisted; the timer resets on reload. Notification permission is owned by the
   browser, not `localStorage`.

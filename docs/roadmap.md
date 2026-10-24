@@ -1,9 +1,9 @@
 # Roadmap & Status Dashboard
 
-**Last reviewed:** 2026-10-20 · **Audited commit:** working tree
-**Evidence:** `npm test` 155 passed / 15 files · `npm run build` pass · `npm run lint` clean.
+**Last reviewed:** 2026-10-24 · **Audited commit:** working tree
+**Evidence:** `npm test` 159 passed / 15 files · `npm run build` pass · `npm run lint` clean.
 
-This dashboard reflects the **actual** repository state after the 2026-10-18
+This dashboard reflects the **actual** repository state after the 2026-10-24
 audit. See the per-MVP files for the detailed checklist and the exact evidence.
 
 ## Milestone dashboard
@@ -16,13 +16,14 @@ audit. See the per-MVP files for the detailed checklist and the exact evidence.
 | Phase 3 — Timer controls and lifecycle | `DONE` | Start/pause/resume/reset; manual-start lifecycle enforced and tested. |
 | Phase 4 — Timer/task integration and cycle | `DONE` | Active task display, transitions, long-break interval, task completion not auto-triggered — all tested. |
 | Phase 5 — UX, responsive, quality | `DONE` | Responsive, edge-state, a11y (axe-core), and visual review completed 2026-10-19. |
+| **MVP 2 — Productivity & Personalization** | `DONE` | 2.1–2.7 complete: custom timer, tasks, history, settings, notifications, UX, and persistence hardening. |
 | **MVP 2.1 — Custom Timer** | `DONE` | Settings model, `useTimer` integration, and Settings UI (modal + validation + tests) complete. |
 | MVP 2.2 — Task Tracking | `DONE` | Per-task Pomodoro count persisted with the task, shown inline; attributed only to the active task. |
 | MVP 2.3 — Session History | `DONE` | Persisted completed-session records, history modal, and local-day focus summary; interruptions and breaks excluded from focus totals. |
 | MVP 2.4 — Settings & Personalization | `DONE` | Settings modal + persistence; no additional preferences added without a concrete need; reset/default/reload behavior tested. |
 | MVP 2.5 — Notifications | `DONE` | Optional browser notifications on session completion; explicit permission request; denied/unsupported browsers degrade gracefully. |
-| MVP 2.6 — Productivity UX | `PARTIAL` | Progress dots exist; completion feedback/polish refinements pending. |
-| MVP 2.7 — Persistence improvements | `PARTIAL` | Tasks, settings, and session history persist with shape validation; no schema/versioning, migration, or session retention cap. |
+| MVP 2.6 — Productivity UX | `DONE` | In-app completion message after each finished session; empty/error/confirmation states and keyboard/responsive flow reviewed; no charts added. |
+| MVP 2.7 — Persistence improvements | `DONE` | Read/write failures (blocked storage, quota) are handled; session history capped at 5,000; no schema version (validators are the migration policy). |
 | **MVP 3 — Backend / accounts / sync** | `NOT IN SCOPE` | Candidate future milestone only. Do not implement unless explicitly reprioritized. |
 
 Legend: `DONE` · `PARTIAL` · `IN PROGRESS` · `TODO` · `VERIFY` · `NOT IN SCOPE`
@@ -38,7 +39,7 @@ Legend: `DONE` · `PARTIAL` · `IN PROGRESS` · `TODO` · `VERIFY` · `NOT IN SC
 | Every new mode waits for **START** | `DONE` | `useTimer` sets `idle` on completion; `App` blocks mode change while running. |
 | Session counters and long-break scheduling correct | `DONE` | Count + interval tests (default 4 and custom interval). |
 | Reload behavior consistent with intended persistence | `DONE` | Tasks/active-task/settings persist; timer runtime state intentionally does not. |
-| Automated tests and production build pass | `DONE` | 155 tests pass; build passes. |
+| Automated tests and production build pass | `DONE` | 159 tests pass; build passes. |
 | Main page remains minimal and responsive | `DONE` | Single page; reviewed at 1280/768/375/320 px with no horizontal overflow. |
 
 ## MVP 2 acceptance criteria
@@ -51,10 +52,12 @@ Legend: `DONE` · `PARTIAL` · `IN PROGRESS` · `TODO` · `VERIFY` · `NOT IN SC
 | Session history and daily totals correct | `DONE` | History modal + local-day focus summary; date-boundary and duration tests pass. |
 | Browser notifications degrade gracefully | `DONE` | Explicit permission request; denied/unsupported browsers are no-ops; completion still works. |
 | All intended data survives reload | `DONE` | Tasks, per-task counts, active task, settings, and session history persist; reload tested. |
-| Tests and production build pass | `DONE` | 155 tests pass; build passes. |
+| Tests and production build pass | `DONE` | 159 tests pass; build passes. |
 | App remains lightweight and easy to use | `DONE` | No router/dashboard; single page. |
 
 ## Priority order (suggested)
 
-1. **MVP 2.7 — Persistence hardening** (session retention, schema/versioning).
-2. **MVP 2.6 — Productivity UX polish** (completion feedback and keyboard/responsive review).
+MVP 2 is complete. There is no approved next milestone: MVP 3
+(backend/accounts/sync) remains **not in scope** without explicit approval.
+Useful non-feature work if requested: a manual QA pass, an in-repo a11y check
+(KI-9), and the test-key cleanup (KI-10).

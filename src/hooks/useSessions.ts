@@ -1,4 +1,4 @@
-import { STORAGE_KEY } from "../constants/storage";
+import { MAX_STORED_SESSIONS, STORAGE_KEY } from "../constants/storage";
 import type { SessionRecord } from "../types/session";
 import { useLocalStorage } from "./useLocalStorage";
 
@@ -24,7 +24,9 @@ const isSessionRecord = (value: unknown): value is SessionRecord => {
 };
 
 const readSessions = (value: unknown): SessionRecord[] | null =>
-  Array.isArray(value) ? value.filter(isSessionRecord) : null;
+  Array.isArray(value)
+    ? value.filter(isSessionRecord).slice(-MAX_STORED_SESSIONS)
+    : null;
 
 export function useSessions() {
   const [sessions, setSessions] = useLocalStorage<SessionRecord[]>(
@@ -34,7 +36,9 @@ export function useSessions() {
   );
 
   function addSession(session: SessionRecord) {
-    setSessions((current) => [...current, session]);
+    setSessions((current) =>
+      [...current, session].slice(-MAX_STORED_SESSIONS),
+    );
   }
 
   return { sessions, addSession };

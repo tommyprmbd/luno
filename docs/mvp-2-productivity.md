@@ -3,10 +3,8 @@
 **Goal:** make Luno useful for tracking focused work while preserving the
 minimalist single-page experience.
 
-**Overall status:** `PARTIAL`. MVP 2.1 (Custom Timer, including the Settings UI),
-MVP 2.2 (Task Tracking), MVP 2.3 (Session History), MVP 2.4 (Settings &
-Personalization), and MVP 2.5 (Notifications) are `DONE`. MVP 2.6 and 2.7 remain
-`PARTIAL`.
+**Overall status:** `DONE`. MVP 2.1–2.7 are complete: custom timer, tasks,
+history, settings, notifications, productivity UX, and persistence hardening.
 
 ---
 
@@ -141,7 +139,7 @@ for both task counts and history. The session duration is captured when the time
 starts, so changing settings mid-session cannot rewrite an already-running
 session's recorded duration. Breaks are stored for context but never counted as
 focus. The modal is read-only and intentionally small: no charts, filters, or
-dashboard. Session retention is currently unbounded (see KI-16).
+dashboard. Session history keeps the latest 5,000 records (see MVP 2.7).
 
 ---
 
@@ -207,35 +205,82 @@ notification settings page.
 
 ---
 
-## MVP 2.6 — Productivity UX — `PARTIAL`
+## MVP 2.6 — Productivity UX — `DONE`
 
-- [ ] Improve completion feedback for Pomodoro and break sessions.
-- [ ] Refine task progress and session summaries.
+- [x] Improve completion feedback for Pomodoro and break sessions. The timer
+      card shows a `role="status"` message after a session ends
+      ("Pomodoro complete. Time for a break."), using the same copy as the
+      browser notification (`SESSION_COMPLETE_COPY` in `constants/timer.ts`).
+      The message stays until the next session starts or the mode changes.
+- [x] Refine task progress and session summaries. Reviewed: the inline
+      "N pomodoro(s)" pill on the task row and the History summary (today +
+      all time) are enough; no charts or extra indicators added.
 - [x] Progress indicator exists (`TimerProgress`, now interval-driven).
-- [ ] Review loading, empty, error, and confirmation states.
-- [ ] Keep secondary information in compact components or modals.
-- [ ] Test keyboard flow and responsive layouts.
-- [ ] Do not add charts/dashboard complexity unless the underlying history data
-      makes it useful.
+- [x] Review loading, empty, error, and confirmation states. Luno is
+      local-first, so there is no loading state. Empty states exist for tasks
+      ("Add a task to get started.") and history ("No sessions yet."). Storage
+      read/parse failures fall back to defaults silently — kept that way, an
+      error banner for a corrupt local key is not worth the UI. Task deletion
+      stays immediate with no confirmation dialog (local, cheap, and the task
+      can be re-added).
+- [x] Keep secondary information in compact components or modals. History and
+      settings live in modals; task progress is an inline pill; the completion
+      message is a single line in the timer card.
+- [x] Test keyboard flow and responsive layouts. All controls are native
+      buttons/inputs; the modals have Escape + focus-trap tests
+      (`SettingsModal.test.tsx`, `HistoryModal.test.tsx`). The completion
+      message was re-checked in Chrome at 1280 px and 320 px (no horizontal
+      overflow); the full responsive review was done in Phase 5.
+- [x] Do not add charts/dashboard complexity unless the underlying history data
+      makes it useful. **Decision: no charts.** The history data is a flat
+      session list; a chart would add nothing yet.
+
+**Evidence:** `npm test` → 156 passed / 15 files; `npm run build` → pass;
+`npm run lint` → clean. Browser check (headless Chrome, 1-minute sessions):
+after a Pomodoro the timer card shows "Pomodoro complete. Time for a break.",
+the mode switches to Short Break, and `luno:sessions` records the session.
+
+**Scope note:** the in-app message exists because browser notifications depend
+on OS settings (they stay hidden while the OS is in Do Not Disturb). It is not
+a replacement for the notification and adds no animation, sound, or toast
+queue.
 
 ---
 
-## MVP 2.7 — Data & Persistence Improvements — `PARTIAL`
+## MVP 2.7 — Data & Persistence Improvements — `DONE`
 
 - [x] Document which data is persisted: tasks (including per-task Pomodoro
       counts), active-task id, timer settings, and session history.
       See `constants/storage.ts` and `architecture.md`.
-- [ ] Define schema/versioning or migration behavior for persisted local data.
-      *(Session records are shape-validated, but there is no version field.)*
+- [x] Define schema/versioning or migration behavior for persisted local data.
+      **Decision: no version field.** Each store is validated and normalized on
+      read (`useTasks`, `useTimerSettings`, `useSessions`): missing fields get
+      defaults, malformed records are dropped, and unknown fields are ignored.
+      That is the migration mechanism. Add a version key only if a future change
+      cannot be expressed as a validator change.
 - [x] Validate persisted timer settings shape/range (`useTimerSettings`; KI-6).
+      The storage key is now `STORAGE_KEY.timerSettings` (KI-5 resolved).
 - [x] Validate persisted task data shape (`useTasks`; KI-12).
 - [x] Validate persisted session history shape (`useSessions`).
-- [x] Handle malformed or unavailable local storage safely (per-key `try/catch` in
-      `useLocalStorage`, with fallback to the initial value; tested).
+- [x] Handle malformed or unavailable local storage safely. `useLocalStorage`
+      now catches read *and* write errors: blocked storage falls back to the
+      initial value, and failed writes (quota) leave the in-memory state usable.
 - [x] Reload behavior verified for tasks, settings, and session history.
 - [x] Prevent duplicate session records after rerenders/repeated completions
       (the App effect dedupes the completion event; StrictMode test added).
-- [ ] Add tests for persistence and data consistency (broader coverage pending).
+- [x] Add tests for persistence and data consistency: blocked reads, failed
+      writes, invalid JSON/shape, and session retention.
+- [x] Cap stored session history at the latest 5,000 records
+      (`MAX_STORED_SESSIONS`), so `luno:sessions` cannot grow without bound
+      (KI-16 resolved).
+
+**Evidence:** `npm test` → 159 passed / 15 files; `npm run build` → pass;
+`npm run lint` → clean.
+
+**Scope note:** the cap keeps the latest 5,000 sessions (~0.5 MB) — years of
+typical use. "All time" in History therefore means all retained sessions; if
+users need more, paginate the history and raise the cap. There is no export,
+cloud backup, or cross-device sync.
 
 **Important:** local persistence is not the same as cloud backup or cross-device
 synchronization. Cloud sync is not part of MVP 2.
@@ -254,6 +299,8 @@ synchronization. Cloud sync is not part of MVP 2.
 - [x] Browser notifications degrade gracefully (denied/unsupported browsers are
       no-ops; timer completion still works; `useNotifications.test.ts`,
       `App.test.tsx`).
+- [x] Completion is visible in the app (in-app status message in the timer
+      card) and optionally through a browser notification.
 - [x] All data intended to persist survives reload (tasks, task progress,
       active task, settings, and session history).
 - [x] Tests and production build pass.

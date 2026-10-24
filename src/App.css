@@ -98,6 +98,18 @@ input:disabled {
   font-variant-numeric: tabular-nums;
 }
 
+.timer-feedback {
+  display: inline-block;
+  max-width: 100%;
+  margin: 0 0 12px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #f0f0f0;
+  color: #222;
+  font-size: 14px;
+  font-weight: 500;
+}
+
 .timer-progress {
   display: flex;
   justify-content: center;

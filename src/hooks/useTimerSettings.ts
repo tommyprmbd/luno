@@ -3,6 +3,7 @@ import {
   MAX_LONG_BREAK_INTERVAL,
   MAX_TIMER_DURATION_SECONDS,
 } from "../constants/timer";
+import { STORAGE_KEY } from "../constants/storage";
 import type { TimerSettings } from "../types/timer";
 import { useLocalStorage } from "./useLocalStorage";
 
@@ -46,7 +47,7 @@ function readTimerSettings(value: unknown): TimerSettings | null {
 
 export function useTimerSettings() {
   const [settings, setSettings] = useLocalStorage<TimerSettings>(
-    "luno-timer-settings",
+    STORAGE_KEY.timerSettings,
     DEFAULT_TIMER_SETTINGS,
     readTimerSettings,
   );

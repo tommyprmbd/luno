@@ -477,6 +477,47 @@ describe("App", () => {
     }
   });
 
+  it("should show completion feedback until the next session starts", () => {
+    vi.useFakeTimers();
+
+    try {
+      render(<App />);
+
+      expect(screen.queryByText(/complete\./)).not.toBeInTheDocument();
+
+      act(() => {
+        screen.getByRole("button", { name: "START" }).click();
+      });
+
+      act(() => {
+        vi.advanceTimersByTime(TIMER_DURATION.pomodoro * 1000);
+      });
+
+      expect(
+        screen.getByText("Pomodoro complete. Time for a break."),
+      ).toBeInTheDocument();
+
+      // starting the next session clears the message.
+      act(() => {
+        screen.getByRole("button", { name: "START" }).click();
+      });
+
+      expect(
+        screen.queryByText("Pomodoro complete. Time for a break."),
+      ).not.toBeInTheDocument();
+
+      act(() => {
+        vi.advanceTimersByTime(TIMER_DURATION["short-break"] * 1000);
+      });
+
+      expect(
+        screen.getByText("Short break complete. Ready for another Pomodoro?"),
+      ).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("should show long break after four completed pomodoros", () => {
     vi.useFakeTimers();
 

@@ -1,7 +1,7 @@
 # Known Issues & Tech Debt
 
-**Last reviewed:** 2026-10-20 (MVP 2.5 review, working tree).
-**Evidence:** `npm test` 155 passed / 15 files · `npm run build` pass · `npm run lint` clean.
+**Last reviewed:** 2026-10-24 (MVP 2.7 review, working tree).
+**Evidence:** `npm test` 159 passed / 15 files · `npm run build` pass · `npm run lint` clean.
 
 ## Resolved
 
@@ -11,27 +11,29 @@
 | KI-2 | `index.html` had a static `<title>app</title>` (runtime title was set by `App.tsx`, so pre-hydration/SEO title was wrong). | Fixed 2026-10-18: static fallback `<title>Luno — Pomodoro Timer</title>`. |
 | KI-3 | ESLint linted generated `coverage/*` files, producing warnings. | Fixed 2026-10-18: `globalIgnores(['dist', 'coverage'])`; `npm run lint` is now clean. |
 | KI-4 | Duplicate/overlapping CSS: both `src/index.css` and `src/App.css` defined `.app`, `.timer`, `.timer-mode`, `.timer-controls`, `.start-button`, `.reset-button`, `.task-item`, etc. Import order decided which won, and `.timer-mode-active` ended up with both a background and an underline. | Fixed 2026-10-19: `index.css` is now global base only (`*`, `html`, `body`, `button`, `input`); all component styles live in `App.css`. Unique `index.css` properties (`.header` margin, `.timer` card background/padding) were merged into `App.css`; dead rules (`.tasks h2`, `.task-list`, `.add-task-button`) deleted. |
+| KI-5 | `useTimerSettings` hard-coded the storage key `"luno-timer-settings"` instead of using `constants/storage.ts`. | Fixed 2026-10-24: added `STORAGE_KEY.timerSettings` and used it in `useTimerSettings`. |
 | KI-6 | No validation of persisted timer settings. Invalid values (`0`, negative, missing keys, wrong types, huge interval) could produce a broken or hanging timer. Only JSON parse errors were guarded. | Fixed 2026-10-19: `useTimerSettings` normalizes on load — each field must be a positive integer within range, otherwise the default is used; `longBreakInterval` is capped so the progress dots cannot hang the UI. Tests added in `useTimerSettings.test.ts`. |
 | KI-11 | `App.test.tsx` contained a commented-out `RESET` interaction block (the "reset without resetting progress" test did not actually click RESET). | Fixed 2026-10-19: the test now starts the short break, pauses it, clicks RESET, and asserts progress is unchanged. |
 | KI-12 | Persisted `luno:tasks` was cast blindly (`JSON.parse(...) as Task[]`); a valid-JSON-wrong-shape value (e.g. `{}` or `null`) crashed the app on load (`tasks.find is not a function`). | Fixed 2026-10-19: `useTasks` validates the stored array and drops malformed entries via a `validate` hook passed to `useLocalStorage`. Tests added in `useTasks.test.ts`. |
 | KI-13 | `useTasks.addTask` called `crypto.randomUUID()` directly, which is `undefined` outside a secure context, so ADD threw when the app was served over plain `http://` on a LAN IP. | Fixed 2026-10-19: task ids fall back to a timestamp + random string when `crypto.randomUUID` is unavailable. Test added in `useTasks.test.ts`. |
 | KI-15 | axe-core found contrast failures in the empty-state text and completed task titles, plus a missing `main` landmark. | Fixed 2026-10-19: darkened empty-state/placeholder text, raised completed-task opacity, increased inactive progress-dot opacity, and wrapped the app in `<main>`. axe re-run at empty/all-completed/running states: 0 violations. |
+| KI-16 | Session history in `luno:sessions` was unbounded. A very long history could reach the localStorage quota, and `useLocalStorage` did not catch `QuotaExceededError` on write. | Fixed 2026-10-24: `useLocalStorage` catches read and write failures (blocked storage and quota), and `useSessions` keeps only the latest 5,000 records (`MAX_STORED_SESSIONS`). Tests added. |
 
 ## Open
 
 | ID | Severity | Issue | Suggested action |
 | --- | --- | --- | --- |
-| KI-5 | Low | `useTimerSettings` hard-codes the storage key `"luno-timer-settings"` instead of using `constants/storage.ts`, unlike tasks/active-task. | Add the key to `STORAGE_KEY` and use it consistently. |
 | KI-7 | Info (by design) | Timer runtime state (`remainingSeconds`, `mode`, `status`, `completedPomodoros`) is not persisted; it resets on reload. | Confirm this is intended and document it as a decision (relates to MVP 2.1.1 acceptance). |
 | KI-8 | Low | Side effects occur inside a `setRemainingSeconds` updater in `useTimer` (calling `setStatus`, `setMode`, `setCompletedPomodoros`, and `setLastCompletedSession` during the state updater). It works and is tested, but it is a code smell and fragile under React StrictMode double-invocation. | Consider moving completion handling into a dedicated effect/interval callback. |
 | KI-9 | Low | No in-repo accessibility regression test. One-off axe-core audits were run on 2026-10-19 (main/settings) and 2026-10-20 (task tracking/history, desktop/mobile/320 px; 0 violations), but nothing runs in CI. | Add an a11y test/lint (e.g. `jest-axe`/`vitest-axe`) when convenient. |
-| KI-10 | Low | Test files use the literal string `"luno-timer-settings"` rather than the shared constant. | Follow KI-5 (introduce the constant) and update tests. |
+| KI-10 | Low | Test files use the literal string `"luno-timer-settings"` rather than the shared constant. | Optional cleanup: import `STORAGE_KEY` in tests; keeping the literal also guards the storage key value. |
 | KI-14 | Info (by design) | The countdown never renders `00:00`: at `00:01` the next tick selects the next mode and shows its full duration. | Kept as intended (showing `00:00` would add a one-second delay and rewrite the timer completion timing asserted across the suite). Revisit only if users ask for it. |
-| KI-16 | Low | Session history in `luno:sessions` is unbounded. A very long history could reach the localStorage quota, and `useLocalStorage` does not catch `QuotaExceededError` on write. | Add a retention cap or explicit export/prune control, and handle quota errors safely as part of MVP 2.7. |
+| KI-17 | Info (by design) | Browser notifications are rendered by the OS. With GNOME Do Not Disturb (`org.gnome.desktop.notifications show-banners=false`) the browser still generates them (Chrome counts them) but nothing is shown. | No app fix. The in-app completion message (MVP 2.6) covers the gap; the user must allow notifications in the OS. |
 
 ## Backlog (not yet implemented features)
 
-- MVP 2.6 — Productivity UX refinements.
-- MVP 2.7 — Persistence schema/versioning.
+MVP 2 is complete. MVP 3 (backend/accounts/sync) is **not in scope** without
+explicit approval. Remaining tech-debt items are listed above (KI-7, KI-8, KI-9,
+KI-10, KI-14, KI-17).
 
 See [`roadmap.md`](./roadmap.md) for priorities.

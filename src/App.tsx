@@ -5,6 +5,7 @@ import HistoryModal from "./components/History/HistoryModal";
 import SettingsModal from "./components/Settings/SettingsModal";
 import TaskList from "./components/Tasks/TaskList";
 import Timer from "./components/Timer/Timer";
+import { SESSION_COMPLETE_COPY } from "./constants/timer";
 import { useNotifications } from "./hooks/useNotifications";
 import { useSessions } from "./hooks/useSessions";
 import { useTasks } from "./hooks/useTasks";
@@ -30,6 +31,9 @@ function App() {
 
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [completionMessage, setCompletionMessage] = useState<string | null>(
+    null,
+  );
 
   const {
     tasks,
@@ -89,6 +93,10 @@ function App() {
     });
 
     notifySessionComplete(lastCompletedSession);
+
+    const { title, body } = SESSION_COMPLETE_COPY[lastCompletedSession.mode];
+
+    setCompletionMessage(`${title}. ${body}`);
   }, [
     lastCompletedSession,
     activeTaskId,
@@ -114,11 +122,17 @@ function App() {
     toggleTask(id);
   }
 
+  function handleStart() {
+    setCompletionMessage(null);
+    start();
+  }
+
   function handleChangeMode(newMode: TimerMode) {
     if (status === "running") {
       return;
     }
 
+    setCompletionMessage(null);
     changeMode(newMode);
   }
 
@@ -141,7 +155,8 @@ function App() {
         remainingSeconds={remainingSeconds}
         completedPomodoros={completedPomodoros}
         longBreakInterval={longBreakInterval}
-        onStart={start}
+        feedback={completionMessage}
+        onStart={handleStart}
         onPause={pause}
         onReset={reset}
         onChangeMode={handleChangeMode}
