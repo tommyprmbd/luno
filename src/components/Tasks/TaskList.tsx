@@ -35,8 +35,15 @@ function TaskList({
     setNewTask("");
   }
 
+  const remaining = tasks.filter((task) => !task.completed).length;
+
   return (
     <section className="tasks">
+      <div className="tasks-header">
+        <h2>Tasks</h2>
+        <span className="tasks-remaining">{remaining} remaining</span>
+      </div>
+
       <form onSubmit={handleSubmit}>
         <input
           type="text"

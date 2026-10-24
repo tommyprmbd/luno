@@ -18,18 +18,20 @@ function TimerMode({ mode, onChange }: TimerModeProps) {
 
       <button
         className={mode === "short-break" ? "timer-mode-active" : ""}
+        aria-label="Short Break"
         aria-pressed={mode === "short-break"}
         onClick={() => onChange("short-break")}
       >
-        Short Break
+        Short
       </button>
 
       <button
         className={mode === "long-break" ? "timer-mode-active" : ""}
+        aria-label="Long Break"
         aria-pressed={mode === "long-break"}
         onClick={() => onChange("long-break")}
       >
-        Long Break
+        Long
       </button>
     </div>
   );

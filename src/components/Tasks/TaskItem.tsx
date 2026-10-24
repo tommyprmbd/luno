@@ -43,6 +43,10 @@ function TaskItem({
         </span>
       </label>
 
+      {isActive && !task.completed && (
+        <span className="task-active-badge">In Progress</span>
+      )}
+
       {task.completedPomodoros > 0 && (
         <span className="task-pomodoros">
           {formatPomodoros(task.completedPomodoros)}
@@ -52,6 +56,7 @@ function TaskItem({
       {!task.completed && (
         <button
           type="button"
+          className="task-focus-button"
           disabled={isTimerRunning}
           onClick={() => onSelect(task.id)}
         >

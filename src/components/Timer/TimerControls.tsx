@@ -14,12 +14,12 @@ function TimerControls({
   if (status === "running") {
     return (
       <div className="timer-controls">
-        <button type="button" className="start-button" onClick={onPause}>
-          PAUSE
-        </button>
-
         <button type="button" className="reset-button" onClick={onReset}>
           RESET
+        </button>
+
+        <button type="button" className="start-button" onClick={onPause}>
+          PAUSE
         </button>
       </div>
     );
@@ -27,15 +27,15 @@ function TimerControls({
 
   return (
     <div className="timer-controls">
-      <button type="button" className="start-button" onClick={onStart}>
-        {status === "paused" ? "RESUME" : "START"}
-      </button>
-
       {status === "paused" && (
         <button type="button" className="reset-button" onClick={onReset}>
           RESET
         </button>
       )}
+
+      <button type="button" className="start-button" onClick={onStart}>
+        {status === "paused" ? "RESUME" : "START"}
+      </button>
     </div>
   );
 }
