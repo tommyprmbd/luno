@@ -5,6 +5,7 @@ import {
   getTotalFocusSummary,
 } from "../../hooks/useSessions";
 import type { SessionRecord } from "../../types/session";
+import Button from "../ui/Button";
 
 const MODE_LABELS: Record<SessionRecord["mode"], string> = {
   pomodoro: "Focus",
@@ -12,11 +13,15 @@ const MODE_LABELS: Record<SessionRecord["mode"], string> = {
   "long-break": "Long break",
 };
 
-const formatTimestamp = (timestamp: number) => {
-  const date = new Date(timestamp);
-
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")} ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
-};
+// "M d, Y h:m" — e.g. Oct 24, 2026, 9:30 AM
+const formatTimestamp = (timestamp: number) =>
+  new Date(timestamp).toLocaleString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
 
 type HistoryModalProps = {
   sessions: SessionRecord[];
@@ -37,9 +42,26 @@ function HistoryModal({ sessions, onClose }: HistoryModalProps) {
       return;
     }
 
-    // CLOSE is the only interactive element; keep Tab inside the dialog.
-    if (event.key === "Tab") {
+    if (event.key !== "Tab") {
+      return;
+    }
+
+    const focusable = event.currentTarget.querySelectorAll<HTMLElement>(
+      'button, input, [href], select, textarea, [tabindex]:not([tabindex="-1"])',
+    );
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+
+    if (!first || !last) {
+      return;
+    }
+
+    if (event.shiftKey && document.activeElement === first) {
       event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
     }
   }
 
@@ -59,18 +81,50 @@ function HistoryModal({ sessions, onClose }: HistoryModalProps) {
         aria-labelledby="history-title"
         onKeyDown={handleKeyDown}
       >
-        <h2 id="history-title">Session history</h2>
+        <div className="modal-header">
+          <div className="modal-title">
+            <span className="modal-icon" aria-hidden="true">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                />
+              </svg>
+            </span>
+            <h2 id="history-title">Session history</h2>
+          </div>
+
+          <Button variant="icon" aria-label="Close" onClick={onClose}>
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                d="M6 18L18 6M6 6l12 12"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+              />
+            </svg>
+          </Button>
+        </div>
 
         <div className="history-summary">
-          <span className="history-summary-label">Today</span>
-          <strong>
-            {summary.count} focus {summary.count === 1 ? "session" : "sessions"}
-          </strong>
-          <span>{formatDuration(summary.totalSeconds)} focused</span>
-          <span className="history-total">
-            All time: {formatDuration(total.totalSeconds)} focused
-          </span>
+          <div className="history-stat">
+            <span className="history-summary-label">Today's Focus</span>
+            <strong>{formatDuration(summary.totalSeconds)}</strong>
+          </div>
+          <div className="history-stat">
+            <span className="history-summary-label">Completed Orbits</span>
+            <strong>
+              {summary.count} {" "}
+              {summary.count === 1 ? "Pomo" : "Pomos"}
+            </strong>
+          </div>
         </div>
+
+        <p className="history-total">
+          All time: {formatDuration(total.totalSeconds)} focused
+        </p>
 
         {recentSessions.length === 0 ? (
           <p className="history-empty">
@@ -83,35 +137,30 @@ function HistoryModal({ sessions, onClose }: HistoryModalProps) {
                 key={`${session.completedAt}-${session.mode}-${index}`}
                 className="history-item"
               >
-                <div className="history-row">
-                  <span className="history-time">
-                    {formatTimestamp(session.completedAt)}
-                  </span>
-                  <span className="history-mode">
-                    {MODE_LABELS[session.mode]}
-                  </span>
-                  <span className="history-duration">
-                    {formatDuration(session.durationSeconds)}
-                  </span>
-                </div>
-
+                <time
+                  className="history-time"
+                  dateTime={new Date(session.completedAt).toISOString()}
+                >
+                  {formatTimestamp(session.completedAt)}
+                </time>
+                <span className="history-mode">
+                  {MODE_LABELS[session.mode]}
+                </span>
                 {session.taskTitle && (
-                  <p className="history-task">{session.taskTitle}</p>
+                  <span className="history-title">{session.taskTitle}</span>
                 )}
+                <span className="history-duration">
+                  {formatDuration(session.durationSeconds)}
+                </span>
               </li>
             ))}
           </ul>
         )}
 
-        <div className="history-actions">
-          <button
-            type="button"
-            className="start-button"
-            onClick={onClose}
-            autoFocus
-          >
+        <div className="modal-footer">
+          <Button variant="ghost" onClick={onClose} autoFocus>
             CLOSE
-          </button>
+          </Button>
         </div>
       </div>
     </div>

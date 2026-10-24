@@ -1,24 +1,50 @@
 /* Global base styles. Component styles live in src/App.css. */
 
+:root {
+  --font-sans:
+    "Plus Jakarta Sans", Inter, ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  --color-canvas: #f1f3f5;
+  --color-surface: #ffffff;
+  --color-text: #161d19;
+  --color-text-muted: #475569;
+  --color-outline: #e2e8f0;
+  --color-outline-strong: #cbd5e1;
+  --color-primary: #d4f34a;
+  --color-primary-hover: #cef138;
+  --color-on-primary: #0a110d;
+  --color-accent-ink: #556500;
+
+  --radius-sm: 0.5rem;
+  --radius-md: 1rem;
+  --radius-lg: 1.5rem;
+  --radius-pill: 9999px;
+}
+
 * {
   box-sizing: border-box;
 }
 
 html {
-  font-family:
-    Inter,
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    sans-serif;
+  font-family: var(--font-sans);
 }
 
 body {
+  min-height: 100vh;
   margin: 0;
-  background: #fafafa;
-  color: #222;
+  background: var(--color-canvas);
+  color: var(--color-text);
+  font-size: 15px;
+  line-height: 1.6;
+  letter-spacing: -0.005em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
 }
 
 button {

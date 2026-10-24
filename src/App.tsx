@@ -1,10 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import "./App.css";
 import Header from "./components/Header/Header";
+import AboutModal from "./components/About/AboutModal";
+import CompletionAlert from "./components/Timer/CompletionAlert";
 import HistoryModal from "./components/History/HistoryModal";
 import SettingsModal from "./components/Settings/SettingsModal";
 import TaskList from "./components/Tasks/TaskList";
 import Timer from "./components/Timer/Timer";
+import { createDotBackdrop } from "./backdrop";
 import { SESSION_COMPLETE_COPY } from "./constants/timer";
 import { useNotifications } from "./hooks/useNotifications";
 import { useSessions } from "./hooks/useSessions";
@@ -12,6 +15,10 @@ import { useTasks } from "./hooks/useTasks";
 import { useTimer } from "./hooks/useTimer";
 import type { CompletedSession } from "./types/session";
 import type { TimerMode, TimerSettings } from "./types/timer";
+
+const BACKDROP_STYLE = {
+  backgroundImage: `url("data:image/svg+xml,${encodeURIComponent(createDotBackdrop())}")`,
+};
 
 function App() {
   const {
@@ -31,6 +38,7 @@ function App() {
 
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [completionMessage, setCompletionMessage] = useState<string | null>(
     null,
   );
@@ -143,9 +151,12 @@ function App() {
 
   return (
     <main className="app">
+      <div className="backdrop" aria-hidden="true" style={BACKDROP_STYLE} />
+
       <Header
         onOpenHistory={() => setIsHistoryOpen(true)}
         onOpenSettings={() => setIsSettingsOpen(true)}
+        onOpenAbout={() => setIsAboutOpen(true)}
       />
 
       <Timer
@@ -155,7 +166,6 @@ function App() {
         remainingSeconds={remainingSeconds}
         completedPomodoros={completedPomodoros}
         longBreakInterval={longBreakInterval}
-        feedback={completionMessage}
         onStart={handleStart}
         onPause={pause}
         onReset={reset}
@@ -172,6 +182,17 @@ function App() {
         onDeleteTask={deleteTask}
       />
 
+      <footer className="footer">
+        <p className="footer-label">
+          <span className="footer-dot" aria-hidden="true" />
+          Ritual Guidance
+        </p>
+        <p className="footer-quote">
+          “One breath. One task. In stillness, deep clarity surfaces
+          effortlessly.”
+        </p>
+      </footer>
+
       {isHistoryOpen && (
         <HistoryModal
           sessions={sessions}
@@ -186,6 +207,15 @@ function App() {
           onEnableNotifications={requestPermission}
           onSave={handleSaveSettings}
           onClose={() => setIsSettingsOpen(false)}
+        />
+      )}
+
+      {isAboutOpen && <AboutModal onClose={() => setIsAboutOpen(false)} />}
+
+      {completionMessage && (
+        <CompletionAlert
+          message={completionMessage}
+          onClose={() => setCompletionMessage(null)}
         />
       )}
     </main>

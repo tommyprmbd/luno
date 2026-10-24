@@ -7,24 +7,17 @@ function TimerProgress({
   completedPomodoros,
   longBreakInterval,
 }: TimerProgressProps) {
+  const currentOrbit = Math.min(completedPomodoros + 1, longBreakInterval);
+
   return (
     <div
       className="timer-progress"
       role="status"
       aria-label={`Pomodoro progress: ${completedPomodoros} of ${longBreakInterval} completed`}
     >
-      {Array.from({ length: longBreakInterval }, (_, index) => (
-        <span
-          key={index}
-          className={
-            index < completedPomodoros
-              ? "timer-progress-dot completed"
-              : "timer-progress-dot"
-          }
-        >
-          ●
-        </span>
-      ))}
+      <span className="timer-orbit-badge" aria-hidden="true">
+        🎯 Orbit {currentOrbit} / {longBreakInterval}
+      </span>
     </div>
   );
 }

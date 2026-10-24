@@ -235,7 +235,7 @@ describe("App", () => {
 
     await user.click(
       screen.getByRole("button", {
-        name: "ADD",
+        name: "Add Task",
       }),
     );
 
@@ -273,7 +273,7 @@ describe("App", () => {
 
     await user.click(
       screen.getByRole("button", {
-        name: "ADD",
+        name: "Add Task",
       }),
     );
 
@@ -281,7 +281,7 @@ describe("App", () => {
 
     await user.click(
       screen.getByRole("button", {
-        name: "ADD",
+        name: "Add Task",
       }),
     );
 
@@ -319,7 +319,7 @@ describe("App", () => {
 
     await user.click(
       screen.getByRole("button", {
-        name: "ADD",
+        name: "Add Task",
       }),
     );
 
@@ -327,7 +327,7 @@ describe("App", () => {
 
     await user.click(
       screen.getByRole("button", {
-        name: "ADD",
+        name: "Add Task",
       }),
     );
 
@@ -362,7 +362,7 @@ describe("App", () => {
 
     await user.click(
       screen.getByRole("button", {
-        name: "ADD",
+        name: "Add Task",
       }),
     );
 
@@ -370,7 +370,7 @@ describe("App", () => {
 
     await user.click(
       screen.getByRole("button", {
-        name: "ADD",
+        name: "Add Task",
       }),
     );
 
@@ -414,7 +414,7 @@ describe("App", () => {
 
     await user.click(
       screen.getByRole("button", {
-        name: "ADD",
+        name: "Add Task",
       }),
     );
 
@@ -477,13 +477,13 @@ describe("App", () => {
     }
   });
 
-  it("should show completion feedback until the next session starts", () => {
+  it("should show the completion alert and auto dismiss it after five seconds", () => {
     vi.useFakeTimers();
 
     try {
       render(<App />);
 
-      expect(screen.queryByText(/complete\./)).not.toBeInTheDocument();
+      expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
 
       act(() => {
         screen.getByRole("button", { name: "START" }).click();
@@ -494,25 +494,17 @@ describe("App", () => {
       });
 
       expect(
-        screen.getByText("Pomodoro complete. Time for a break."),
+        screen.getByRole("alertdialog", {
+          name: "Pomodoro complete. Time for a break.",
+        }),
       ).toBeInTheDocument();
-
-      // starting the next session clears the message.
-      act(() => {
-        screen.getByRole("button", { name: "START" }).click();
-      });
-
-      expect(
-        screen.queryByText("Pomodoro complete. Time for a break."),
-      ).not.toBeInTheDocument();
+      expect(screen.getByText("Closing in 5s")).toBeInTheDocument();
 
       act(() => {
-        vi.advanceTimersByTime(TIMER_DURATION["short-break"] * 1000);
+        vi.advanceTimersByTime(5000);
       });
 
-      expect(
-        screen.getByText("Short break complete. Ready for another Pomodoro?"),
-      ).toBeInTheDocument();
+      expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
     } finally {
       vi.useRealTimers();
     }
@@ -600,7 +592,7 @@ describe("App", () => {
       act(() => {
         screen
           .getByRole("button", {
-            name: "ADD",
+            name: "Add Task",
           })
           .click();
       });
@@ -655,8 +647,6 @@ describe("App", () => {
         vi.advanceTimersByTime(TIMER_DURATION.pomodoro * 1000);
       });
 
-      expect(screen.getByText("1 pomodoro")).toBeInTheDocument();
-
       const stored = JSON.parse(localStorage.getItem("luno:tasks")!);
 
       expect(stored[0].completedPomodoros).toBe(1);
@@ -695,7 +685,9 @@ describe("App", () => {
         vi.advanceTimersByTime(TIMER_DURATION["short-break"] * 1000);
       });
 
-      expect(screen.getByText("1 pomodoro")).toBeInTheDocument();
+      const stored = JSON.parse(localStorage.getItem("luno:tasks")!);
+
+      expect(stored[0].completedPomodoros).toBe(1);
     } finally {
       vi.useRealTimers();
     }
@@ -721,8 +713,6 @@ describe("App", () => {
       act(() => {
         vi.advanceTimersByTime(TIMER_DURATION.pomodoro * 1000);
       });
-
-      expect(screen.queryByText("1 pomodoro")).not.toBeInTheDocument();
 
       const stored = JSON.parse(localStorage.getItem("luno:tasks")!);
 
@@ -771,7 +761,7 @@ describe("App", () => {
       const dialog = screen.getByRole("dialog", { name: "Session history" });
 
       expect(dialog).toBeInTheDocument();
-      expect(screen.getByText("1 focus session")).toBeInTheDocument();
+      expect(screen.getByText("1 Pomo")).toBeInTheDocument();
       expect(within(dialog).getAllByRole("listitem")).toHaveLength(1);
     } finally {
       vi.useRealTimers();
@@ -880,7 +870,7 @@ describe("App", () => {
         screen.getByRole("button", { name: "History" }).click();
       });
 
-      expect(screen.getByText("1 focus session")).toBeInTheDocument();
+      expect(screen.getByText("1 Pomo")).toBeInTheDocument();
     } finally {
       vi.useRealTimers();
     }
@@ -1072,8 +1062,8 @@ describe("App", () => {
 
     await user.click(screen.getByRole("button", { name: "History" }));
 
-    expect(screen.getByText("1 focus session")).toBeInTheDocument();
-    expect(screen.getByText("25m focused")).toBeInTheDocument();
+    expect(screen.getByText("1 Pomo")).toBeInTheDocument();
+    expect(screen.getByText("Today's Focus").closest(".history-stat")).toHaveTextContent("25m");
     expect(screen.getByText("Build Luno")).toBeInTheDocument();
   });
 
@@ -1221,7 +1211,7 @@ describe("App", () => {
 
     await user.click(
       screen.getByRole("button", {
-        name: "ADD",
+        name: "Add Task",
       }),
     );
 
@@ -1245,7 +1235,7 @@ describe("App", () => {
 
     await user.click(
       screen.getByRole("button", {
-        name: "ADD",
+        name: "Add Task",
       }),
     );
 

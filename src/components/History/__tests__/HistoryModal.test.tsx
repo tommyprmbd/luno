@@ -59,8 +59,12 @@ describe("HistoryModal", () => {
       screen.getByRole("dialog", { name: "Session history" }),
     ).toBeInTheDocument();
 
-    expect(screen.getByText("1 focus session")).toBeInTheDocument();
-    expect(screen.getByText("25m focused")).toBeInTheDocument();
+    expect(
+      screen.getByText("Completed Orbits").closest(".history-stat"),
+    ).toHaveTextContent("1 Pomo");
+    expect(
+      screen.getByText("Today's Focus").closest(".history-stat"),
+    ).toHaveTextContent("25m");
     expect(screen.getByText("All time: 50m focused")).toBeInTheDocument();
     expect(screen.getByText("Build Luno")).toBeInTheDocument();
     expect(screen.getByText("Write docs")).toBeInTheDocument();
@@ -81,7 +85,7 @@ describe("HistoryModal", () => {
   it("should show an empty state when there is no history", () => {
     renderModal([]);
 
-    expect(screen.getByText("0 focus sessions")).toBeInTheDocument();
+    expect(screen.getByText("0 Pomos")).toBeInTheDocument();
     expect(screen.getByText("All time: 0m focused")).toBeInTheDocument();
     expect(
       screen.getByText(
@@ -115,13 +119,28 @@ describe("HistoryModal", () => {
     expect(onClose).toHaveBeenCalledOnce();
   });
 
-  it("should focus CLOSE and keep Tab inside the dialog", async () => {
+  it("should show completion times in M d, Y h:m format", () => {
+    renderModal();
+
+    const stamps = screen.getAllByText(
+      /^\w{3} \d{1,2}, \d{4}, \d{1,2}:\d{2} [AP]M$/,
+    );
+
+    expect(stamps).toHaveLength(sessions.length);
+  });
+
+  it("should keep Tab inside the dialog", async () => {
     const { user } = renderModal();
     const close = screen.getByRole("button", { name: "CLOSE" });
+    const dismiss = screen.getByRole("button", { name: "Close" });
 
     expect(close).toHaveFocus();
 
     await user.tab();
+
+    expect(dismiss).toHaveFocus();
+
+    await user.tab({ shift: true });
 
     expect(close).toHaveFocus();
   });

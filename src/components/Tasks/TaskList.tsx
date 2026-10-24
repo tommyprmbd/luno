@@ -35,8 +35,15 @@ function TaskList({
     setNewTask("");
   }
 
+  const remaining = tasks.filter((task) => !task.completed).length;
+
   return (
     <section className="tasks">
+      <div className="tasks-header">
+        <h2>Tasks</h2>
+        <span className="tasks-remaining">{remaining} remaining</span>
+      </div>
+
       <form onSubmit={handleSubmit}>
         <input
           type="text"
@@ -46,7 +53,12 @@ function TaskList({
           aria-label="New Task"
         />
 
-        <button type="submit">ADD</button>
+        <button type="submit">
+          <span className="add-task-icon" aria-hidden="true">
+            +
+          </span>
+          Add Task
+        </button>
       </form>
 
       {tasks.length > 0 ? (

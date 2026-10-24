@@ -1,0 +1,22 @@
+import type { ButtonHTMLAttributes } from "react";
+
+type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
+  variant?: "primary" | "ghost" | "text" | "icon";
+};
+
+function Button({
+  variant = "primary",
+  className = "",
+  type = "button",
+  ...props
+}: ButtonProps) {
+  return (
+    <button
+      type={type}
+      className={`btn btn-${variant} ${className}`.trim()}
+      {...props}
+    />
+  );
+}
+
+export default Button;
