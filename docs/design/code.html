@@ -1,0 +1,1126 @@
+<!DOCTYPE html><html lang="en" style=""><head></head><body class="min-h-screen bg-[#F1F3F5] text-slate-900 flex flex-col selection:bg-lime selection:text-noir-base antialiased relative overflow-x-hidden" data-mode="connect"><svg class="inline-defs-container" aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden"></svg>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>25:00 — Luno</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            noir: {
+              base: '#0A110D',
+              surface: '#FFFFFF',
+              surfaceAlt: '#F8FAF9',
+              border: '#E2E8F0',
+              borderLight: '#CBD5E1',
+              hover: '#F1F5F9',
+            },
+            lime: {
+              DEFAULT: '#D4F34A',
+              hover: '#CEF138',
+              dim: '#B2D62C',
+              glow: 'rgba(212, 243, 74, 0.25)',
+              glowStrong: 'rgba(212, 243, 74, 0.45)',
+              dark: '#0A110D',
+            },
+            sage: {
+              primary: '#0F172A',
+              muted: '#64748B',
+              subtle: '#94A3B8',
+              card: '#FFFFFF',
+            }
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    body {
+      background-color: #F1F3F5;
+      color: #0F172A;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .timer-digits {
+      font-feature-settings: "tnum";
+      font-variant-numeric: tabular-nums;
+    }
+    /* Modal Backdrop Transitions */
+    .modal-backdrop {
+      background: rgba(15, 23, 42, 0.55);
+      backdrop-filter: blur(12px);
+    }
+
+    /* 3D Realistic Vector Spherical Moon Orbit Rotation */
+    @keyframes moonSlowOrbit {
+      0% {
+        transform: rotate(0deg);
+      }
+      50% {
+        transform: rotate(180deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% {
+        opacity: 0.65;
+        transform: scale(1);
+      }
+      50% {
+        opacity: 0.95;
+        transform: scale(1.06);
+      }
+    }
+
+    .animated-poly-moon {
+      animation: moonSlowOrbit 140s linear infinite;
+      transform-origin: center center;
+    }
+
+    .moon-halo {
+      animation: pulseGlow 10s ease-in-out infinite;
+    }
+
+    /* Range slider custom styling */
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 16px;
+      width: 16px;
+      border-radius: 9999px;
+      background: #0A110D;
+      border: 2px solid #D4F34A;
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+  </style>
+
+
+<!-- Decorative subtle background grid dots / ambient texture -->
+<div class="fixed inset-0 pointer-events-none bg-[radial-gradient(#CBD5E1_1px,transparent_1px)] [background-size:24px_24px] opacity-60"></div>
+<!-- Top Minimal Bar -->
+<header class="w-full max-w-xl mx-auto px-6 py-6 flex items-center justify-between relative z-30">
+<!-- Brand -->
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-2xl bg-[#0A110D] border-2 border-slate-900 flex items-center justify-center text-lime shadow-md rotate-[-4deg] hover:rotate-0 transition-transform cursor-pointer">
+<svg class="w-5 h-5 fill-none stroke-current" viewBox="0 0 24 24">
+<path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4"></path>
+</svg>
+</div>
+<div class="flex items-center gap-2.5">
+<span class="font-extrabold text-xl tracking-tight text-slate-900">Luno</span>
+<span class="text-[11px] font-extrabold uppercase tracking-wider text-noir-base px-2.5 py-0.5 rounded-full bg-lime border border-[#C5E832] shadow-sm transform -rotate-3 hover:rotate-0 transition-transform cursor-pointer inline-flex items-center gap-1">
+<span class="">⚡</span> ONE FOCUS
+</span>
+</div>
+</div>
+<!-- Right Quick Actions -->
+<div class="flex items-center gap-2 relative">
+<!-- Sound Toggle Container with Floating Volume Popover -->
+<div class="relative" id="sound-wrapper">
+<button class="px-3.5 py-2 rounded-2xl hover:bg-slate-50 border hover:border-lime transition-all text-xs font-bold flex items-center gap-2 shadow-sm hover:scale-105 active:scale-95 bg-lime/25 text-slate-950 border-lime shadow-md" id="sound-btn" onclick="toggleSound()" title="Soundscapes">
+<span class="w-6 h-6 rounded-xl bg-lime/30 text-slate-900 flex items-center justify-center text-[13px] relative" id="sound-icon-box">
+<span id="sound-emoji" class="">🌧️</span>
+<span class="w-2 h-2 rounded-full bg-[#82A80B] absolute -top-0.5 -right-0.5" id="sound-pulse"></span>
+</span>
+<span class="text-xs font-semibold" id="sound-label-text">Rainfall</span>
+</button>
+<!-- Sleek Floating Volume Popover directly anchored beneath the button -->
+<div class="absolute right-0 top-full mt-2 w-64 bg-white border border-slate-200/90 rounded-2xl p-3.5 shadow-[0_16px_36px_-10px_rgba(15,23,42,0.18)] z-50 transition-all duration-200 hidden" id="sound-popover">
+<div class="flex items-center justify-between pb-2 border-b border-slate-100">
+<div class="flex items-center gap-1.5">
+<span class="text-xs">🌧️</span>
+<span class="text-xs font-bold text-slate-900 truncate">Rainfall Soundscape</span>
+</div>
+<span class="text-[10px] font-mono font-bold text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded" id="volume-readout">80%</span>
+</div>
+<div class="mt-2.5">
+<div class="flex items-center justify-between text-[10px] text-slate-400 font-medium mb-1">
+<span class="">Ambient White Noise</span>
+<span class="text-emerald-600 font-bold flex items-center gap-0.5">
+<span class="w-1.5 h-1.5 rounded-full bg-lime inline-block"></span> ACTIVE
+</span>
+</div>
+<!-- Volume Slider -->
+<div class="flex items-center gap-2.5 mt-1">
+<button class="text-slate-400 hover:text-slate-700 text-xs transition" id="mute-btn" onclick="toggleMute()" title="Mute/Unmute">
+<svg class="w-4 h-4" fill="none" id="volume-icon-svg" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+<input class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-slate-900" id="volume-slider" max="100" min="0" oninput="updateVolume(this.value)" type="range" value="65">
+<span class="text-[11px] font-mono text-slate-500 font-semibold">100</span>
+</div>
+</div>
+<div class="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px]">
+<button class="text-slate-500 hover:text-slate-800 text-[11px] font-semibold flex items-center gap-1" onclick="setSoundPreset('gentle')">
+<span class="">🍃</span> Soft
+</button>
+<button class="text-slate-500 hover:text-slate-800 text-[11px] font-semibold flex items-center gap-1" onclick="setSoundPreset('medium')">
+<span class="">🌧️</span> Deep
+</button>
+<button class="text-rose-500 hover:text-rose-700 text-[10px] font-bold uppercase tracking-wider ml-auto" onclick="toggleSound()">
+Turn Off
+</button>
+</div>
+</div>
+</div>
+<!-- Settings Icon -->
+<button class="w-9 h-9 rounded-2xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-400 transition-all flex items-center justify-center shadow-sm hover:scale-105 active:scale-95" onclick="openModal('settings-modal')" title="Timer Settings">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+<path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+<!-- History / More -->
+<button class="w-9 h-9 rounded-2xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-400 transition-all flex items-center justify-center shadow-sm hover:scale-105 active:scale-95" onclick="openModal('history-modal')" title="Orbit History">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+<!-- About / Philosophy -->
+<button class="w-9 h-9 rounded-2xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-400 transition-all flex items-center justify-center shadow-sm hover:scale-105 active:scale-95" onclick="openModal('about-modal')" title="About Luno">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+</div></header>
+<!-- Main Focus Container -->
+<main class="flex-1 w-full max-w-xl mx-auto px-6 pb-16 flex flex-col items-center relative z-10">
+<!-- RELATIVE WRAPPER FOR TIMER AND REDESIGNED CENTERED 200% ENLARGED 3D MOON -->
+<div class="relative w-full">
+<!-- 1. ENLARGED 200% CENTERED 3D SPHERICAL VECTOR MOON WITH TRANSPARENT BRIGHT GLOW & DETAILED TOPOGRAPHY -->
+<div class="absolute left-1/2 -translate-x-1/2 -top-28 sm:-top-32 w-[680px] h-[680px] sm:w-[720px] sm:h-[720px] pointer-events-none select-none z-0 flex items-center justify-center">
+<!-- Layered Transparent Bright Luminous Aura / Glow -->
+<div class="moon-halo absolute w-[720px] h-[720px] sm:w-[780px] sm:h-[780px] rounded-full bg-gradient-to-tr from-white via-[#D4F34A]/20 to-sky-100/35 blur-3xl opacity-75"></div>
+<div class="absolute w-[600px] h-[600px] sm:w-[650px] sm:h-[650px] rounded-full bg-radial from-white/90 via-[#F6F8FA]/60 to-transparent blur-2xl opacity-60"></div>
+<!-- Realistic 3D Spherical Vector Moon with Rich Mountain Ridges, Valleys & Topography -->
+<svg class="animated-poly-moon w-full h-full drop-shadow-[0_25px_50px_rgba(15,23,42,0.18)]" fill="none" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<!-- Realistic 3D Sphere Spherical Shading Radial Gradient -->
+<radialGradient cx="38%" cy="32%" id="sphereShade" r="64%">
+<stop offset="0%" stop-color="#FFFFFF"></stop>
+<stop offset="30%" stop-color="#F8FAFC"></stop>
+<stop offset="58%" stop-color="#E2E8F0"></stop>
+<stop offset="78%" stop-color="#CBD5E1"></stop>
+<stop offset="92%" stop-color="#94A3B8"></stop>
+<stop offset="100%" stop-color="#475569"></stop>
+</radialGradient>
+<!-- Subtle Maria / Basaltic Plains Gradient -->
+<radialGradient cx="42%" cy="40%" id="mareGrad" r="50%">
+<stop offset="0%" stop-color="#64748B" stop-opacity="0.48"></stop>
+<stop offset="65%" stop-color="#475569" stop-opacity="0.28"></stop>
+<stop offset="100%" stop-color="#94A3B8" stop-opacity="0"></stop>
+</radialGradient>
+<!-- Crater Depth / Rim Gradients -->
+<radialGradient cx="35%" cy="30%" id="craterShade" r="52%">
+<stop offset="0%" stop-color="#334155" stop-opacity="0.75"></stop>
+<stop offset="65%" stop-color="#64748B" stop-opacity="0.4"></stop>
+<stop offset="90%" stop-color="#CBD5E1" stop-opacity="0.2"></stop>
+<stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.95"></stop>
+</radialGradient>
+<radialGradient cx="32%" cy="26%" id="limeMoonFacet" r="58%">
+<stop offset="0%" stop-color="#FEF08A" stop-opacity="0.24"></stop>
+<stop offset="45%" stop-color="#D4F34A" stop-opacity="0.28"></stop>
+<stop offset="85%" stop-color="#CBD5E1" stop-opacity="0.05"></stop>
+<stop offset="100%" stop-color="#CBD5E1" stop-opacity="0"></stop>
+</radialGradient>
+<!-- Clip path to keep interior topography perfectly spherical -->
+<clipPath id="moonGlobeClip">
+<circle cx="250" cy="250" r="236"></circle>
+</clipPath>
+</defs>
+<!-- Outer Luminous Ethereal Rim -->
+<circle cx="250" cy="250" fill="none" r="238" stroke="#D4F34A" stroke-opacity="0.4" stroke-width="2.5"></circle>
+<!-- Primary Spherical 3D Body -->
+<circle cx="250" cy="250" fill="url(#sphereShade)" r="236"></circle>
+<!-- Clipped Interior Lunar Anatomy: Mountains, Valleys, Ridges & Isobars -->
+<g clip-path="url(#moonGlobeClip)">
+<!-- Electric Lime Corona Glow overlay -->
+<circle cx="180" cy="150" fill="url(#limeMoonFacet)" r="220"></circle>
+<!-- Lunar Maria (Dark Basaltic Valleys & Depressions) -->
+<path d="M140 85 C 190 75, 270 110, 305 165 C 320 205, 285 245, 235 240 C 190 235, 160 270, 120 245 C 90 220, 100 150, 125 120 Z" fill="url(#mareGrad)"></path>
+<path d="M260 220 C 330 230, 370 295, 340 350 C 310 390, 250 380, 230 335 C 210 295, 230 250, 260 220 Z" fill="url(#mareGrad)"></path>
+<path d="M115 285 C 170 280, 195 325, 185 365 C 165 405, 110 410, 95 360 C 85 320, 95 295, 115 285 Z" fill="url(#mareGrad)"></path>
+<!-- Mountain Ridges & Craggy Valleys (Montes Apenninus & Montes Caucasus Stylized) -->
+<!-- Ridge Spine 1: Montes Apenninus Arc -->
+<path d="M180 120 Q 215 145, 245 185 T 285 250 T 320 310" fill="none" stroke="#FFFFFF" stroke-linecap="round" stroke-opacity="0.8" stroke-width="3"></path>
+<path d="M182 122 Q 217 147, 247 187 T 287 252 T 322 312" fill="none" stroke="#475569" stroke-linecap="round" stroke-opacity="0.65" stroke-width="2.5"></path>
+<!-- Jagged Mountain Peaks & Crest Facets -->
+<path d="M195 130 L 202 122 L 210 135 L 218 126 L 226 142 L 235 132 L 246 152 L 255 143 L 268 170 L 278 160 L 292 195 L 305 185 L 318 220" fill="none" stroke="#FFFFFF" stroke-linejoin="round" stroke-opacity="0.85" stroke-width="1.8"></path>
+<path d="M196 132 L 203 124 L 211 137 L 219 128 L 227 144 L 236 134 L 247 154 L 256 145 L 269 172 L 279 162 L 293 197 L 306 187 L 319 222" fill="none" stroke="#334155" stroke-linejoin="round" stroke-opacity="0.55" stroke-width="1.6"></path>
+<!-- Ridge Spine 2: Southern Highland Escarpments & Fault Valleys -->
+<path d="M150 250 Q 185 270, 210 310 T 260 380" fill="none" stroke="#FFFFFF" stroke-linecap="round" stroke-opacity="0.75" stroke-width="2.2"></path>
+<path d="M152 252 Q 187 272, 212 312 T 262 382" fill="none" stroke="#475569" stroke-linecap="round" stroke-opacity="0.6" stroke-width="2"></path>
+<!-- Valley Rille (Rima Hyginus deep canyon fissure) -->
+<path d="M140 210 Q 165 218, 195 205 T 235 220" fill="none" stroke="#1E293B" stroke-linecap="round" stroke-opacity="0.7" stroke-width="1.5"></path>
+<path d="M140 209 Q 165 217, 195 204 T 235 219" fill="none" stroke="#FFFFFF" stroke-linecap="round" stroke-opacity="0.55" stroke-width="0.9"></path>
+<!-- Curvature Grid Isobars (Latitude & Longitude Meridian Contours) -->
+<path d="M250 24 C 315 80, 355 160, 355 250 C 355 340, 315 420, 250 476" fill="none" stroke="#64748B" stroke-dasharray="4 5" stroke-opacity="0.38" stroke-width="1.4"></path>
+<path d="M250 24 C 185 80, 145 160, 145 250 C 145 340, 185 420, 250 476" fill="none" stroke="#94A3B8" stroke-dasharray="4 5" stroke-opacity="0.38" stroke-width="1.4"></path>
+<path d="M250 24 C 110 80, 70 160, 70 250 C 70 340, 110 420, 250 476" fill="none" stroke="#CBD5E1" stroke-dasharray="3 6" stroke-opacity="0.3" stroke-width="1.2"></path>
+<path d="M30 225 C 105 200, 250 185, 470 225" fill="none" stroke="#64748B" stroke-dasharray="4 5" stroke-opacity="0.3" stroke-width="1.4"></path>
+<path d="M40 305 C 120 325, 250 340, 460 305" fill="none" stroke="#475569" stroke-dasharray="4 5" stroke-opacity="0.35" stroke-width="1.4"></path>
+<!-- Prominent 3D Detailed Lunar Craters with Terraced Rims & Central Peaks -->
+<!-- Crater 1: Copernicus / Tycho Complex (Upper Left Quadrant) -->
+<ellipse cx="190" cy="155" fill="#E2E8F0" rx="34" ry="29" stroke="#64748B" stroke-width="2.2"></ellipse>
+<ellipse cx="193" cy="158" fill="url(#craterShade)" rx="26" ry="21"></ellipse>
+<ellipse cx="195" cy="159" fill="#1E293B" rx="14" ry="11"></ellipse>
+<circle cx="195" cy="158" fill="#FFFFFF" r="3.6"></circle>
+<!-- Bright Radial Ejecta Rays -->
+<path d="M170 132 L 135 100 M 215 132 L 270 95 M 220 172 L 280 195 M 170 180 L 125 220 M 190 120 L 190 75 M 198 190 L 205 240" stroke="#FFFFFF" stroke-linecap="round" stroke-opacity="0.75" stroke-width="1.6"></path>
+<!-- Crater 2: South Ridge Basin Crater (Clavius / Tycho Style) -->
+<ellipse cx="300" cy="295" fill="#CBD5E1" rx="42" ry="33" stroke="#475569" stroke-width="2.2"></ellipse>
+<ellipse cx="303" cy="298" fill="url(#craterShade)" rx="32" ry="25"></ellipse>
+<circle cx="305" cy="298" fill="#1E293B" r="12"></circle>
+<circle cx="305" cy="297" fill="#F8FAFC" r="3.2"></circle>
+<!-- Interior Micro-Crater Chain inside Clavius -->
+<circle cx="288" cy="292" fill="#334155" r="4.5" stroke="#CBD5E1" stroke-width="0.8"></circle>
+<circle cx="297" cy="303" fill="#334155" r="3.5" stroke="#CBD5E1" stroke-width="0.8"></circle>
+<circle cx="312" cy="307" fill="#334155" r="2.8"></circle>
+<!-- Crater 3: Mare Border Crater -->
+<ellipse cx="345" cy="178" fill="#CBD5E1" rx="24" ry="18" stroke="#64748B" stroke-width="1.6"></ellipse>
+<ellipse cx="347" cy="180" fill="#475569" rx="16" ry="12"></ellipse>
+<circle cx="348" cy="180" fill="#0F172A" r="5.5"></circle>
+<!-- Crater 4: Small Equatorial Pit -->
+<ellipse cx="140" cy="320" fill="#E2E8F0" rx="20" ry="16" stroke="#64748B" stroke-width="1.4"></ellipse>
+<ellipse cx="142" cy="322" fill="#475569" rx="12" ry="9"></ellipse>
+<!-- Crater Field Scatter -->
+<circle cx="112" cy="185" fill="#64748B" r="6.5" stroke="#CBD5E1" stroke-width="1"></circle>
+<circle cx="235" cy="95" fill="#64748B" r="5.5" stroke="#CBD5E1" stroke-width="1"></circle>
+<circle cx="245" cy="380" fill="#334155" r="9" stroke="#64748B" stroke-width="1.2"></circle>
+<circle cx="372" cy="268" fill="#334155" r="7" stroke="#64748B" stroke-width="1"></circle>
+<circle cx="270" cy="190" fill="#64748B" r="4.5"></circle>
+<circle cx="158" cy="230" fill="#64748B" r="5"></circle>
+<circle cx="210" cy="285" fill="#475569" r="6.5"></circle>
+<!-- Crisp Sunlit Crescent Highlight Along Rim -->
+<path d="M110 48 A 236 236 0 0 1 425 385 A 236 236 0 0 0 110 48 Z" fill="#FFFFFF" fill-opacity="0.22"></path>
+<path d="M140 32 A 236 236 0 0 1 390 145" fill="none" stroke="#FFFFFF" stroke-linecap="round" stroke-width="3.5"></path>
+<path d="M175 25 A 236 236 0 0 1 320 72" fill="none" stroke="#D4F34A" stroke-linecap="round" stroke-width="3"></path>
+</g>
+</svg>
+</div>
+<!-- 2. DOMINANT POMODORO CARD CONTAINER (Crisp White Daylight Space) -->
+<section class="relative z-10 w-full bg-white border border-slate-200/90 rounded-3xl p-7 sm:p-10 shadow-[0_20px_40px_-15px_rgba(15,23,42,0.08),0_0_1px_1px_rgba(15,23,42,0.05)] transition-all duration-300 hover:border-slate-300">
+<!-- Ambient light electric lime micro glow behind timer -->
+<div class="absolute -top-24 left-1/2 -translate-x-1/2 w-64 h-64 bg-lime/20 rounded-full blur-3xl pointer-events-none"></div>
+<!-- Mode Selector (Pomodoro / Short Break / Long Break) - Sleek Tactile Capsule -->
+<div class="flex items-center justify-center p-1.5 bg-[#F1F5F9] rounded-2xl border border-slate-200 max-w-xs mx-auto mb-8 shadow-inner gap-1">
+<button class="flex-1 py-2 px-3 text-xs font-bold rounded-xl transition-all duration-200 bg-lime text-noir-base shadow-sm transform hover:scale-[1.03] active:scale-95 flex items-center justify-center gap-1.5" id="btn-mode-pomo" onclick="switchMode('pomo')">
+<span class="">🍅</span> Pomodoro
+    </button>
+<button class="flex-1 py-2 px-3 text-xs font-semibold rounded-xl transition-all duration-200 text-slate-500 hover:text-slate-900 hover:bg-white flex items-center justify-center gap-1.5 active:scale-95" id="btn-mode-short" onclick="switchMode('short')">
+<span class="">☕</span> Short
+    </button>
+<button class="flex-1 py-2 px-3 text-xs font-semibold rounded-xl transition-all duration-200 text-slate-500 hover:text-slate-900 hover:bg-white flex items-center justify-center gap-1.5 active:scale-95" id="btn-mode-long" onclick="switchMode('long')">
+<span class="">🌿</span> Long
+    </button>
+</div>
+<!-- Centerpiece Countdown - Crisp Deep Slate Digits -->
+<div class="flex flex-col items-center justify-center my-3 select-none">
+<div class="timer-digits text-[5.8rem] sm:text-[6.8rem] leading-none font-extrabold tracking-tight text-slate-900 drop-shadow-sm transition-all duration-300" id="timer-display">25:00</div>
+<p class="text-xs font-bold tracking-widest uppercase text-slate-700 bg-slate-100 border border-slate-200 px-3 py-1 rounded-full mt-4 flex items-center gap-2 shadow-sm" id="timer-tagline">
+<span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
+<span class="text-slate-900">Deep Focus Orbit</span>
+</p>
+</div>
+<!-- Primary Action Buttons (Start / Pause / Reset) -->
+<div class="flex items-center justify-center gap-3.5 mt-8">
+<!-- Reset Button -->
+<button class="w-14 h-14 rounded-2xl bg-slate-50 hover:bg-slate-100 border-2 border-slate-200 hover:border-slate-400 text-slate-600 hover:text-slate-900 transition-all flex items-center justify-center shadow-sm hover:scale-105 active:scale-90 group" onclick="resetTimer()" title="Reset Session">
+<svg class="w-5 h-5 group-hover:rotate-[-45deg] transition-transform text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"></path>
+</svg>
+</button>
+<!-- Bold Electric Lime Start Button -->
+<button id="main-start-btn" onclick="toggleTimer()" class="flex-1 max-w-[220px] py-4 px-8 rounded-2xl bg-lime hover:bg-lime-hover text-noir-base font-extrabold text-base tracking-wide uppercase transition-all duration-200 transform -rotate-1 hover:rotate-0 hover:scale-[1.04] active:scale-95 shadow-[0_3px_0_#A8C618] active:translate-y-1 flex items-center justify-center gap-3 border-2 border-[#CEF138] cursor-pointer focus:outline-none"><span class="w-7 h-7 rounded-xl bg-noir-base text-lime flex items-center justify-center shadow-sm transition-colors"><svg class="w-4 h-4 fill-current ml-0.5" id="play-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg></span><span class="font-black tracking-wider text-sm" id="start-label">START</span></button>
+<!-- Skip Button -->
+<button class="w-14 h-14 rounded-2xl bg-slate-50 hover:bg-slate-100 border-2 border-slate-200 hover:border-slate-400 text-slate-600 hover:text-slate-900 transition-all flex items-center justify-center shadow-sm hover:scale-105 active:scale-90 group" onclick="skipTimer()" title="Forward to Next Orbit">
+<svg class="w-5 h-5 group-hover:translate-x-0.5 transition-transform text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M13 5l7 7-7 7M5 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"></path>
+</svg>
+</button>
+</div>
+<!-- Minimal Cycle Info & Progress Dots -->
+<div class="mt-8 pt-6 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+<div class="flex items-center gap-2.5">
+<span class="font-bold text-noir-base bg-lime px-2.5 py-1 rounded-xl text-[11px] uppercase tracking-wider transform rotate-1 shadow-sm inline-flex items-center gap-1.5 border border-[#BCE128]">
+<span class="">🎯</span> Orbit <span id="current-cycle" class="">1</span> / 4
+      </span>
+<!-- 4 Playful Dots indicator -->
+<div class="flex items-center gap-1.5 ml-1 bg-slate-100 px-2.5 py-1.5 rounded-full border border-slate-200">
+<span class="w-2.5 h-2.5 rounded-full bg-[#9AC812] shadow-[0_0_6px_#A8D61A]"></span>
+<span class="w-2 h-2 rounded-full bg-slate-300"></span>
+<span class="w-2 h-2 rounded-full bg-slate-300"></span>
+<span class="w-2 h-2 rounded-full bg-slate-300"></span>
+</div>
+</div>
+<div class="flex items-center gap-1.5 text-slate-600 font-mono text-xs bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
+<span class="">⏰</span>
+<span class="">Est. Finish: <strong class="text-slate-900 font-bold">11:45 AM</strong></span>
+</div>
+</div>
+</section>
+</div>
+<!-- Active Task Banner Directly Below Timer -->
+<div class="w-full mt-6 bg-white border-2 border-slate-200 rounded-2xl p-4 sm:px-5 sm:py-4 flex items-center justify-between gap-4 hover:border-lime transition-all shadow-[0_8px_20px_-6px_rgba(15,23,42,0.06)] group relative z-30">
+<div class="flex items-center gap-3.5 overflow-hidden">
+<div class="w-10 h-10 rounded-xl bg-lime/20 border border-lime flex items-center justify-center text-slate-900 text-base shrink-0 transform -rotate-3 group-hover:rotate-0 transition-transform font-bold">
+      🎯
+    </div>
+<div class="truncate">
+<div class="inline-flex items-center gap-1 text-[10px] uppercase tracking-wider font-extrabold text-slate-900 bg-lime/30 px-2 py-0.5 rounded-md transform -rotate-1 mb-1 border border-lime/40">
+<span class="">★</span> CURRENT INTENTION
+      </div>
+<p class="text-sm font-bold text-slate-900 truncate" id="active-task-text">
+        Refactor core distributed state engine
+      </p>
+</div>
+</div>
+<div class="flex items-center gap-2 shrink-0">
+<button class="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-lime hover:text-slate-900 border border-slate-200 text-slate-700 transition-all font-bold text-xs flex items-center gap-1.5 shadow-sm active:scale-95 group/btn" onclick="markActiveCompleted()" title="Complete Intention">
+<svg class="w-4 h-4 text-slate-900 group-hover/btn:text-slate-900 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+<span class="hidden sm:inline font-bold">Done</span>
+</button>
+</div>
+</div>
+<!-- 3. HYDRATION RITUAL / WATER REMINDER WIDGET -->
+<div class="w-full mt-4 bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3 transition-all hover:border-sky-300">
+<div class="flex items-center gap-3 w-full sm:w-auto">
+<div class="w-9 h-9 rounded-xl bg-sky-100 border border-sky-300 text-sky-700 flex items-center justify-center text-lg shrink-0 shadow-inner">
+      💧
+    </div>
+<div class="min-w-0">
+<div class="flex items-center gap-2">
+<span class="text-xs font-bold text-slate-900">Hydration Ritual</span>
+<span class="text-[10px] font-extrabold px-2 py-0.2 rounded-md bg-sky-50 text-sky-700 border border-sky-200" id="hydration-next-label">Next sip in <span id="hydration-countdown" class="">1m</span></span>
+</div>
+<div class="text-[11px] text-slate-500 font-medium flex items-center gap-1.5 mt-0.5">
+<span id="hydration-intake-text" class=""><strong class="text-slate-800 font-bold" id="hydration-count">4</strong> of 8 glasses logged</span>
+<span class="text-slate-300">·</span>
+<span class="text-slate-500">Interval: every <strong class="text-slate-700" id="hydration-interval-display">30m</strong></span>
+</div>
+</div>
+</div>
+<!-- Quick Drink Actions & Interval Config -->
+<div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+<!-- Quick Log Sip Button -->
+<button class="px-3.5 py-1.5 rounded-xl bg-sky-50 hover:bg-sky-100 border border-sky-200 text-sky-800 font-bold text-xs flex items-center gap-1.5 shadow-sm active:scale-95 transition" onclick="logWaterSip()" title="Log 1 glass of water">
+<span class="">💧</span> Log Cup
+    </button>
+<!-- Interval settings popover trigger -->
+<button class="w-8 h-8 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-600 hover:text-slate-900 flex items-center justify-center transition active:scale-95" onclick="openModal('hydration-modal')" title="Hydration Settings">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+</div>
+</div>
+<!-- Minimal Task List Section -->
+<section class="w-full mt-10">
+<!-- Section Header -->
+<div class="flex items-center justify-between pb-3.5 border-b border-slate-300">
+<div class="flex items-center gap-2.5">
+<h2 class="text-xs font-extrabold tracking-wider uppercase text-slate-900 flex items-center gap-1.5">
+<span class="">📋</span> Task Orbit
+    </h2>
+<span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-slate-200/80 text-slate-800 border border-slate-300 transform rotate-2 inline-block">
+      3 remaining
+    </span>
+</div>
+<button class="inline-flex items-center gap-2 text-xs font-extrabold text-noir-base bg-lime hover:bg-lime-hover px-4 py-2 rounded-xl transition-all shadow-[0_3px_0_#A8C618] active:translate-y-0.5 active:shadow-[0_1px_0_#A8C618] transform rotate-1 hover:rotate-0 hover:scale-105 border border-[#CEF138]" onclick="openModal('add-task-modal')">
+<span class="w-4 h-4 rounded-md bg-noir-base text-lime flex items-center justify-center text-[10px] font-black">+</span>
+<span class="">Add Task</span>
+</button>
+</div>
+<!-- Task Items (Daylight Clean Surfaces) -->
+<div class="divide-y divide-slate-200" id="task-list-container">
+<!-- Task Item 1 (Selected/Active) -->
+<div class="group flex items-center justify-between py-3.5 px-4 my-2 rounded-2xl bg-white hover:bg-slate-50 transition-all border-2 border-lime shadow-sm">
+<div class="flex items-center gap-3.5 min-w-0">
+<button class="w-6 h-6 rounded-xl border-2 border-[#8BAE0E] bg-lime/20 hover:bg-lime flex items-center justify-center transition-all shrink-0 group/check" onclick="toggleTaskCheck(this)">
+<span class="w-2.5 h-2.5 rounded-sm bg-slate-900 opacity-0 group-hover:opacity-100 transition"></span>
+</button>
+<span class="text-sm font-bold text-slate-900 truncate">Refactor core distributed state engine</span>
+<span class="hidden sm:inline-block text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md bg-lime/40 text-slate-900 border border-lime tracking-wide">In Progress</span>
+</div>
+<div class="flex items-center gap-3 shrink-0 ml-4">
+<span class="text-xs font-mono font-bold text-noir-base bg-lime px-2.5 py-1 rounded-xl flex items-center gap-1 shadow-sm border border-[#C5E832]">
+<span class="">1</span><span class="opacity-40">/</span><span class="">4</span>
+<span class="">⚡</span>
+</span>
+<button class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 transition flex items-center justify-center" onclick="openEditTask('Refactor core distributed state engine', 1, 4)">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+</div>
+</div>
+<!-- Task Item 2 -->
+<div class="group flex items-center justify-between py-3.5 px-4 my-2 rounded-2xl bg-white hover:bg-slate-50 transition-all border border-slate-200 shadow-sm">
+<div class="flex items-center gap-3.5 min-w-0">
+<button class="w-6 h-6 rounded-xl border-2 border-slate-300 hover:border-slate-500 flex items-center justify-center transition-all shrink-0" onclick="toggleTaskCheck(this)">
+<span class="w-2.5 h-2.5 rounded-sm bg-slate-700 opacity-0 group-hover:opacity-40 transition"></span>
+</button>
+<span class="text-sm font-semibold text-slate-700 group-hover:text-slate-900 truncate transition">Draft quarterly architecture RFC</span>
+</div>
+<div class="flex items-center gap-3 shrink-0 ml-4">
+<span class="text-xs font-mono font-semibold text-slate-600 bg-slate-100 px-2.5 py-1 rounded-xl border border-slate-200 flex items-center gap-1">
+<span class="">0</span><span class="text-slate-300">/</span><span class="">2</span>
+<span class="w-1.5 h-1.5 rounded-full bg-slate-300 inline-block ml-0.5"></span>
+</span>
+<button class="w-7 h-7 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition flex items-center justify-center opacity-0 group-hover:opacity-100" onclick="openEditTask('Draft quarterly architecture RFC', 0, 2)">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+</div>
+</div>
+<!-- Task Item 3 -->
+<div class="group flex items-center justify-between py-3.5 px-4 my-2 rounded-2xl bg-white hover:bg-slate-50 transition-all border border-slate-200 shadow-sm">
+<div class="flex items-center gap-3.5 min-w-0">
+<button class="w-6 h-6 rounded-xl border-2 border-slate-300 hover:border-slate-500 flex items-center justify-center transition-all shrink-0" onclick="toggleTaskCheck(this)">
+<span class="w-2.5 h-2.5 rounded-sm bg-slate-700 opacity-0 group-hover:opacity-40 transition"></span>
+</button>
+<span class="text-sm font-semibold text-slate-700 group-hover:text-slate-900 truncate transition">Review cryptographic salt rotation PRs</span>
+</div>
+<div class="flex items-center gap-3 shrink-0 ml-4">
+<span class="text-xs font-mono font-semibold text-slate-600 bg-slate-100 px-2.5 py-1 rounded-xl border border-slate-200 flex items-center gap-1">
+<span class="">0</span><span class="text-slate-300">/</span><span class="">1</span>
+<span class="w-1.5 h-1.5 rounded-full bg-slate-300 inline-block ml-0.5"></span>
+</span>
+<button class="w-7 h-7 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition flex items-center justify-center opacity-0 group-hover:opacity-100" onclick="openEditTask('Review cryptographic salt rotation PRs', 0, 1)">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+</div>
+</div>
+<!-- Task Item 4 (Completed) -->
+<div class="group flex items-center justify-between py-3.5 px-4 my-2 rounded-2xl bg-slate-100/70 border border-slate-200/80 opacity-60 hover:opacity-90 transition-all">
+<div class="flex items-center gap-3.5 min-w-0">
+<div class="w-6 h-6 rounded-xl bg-lime/40 border-2 border-lime flex items-center justify-center shrink-0 text-slate-900 font-bold">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"></path>
+</svg>
+</div>
+<span class="text-sm line-through text-slate-500 truncate">Sync with distributed systems team</span>
+</div>
+<div class="flex items-center gap-3 shrink-0 ml-4">
+<span class="text-xs font-mono font-medium text-slate-500 bg-white px-2.5 py-1 rounded-xl border border-slate-200">2 / 2</span>
+</div>
+</div>
+</div>
+<!-- Quick Inline Add prompt -->
+<button class="w-full mt-4 py-3.5 border-2 border-dashed border-slate-300 hover:border-lime rounded-2xl text-xs font-bold text-slate-600 hover:text-slate-900 hover:bg-white transition-all flex items-center justify-center gap-2.5 active:scale-[0.99] group shadow-sm" onclick="openModal('add-task-modal')">
+<span class="w-5 h-5 rounded-lg bg-lime text-slate-900 flex items-center justify-center text-xs font-black shadow-sm">+</span>
+<span class="">Add a new intention to your orbit...</span>
+</button>
+</section>
+<!-- Footer Subtle Quote / Mindful Guidance -->
+<div class="mt-14 text-center">
+<p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold flex items-center justify-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-lime"></span>
+Ritual Guidance
+</p>
+<p class="text-xs text-slate-500 mt-1 italic">
+        "One breath. One task. In stillness, deep clarity surfaces effortlessly."
+      </p>
+</div>
+</main>
+<!-- ========================================== -->
+<!-- MODALS -->
+<!-- ========================================== -->
+<!-- 1. TIMER SETTINGS MODAL -->
+<div class="fixed inset-0 modal-backdrop z-50 flex items-center justify-center p-4 hidden" id="settings-modal">
+<div class="bg-white border border-slate-200 rounded-3xl w-full max-w-md p-6 shadow-2xl relative" onclick="event.stopPropagation()">
+<div class="flex items-center justify-between pb-4 border-b border-slate-100">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-xl bg-lime/20 flex items-center justify-center text-slate-900">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+<path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+<h3 class="text-base font-bold text-slate-900">Timer Calibration</h3>
+</div>
+<button class="p-1 rounded-lg text-slate-400 hover:text-slate-800 hover:bg-slate-100" onclick="closeModal('settings-modal')">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+</div>
+<!-- Settings Content -->
+<div class="space-y-5 mt-5">
+<div>
+<label class="block text-[11px] uppercase tracking-wider text-slate-800 font-bold mb-2">Time (minutes)</label>
+<div class="grid grid-cols-3 gap-3">
+<div>
+<span class="block text-[11px] text-slate-500 mb-1 font-semibold">Pomodoro</span>
+<input class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-900 focus:outline-none focus:border-slate-800" id="set-pomo" type="number" value="25">
+</div>
+<div>
+<span class="block text-[11px] text-slate-500 mb-1 font-semibold">Short Break</span>
+<input class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-900 focus:outline-none focus:border-slate-800" id="set-short" type="number" value="5">
+</div>
+<div>
+<span class="block text-[11px] text-slate-500 mb-1 font-semibold">Long Break</span>
+<input class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-900 focus:outline-none focus:border-slate-800" id="set-long" type="number" value="15">
+</div>
+</div>
+</div>
+<div class="space-y-3 pt-3 border-t border-slate-100">
+<label class="flex items-center justify-between cursor-pointer">
+<span class="text-xs text-slate-800 font-medium">Auto-start Breaks</span>
+<input checked="" class="w-4 h-4 accent-lime rounded cursor-pointer" type="checkbox">
+</label>
+<label class="flex items-center justify-between cursor-pointer">
+<span class="text-xs text-slate-800 font-medium">Auto-start Pomodoros</span>
+<input class="w-4 h-4 accent-lime rounded cursor-pointer" type="checkbox">
+</label>
+<label class="flex items-center justify-between cursor-pointer">
+<div>
+<span class="text-xs text-slate-800 font-medium block">Hydration Reminders</span>
+<span class="text-[11px] text-slate-500 block">Periodic mindful water alerts</span>
+</div>
+<input checked="" class="w-4 h-4 accent-lime rounded cursor-pointer" id="settings-hydration-toggle" onchange="toggleHydrationSetting(this.checked)" type="checkbox">
+</label>
+<label class="flex items-center justify-between cursor-pointer">
+<div>
+<span class="text-xs text-slate-800 font-medium block">Transition Sound</span>
+<span class="text-[11px] text-slate-500 block">Tibetan Singing Bowl (528Hz)</span>
+</div>
+<select class="bg-slate-50 border border-slate-200 text-xs text-slate-800 rounded-lg px-2 py-1.5 focus:border-slate-800 outline-none">
+<option>Singing Bowl</option>
+<option>Gentle Chime</option>
+<option>Soft Water Droplet</option>
+<option>Mute</option>
+</select>
+</label>
+</div>
+</div>
+<div class="mt-6 pt-4 border-t border-slate-100 flex justify-end gap-2">
+<button class="px-4 py-2 rounded-full text-xs font-semibold text-slate-500 hover:text-slate-800" onclick="closeModal('settings-modal')">Cancel</button>
+<button class="px-5 py-2 rounded-full bg-lime text-slate-900 text-xs font-bold hover:bg-lime-hover shadow-sm border border-lime" onclick="saveSettings()">Save Calibration</button>
+</div>
+</div>
+</div>
+<!-- 2. HYDRATION REMINDER CONFIGURATION MODAL -->
+<div class="fixed inset-0 modal-backdrop z-50 flex items-center justify-center p-4 hidden" id="hydration-modal">
+<div class="bg-white border border-slate-200 rounded-3xl w-full max-w-md p-6 shadow-2xl relative" onclick="event.stopPropagation()">
+<div class="flex items-center justify-between pb-3 border-b border-slate-100">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-xl bg-sky-100 text-sky-700 flex items-center justify-center text-sm font-bold">
+        💧
+      </div>
+<h3 class="text-base font-bold text-slate-900">Hydration Ritual Settings</h3>
+</div>
+<button class="p-1 rounded-lg text-slate-400 hover:text-slate-800 hover:bg-slate-100" onclick="closeModal('hydration-modal')">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+</div>
+<div class="space-y-4 mt-4">
+<div>
+<label class="block text-[11px] uppercase tracking-wider text-slate-800 font-bold mb-1.5">Reminder Interval</label>
+<div class="grid grid-cols-4 gap-2">
+<button class="py-2 rounded-xl text-xs font-bold border border-slate-200 hover:border-sky-400 transition" onclick="setHydrationInterval(15)">15m</button>
+<button class="py-2 rounded-xl text-xs font-bold border-2 border-sky-400 bg-sky-50 text-sky-900 transition" id="btn-int-30" onclick="setHydrationInterval(30)">30m</button>
+<button class="py-2 rounded-xl text-xs font-bold border border-slate-200 hover:border-sky-400 transition" onclick="setHydrationInterval(45)">45m</button>
+<button class="py-2 rounded-xl text-xs font-bold border border-slate-200 hover:border-sky-400 transition" onclick="setHydrationInterval(60)">60m</button>
+</div>
+</div>
+<div class="space-y-3 pt-2">
+<label class="flex items-center justify-between cursor-pointer">
+<div>
+<span class="text-xs text-slate-800 font-medium block">Daily Target</span>
+<span class="text-[11px] text-slate-500 block">Number of cups/glasses (250ml)</span>
+</div>
+<div class="flex items-center gap-2">
+<button class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold" onclick="adjustDailyTarget(-1)">-</button>
+<span class="font-mono text-sm font-bold text-slate-900 w-6 text-center" id="target-cups-val">8</span>
+<button class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold" onclick="adjustDailyTarget(1)">+</button>
+</div>
+</label>
+<label class="flex items-center justify-between cursor-pointer pt-2 border-t border-slate-100">
+<div>
+<span class="text-xs text-slate-800 font-medium block">Gentle Water Droplet Chime</span>
+<span class="text-[11px] text-slate-500 block">Sound notification when interval hits</span>
+</div>
+<input checked="" class="w-4 h-4 accent-sky-500 rounded cursor-pointer" type="checkbox">
+</label>
+</div>
+<div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+<button class="text-xs text-slate-500 hover:text-slate-800 font-semibold" onclick="resetHydrationCount()">Reset Cups</button>
+<button class="px-5 py-2 rounded-full bg-lime text-slate-900 text-xs font-bold hover:bg-lime-hover shadow-sm border border-lime" onclick="closeModal('hydration-modal')">Done</button>
+</div>
+</div>
+</div>
+</div>
+<!-- 3. ADD TASK MODAL -->
+<div class="fixed inset-0 modal-backdrop z-50 flex items-center justify-center p-4 hidden" id="add-task-modal">
+<div class="bg-white border border-slate-200 rounded-3xl w-full max-w-md p-6 shadow-2xl relative" onclick="event.stopPropagation()">
+<div class="flex items-center justify-between pb-3 border-b border-slate-100">
+<h3 class="text-base font-bold text-slate-900">Add Intention</h3>
+<button class="p-1 rounded-lg text-slate-400 hover:text-slate-800 hover:bg-slate-100" onclick="closeModal('add-task-modal')">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+</div>
+<form class="space-y-4 mt-4" onsubmit="handleAddTask(event)">
+<div>
+<label class="block text-[11px] uppercase tracking-wider text-slate-800 font-bold mb-1.5">What are you working on?</label>
+<input autofocus="" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-slate-900" id="new-task-title" placeholder="e.g. Write RFC specification..." required="" type="text">
+</div>
+<div>
+<label class="block text-[11px] uppercase tracking-wider text-slate-600 font-bold mb-1.5">Estimated Pomodoros</label>
+<div class="flex items-center gap-3">
+<input class="w-24 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-900 focus:outline-none focus:border-slate-900" id="new-task-est" max="12" min="1" type="number" value="2">
+<span class="text-xs text-slate-500 font-medium">orbits (~50 min)</span>
+</div>
+</div>
+<div class="pt-4 border-t border-slate-100 flex justify-end gap-2">
+<button class="px-4 py-2 rounded-full text-xs font-semibold text-slate-500 hover:text-slate-800" onclick="closeModal('add-task-modal')" type="button">Cancel</button>
+<button class="px-5 py-2 rounded-full bg-lime text-slate-900 text-xs font-bold hover:bg-lime-hover shadow-sm border border-lime" type="submit">Save Intention</button>
+</div>
+</form>
+</div>
+</div>
+<!-- 4. EDIT TASK MODAL -->
+<div class="fixed inset-0 modal-backdrop z-50 flex items-center justify-center p-4 hidden" id="edit-task-modal">
+<div class="bg-white border border-slate-200 rounded-3xl w-full max-w-md p-6 shadow-2xl relative" onclick="event.stopPropagation()">
+<div class="flex items-center justify-between pb-3 border-b border-slate-100">
+<h3 class="text-base font-bold text-slate-900">Edit Task</h3>
+<button class="p-1 rounded-lg text-slate-400 hover:text-slate-800 hover:bg-slate-100" onclick="closeModal('edit-task-modal')">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+</div>
+<div class="space-y-4 mt-4">
+<div>
+<label class="block text-[11px] uppercase tracking-wider text-slate-800 font-bold mb-1.5">Task Title</label>
+<input class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-slate-900" id="edit-task-title" type="text">
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div>
+<label class="block text-[11px] uppercase tracking-wider text-slate-600 font-bold mb-1.5">Completed</label>
+<input class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-900 focus:outline-none focus:border-slate-900" id="edit-task-act" min="0" type="number">
+</div>
+<div>
+<label class="block text-[11px] uppercase tracking-wider text-slate-600 font-bold mb-1.5">Target</label>
+<input class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-900 focus:outline-none focus:border-slate-900" id="edit-task-est" min="1" type="number">
+</div>
+</div>
+<div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+<button class="text-xs text-rose-600 hover:text-rose-700 font-semibold" onclick="closeModal('edit-task-modal')" type="button">Delete Task</button>
+<div class="flex gap-2">
+<button class="px-3.5 py-1.5 rounded-full text-xs font-semibold text-slate-500 hover:text-slate-800" onclick="closeModal('edit-task-modal')" type="button">Cancel</button>
+<button class="px-5 py-1.5 rounded-full bg-lime text-slate-900 text-xs font-bold hover:bg-lime-hover shadow-sm border border-lime" onclick="closeModal('edit-task-modal')" type="button">Update</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- 5. ORBIT HISTORY MODAL -->
+<div class="fixed inset-0 modal-backdrop z-50 flex items-center justify-center p-4 hidden" id="history-modal">
+<div class="bg-white border border-slate-200 rounded-3xl w-full max-w-md p-6 shadow-2xl relative" onclick="event.stopPropagation()">
+<div class="flex items-center justify-between pb-3 border-b border-slate-100">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-xl bg-lime/20 flex items-center justify-center text-slate-900">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</div>
+<h3 class="text-base font-bold text-slate-900">Focus History</h3>
+</div>
+<button class="p-1 rounded-lg text-slate-400 hover:text-slate-800 hover:bg-slate-100" onclick="closeModal('history-modal')">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+</div>
+<div class="mt-4 space-y-3">
+<div class="grid grid-cols-2 gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-200 text-center">
+<div>
+<div class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Today's Focus</div>
+<div class="text-xl font-extrabold text-slate-900 mt-0.5">2h 45m</div>
+</div>
+<div>
+<div class="text-[10px] uppercase tracking-wider text-slate-700 font-bold">Completed Orbits</div>
+<div class="text-xl font-extrabold text-slate-900 mt-0.5 flex items-center justify-center gap-1">
+<span class="">5 Pomos</span>
+<span class="text-xs bg-lime px-1.5 py-0.5 rounded text-slate-900 font-bold">⚡</span>
+</div>
+</div>
+</div>
+<div class="text-xs font-bold uppercase tracking-wider text-slate-500 pt-2">Recent Sessions</div>
+<div class="space-y-2 text-xs">
+<div class="flex items-center justify-between py-2 border-b border-slate-100 text-slate-600">
+<span class="font-medium">Refactor distributed state engine</span>
+<span class="font-mono text-slate-900 font-semibold bg-lime/30 px-2 py-0.5 rounded">50m (2 pomos)</span>
+</div>
+<div class="flex items-center justify-between py-2 border-b border-slate-100 text-slate-600">
+<span class="font-medium">Code architecture synthesis</span>
+<span class="font-mono text-slate-900 font-semibold bg-slate-100 px-2 py-0.5 rounded">25m (1 pomo)</span>
+</div>
+<div class="flex items-center justify-between py-2 text-slate-600">
+<span class="font-medium">Morning contemplative setup</span>
+<span class="font-mono text-slate-900 font-semibold bg-slate-100 px-2 py-0.5 rounded">25m (1 pomo)</span>
+</div>
+</div>
+</div>
+<div class="mt-5 pt-3 border-t border-slate-100 text-right">
+<button class="px-5 py-2 rounded-full bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-600 hover:text-slate-900" onclick="closeModal('history-modal')">Close</button>
+</div>
+</div>
+</div>
+<!-- 6. ABOUT MODAL -->
+<div class="fixed inset-0 modal-backdrop z-50 flex items-center justify-center p-4 hidden" id="about-modal">
+<div class="bg-white border border-slate-200 rounded-3xl w-full max-w-md p-6 shadow-2xl relative" onclick="event.stopPropagation()">
+<div class="flex items-center justify-between pb-3 border-b border-slate-100">
+<h3 class="text-base font-bold text-slate-900">About Luno</h3>
+<button class="p-1 rounded-lg text-slate-400 hover:text-slate-800 hover:bg-slate-100" onclick="closeModal('about-modal')">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+</div>
+<div class="mt-4 space-y-3 text-xs leading-relaxed text-slate-600">
+<p class="text-sm font-bold text-slate-900">One page. One focus. One timer.</p>
+<p class="">Luno is a sanctuary for deliberate contemplation and uninterrupted flow. Built upon the Pomodoro Technique and inspired by celestial orbits, it eliminates dashboards, analytics overload, and sidebars.</p>
+<p class="">You open the space, anchor your intention, and simply begin.</p>
+</div>
+<div class="mt-6 pt-3 border-t border-slate-100 text-right">
+<button class="px-5 py-2 rounded-full bg-lime text-slate-900 text-xs font-bold hover:bg-lime-hover shadow-sm border border-lime" onclick="closeModal('about-modal')">Got it</button>
+</div>
+</div>
+</div>
+<!-- Client-side Interactive Timer Engine, Soundscape & Hydration System -->
+<script>
+    // Timer Variables
+    let mode = 'pomo'; // 'pomo', 'short', 'long'
+    let durations = { pomo: 25 * 60, short: 5 * 60, long: 15 * 60 };
+    let timeLeft = durations.pomo;
+    let timerRunning = false;
+    let timerInterval = null;
+    let currentCycle = 1;
+
+    const timerDisplay = document.getElementById('timer-display');
+    const startBtn = document.getElementById('main-start-btn');
+    const startLabel = document.getElementById('start-label');
+    const playIcon = document.getElementById('play-icon');
+    const tagLine = document.getElementById('timer-tagline');
+
+    function updateDisplay() {
+      const minutes = Math.floor(timeLeft / 60);
+      const seconds = timeLeft % 60;
+      timerDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+      document.title = `${timerDisplay.textContent} — Luno`;
+    }
+
+    function toggleTimer() {
+      if (timerRunning) {
+        pauseTimer();
+      } else {
+        startTimer();
+      }
+    }
+
+    function startTimer() {
+      timerRunning = true;
+      startLabel.textContent = 'Pause';
+      startBtn.classList.remove('bg-lime');
+      startBtn.classList.add('bg-slate-900');
+      startBtn.classList.remove('text-noir-base');
+      startBtn.classList.add('text-white');
+      playIcon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+
+      timerInterval = setInterval(() => {
+        if (timeLeft > 0) {
+          timeLeft--;
+          updateDisplay();
+        } else {
+          clearInterval(timerInterval);
+          timerRunning = false;
+          handleTimerComplete();
+        }
+      }, 1000);
+    }
+
+    function pauseTimer() {
+      timerRunning = false;
+      clearInterval(timerInterval);
+      startLabel.textContent = 'Start';
+      startBtn.classList.add('bg-lime');
+      startBtn.classList.remove('bg-slate-900');
+      startBtn.classList.add('text-noir-base');
+      startBtn.classList.remove('text-white');
+      playIcon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+    }
+
+    function resetTimer() {
+      pauseTimer();
+      timeLeft = durations[mode];
+      updateDisplay();
+    }
+
+    function skipTimer() {
+      if (mode === 'pomo') {
+        switchMode('short');
+      } else {
+        switchMode('pomo');
+      }
+    }
+
+    function handleTimerComplete() {
+      pauseTimer();
+      alert('Orbit completed. Take a mindful breath.');
+      if (mode === 'pomo') {
+        switchMode('short');
+      } else {
+        switchMode('pomo');
+      }
+    }
+
+    function switchMode(newMode) {
+      pauseTimer();
+      mode = newMode;
+      timeLeft = durations[mode];
+
+      const modes = ['pomo', 'short', 'long'];
+      modes.forEach(m => {
+        const btn = document.getElementById(`btn-mode-${m}`);
+        if (m === newMode) {
+          btn.className = "flex-1 py-2 px-3 text-xs font-bold rounded-xl transition-all duration-200 bg-lime text-noir-base shadow-sm transform hover:scale-[1.03] active:scale-95 flex items-center justify-center gap-1.5";
+        } else {
+          btn.className = "flex-1 py-2 px-3 text-xs font-semibold rounded-xl transition-all duration-200 text-slate-500 hover:text-slate-900 hover:bg-white flex items-center justify-center gap-1.5 active:scale-95";
+        }
+      });
+
+      if (mode === 'pomo') {
+        tagLine.innerHTML = '<span class="w-2 h-2 rounded-full bg-lime shadow-[0_0_8px_#B2D62C] animate-pulse"></span><span class="text-slate-900">Deep Focus Orbit</span>';
+      } else if (mode === 'short') {
+        tagLine.innerHTML = '<span class="w-2 h-2 rounded-full bg-lime shadow-[0_0_8px_#B2D62C] animate-pulse"></span><span class="text-slate-900">Mindful Breath Interval</span>';
+      } else {
+        tagLine.innerHTML = '<span class="w-2 h-2 rounded-full bg-lime shadow-[0_0_8px_#B2D62C] animate-pulse"></span><span class="text-slate-900">Restorative Orbit Rest</span>';
+      }
+
+      updateDisplay();
+    }
+
+    // ==========================================
+    // RAINFALL SOUNDSCAPE & HOVER POPOVER LOGIC
+    // ==========================================
+    let soundActive = false;
+    let currentVolume = 65;
+    let previousVolume = 65;
+    const soundBtn = document.getElementById('sound-btn');
+    const soundPopover = document.getElementById('sound-popover');
+    const soundWrapper = document.getElementById('sound-wrapper');
+    const soundPulse = document.getElementById('sound-pulse');
+    const volumeSlider = document.getElementById('volume-slider');
+    const volumeReadout = document.getElementById('volume-readout');
+
+    function toggleSound() {
+      soundActive = !soundActive;
+      if (soundActive) {
+        soundBtn.classList.remove('bg-white', 'text-slate-700', 'border-slate-200');
+        soundBtn.classList.add('bg-lime/25', 'text-slate-950', 'border-lime', 'shadow-md');
+        soundPulse.classList.remove('hidden');
+        soundPopover.classList.remove('hidden');
+      } else {
+        soundBtn.classList.remove('bg-lime/25', 'text-slate-950', 'border-lime', 'shadow-md');
+        soundBtn.classList.add('bg-white', 'text-slate-700', 'border-slate-200');
+        soundPulse.classList.add('hidden');
+        soundPopover.classList.add('hidden');
+      }
+    }
+
+    // Hover display behavior when soundscape is active
+    let popoverHoverTimeout = null;
+    soundWrapper.addEventListener('mouseenter', () => {
+      if (soundActive) {
+        clearTimeout(popoverHoverTimeout);
+        soundPopover.classList.remove('hidden');
+      }
+    });
+
+    soundWrapper.addEventListener('mouseleave', () => {
+      if (soundActive) {
+        popoverHoverTimeout = setTimeout(() => {
+          soundPopover.classList.add('hidden');
+        }, 350);
+      }
+    });
+
+    function updateVolume(val) {
+      currentVolume = parseInt(val);
+      volumeReadout.textContent = `${currentVolume}%`;
+      volumeSlider.value = currentVolume;
+    }
+
+    function toggleMute() {
+      if (currentVolume > 0) {
+        previousVolume = currentVolume;
+        updateVolume(0);
+      } else {
+        updateVolume(previousVolume || 65);
+      }
+    }
+
+    function setSoundPreset(preset) {
+      if (preset === 'gentle') {
+        updateVolume(35);
+      } else {
+        updateVolume(80);
+      }
+    }
+
+    // ==========================================
+    // HYDRATION RITUAL & TRACKER ENGINE
+    // ==========================================
+    let waterCupsLogged = 4;
+    let dailyTargetCups = 8;
+    let hydrationIntervalMinutes = 30;
+    let hydrationSecondsRemaining = 18 * 60; // 18m preview
+
+    function logWaterSip() {
+      waterCupsLogged++;
+      document.getElementById('hydration-count').textContent = waterCupsLogged;
+      // Reset timer countdown
+      hydrationSecondsRemaining = hydrationIntervalMinutes * 60;
+      updateHydrationUI();
+    }
+
+    function resetHydrationCount() {
+      waterCupsLogged = 0;
+      document.getElementById('hydration-count').textContent = '0';
+      updateHydrationUI();
+    }
+
+    function setHydrationInterval(mins) {
+      hydrationIntervalMinutes = mins;
+      hydrationSecondsRemaining = mins * 60;
+      document.getElementById('hydration-interval-display').textContent = `${mins}m`;
+      updateHydrationUI();
+    }
+
+    function adjustDailyTarget(delta) {
+      dailyTargetCups = Math.max(1, dailyTargetCups + delta);
+      document.getElementById('target-cups-val').textContent = dailyTargetCups;
+      updateHydrationUI();
+    }
+
+    function updateHydrationUI() {
+      const mins = Math.floor(hydrationSecondsRemaining / 60);
+      document.getElementById('hydration-countdown').textContent = `${mins}m`;
+      document.getElementById('hydration-intake-text').innerHTML = `<strong class="text-slate-800 font-bold" id="hydration-count">${waterCupsLogged}</strong> of ${dailyTargetCups} glasses logged`;
+    }
+
+    // Background Hydration Ticker
+    setInterval(() => {
+      if (hydrationSecondsRemaining > 0) {
+        hydrationSecondsRemaining--;
+        if (hydrationSecondsRemaining % 60 === 0) {
+          updateHydrationUI();
+        }
+      } else {
+        hydrationSecondsRemaining = hydrationIntervalMinutes * 60;
+        updateHydrationUI();
+      }
+    }, 1000);
+
+    // ==========================================
+    // MODAL HELPERS & TASK MANAGEMENT
+    // ==========================================
+    function openModal(id) {
+      document.getElementById(id).classList.remove('hidden');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.add('hidden');
+    }
+
+    document.querySelectorAll('.modal-backdrop').forEach(modal => {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          modal.classList.add('hidden');
+        }
+      });
+    });
+
+    function saveSettings() {
+      const p = parseInt(document.getElementById('set-pomo').value) || 25;
+      const s = parseInt(document.getElementById('set-short').value) || 5;
+      const l = parseInt(document.getElementById('set-long').value) || 15;
+      durations.pomo = p * 60;
+      durations.short = s * 60;
+      durations.long = l * 60;
+      resetTimer();
+      closeModal('settings-modal');
+    }
+
+    function handleAddTask(e) {
+      e.preventDefault();
+      const title = document.getElementById('new-task-title').value.trim();
+      const est = document.getElementById('new-task-est').value;
+      if (!title) return;
+
+      const container = document.getElementById('task-list-container');
+      const item = document.createElement('div');
+      item.className = "group flex items-center justify-between py-3.5 px-4 my-2 rounded-2xl bg-white hover:bg-slate-50 transition-all border border-slate-200 shadow-sm";
+      item.innerHTML = `
+        <div class="flex items-center gap-3.5 min-w-0">
+          <button onclick="toggleTaskCheck(this)" class="w-6 h-6 rounded-xl border-2 border-slate-300 hover:border-slate-500 flex items-center justify-center transition shrink-0">
+            <span class="w-2.5 h-2.5 rounded-sm bg-slate-700 opacity-0 group-hover:opacity-40 transition"></span>
+          </button>
+          <span class="text-sm font-semibold text-slate-700 group-hover:text-slate-900 truncate transition">${title}</span>
+        </div>
+        <div class="flex items-center gap-3 shrink-0 ml-4">
+          <span class="text-xs font-mono font-semibold text-slate-600 bg-slate-100 px-2.5 py-1 rounded-xl border border-slate-200 flex items-center gap-1">
+            <span>0</span><span class="text-slate-300">/</span><span>${est}</span>
+            <span class="w-1.5 h-1.5 rounded-full bg-slate-300 inline-block ml-0.5"></span>
+          </span>
+          <button onclick="openEditTask('${title.replace(/'/g, "\\'")}', 0, ${est})" class="w-7 h-7 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition flex items-center justify-center opacity-0 group-hover:opacity-100">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path></svg>
+          </button>
+        </div>
+      `;
+      container.appendChild(item);
+      document.getElementById('new-task-title').value = '';
+      closeModal('add-task-modal');
+    }
+
+    function openEditTask(title, act, est) {
+      document.getElementById('edit-task-title').value = title;
+      document.getElementById('edit-task-act').value = act;
+      document.getElementById('edit-task-est').value = est;
+      openModal('edit-task-modal');
+    }
+
+    function toggleTaskCheck(btn) {
+      const parent = btn.closest('.group');
+      const text = parent.querySelector('span.text-sm');
+      parent.classList.toggle('opacity-50');
+      text.classList.toggle('line-through');
+      const dot = btn.querySelector('span');
+      if (dot) {
+        dot.classList.toggle('opacity-100');
+        dot.classList.toggle('opacity-0');
+      }
+    }
+
+    function markActiveCompleted() {
+      const el = document.getElementById('active-task-text');
+      el.classList.toggle('line-through');
+      el.classList.toggle('text-slate-400');
+    }
+
+    // Init
+    updateDisplay();
+  </script>
+
+
+
+
+</body></html>
