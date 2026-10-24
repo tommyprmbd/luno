@@ -53,7 +53,12 @@ function TaskList({
           aria-label="New Task"
         />
 
-        <button type="submit">ADD</button>
+        <button type="submit">
+          <span className="add-task-icon" aria-hidden="true">
+            +
+          </span>
+          Add Task
+        </button>
       </form>
 
       {tasks.length > 0 ? (

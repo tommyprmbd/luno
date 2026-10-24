@@ -13,6 +13,9 @@ function TimerMode({ mode, onChange }: TimerModeProps) {
         aria-pressed={mode === "pomodoro"}
         onClick={() => onChange("pomodoro")}
       >
+        <span className="timer-mode-icon" aria-hidden="true">
+          🍅
+        </span>
         Pomodoro
       </button>
 
@@ -22,6 +25,9 @@ function TimerMode({ mode, onChange }: TimerModeProps) {
         aria-pressed={mode === "short-break"}
         onClick={() => onChange("short-break")}
       >
+        <span className="timer-mode-icon" aria-hidden="true">
+          ☕
+        </span>
         Short
       </button>
 
@@ -31,6 +37,9 @@ function TimerMode({ mode, onChange }: TimerModeProps) {
         aria-pressed={mode === "long-break"}
         onClick={() => onChange("long-break")}
       >
+        <span className="timer-mode-icon" aria-hidden="true">
+          🌿
+        </span>
         Long
       </button>
     </div>

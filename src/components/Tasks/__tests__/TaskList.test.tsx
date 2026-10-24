@@ -77,7 +77,7 @@ describe("TaskList", () => {
 
     await user.click(
       screen.getByRole("button", {
-        name: "ADD",
+        name: "Add Task",
       }),
     );
 

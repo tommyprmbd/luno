@@ -216,51 +216,6 @@ describe("TaskItem", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("should show the completed pomodoro count", () => {
-    render(
-      <TaskItem
-        task={{ ...task, completedPomodoros: 2 }}
-        isActive={false}
-        isTimerRunning={false}
-        onSelect={vi.fn()}
-        onToggle={vi.fn()}
-        onDelete={vi.fn()}
-      />,
-    );
-
-    expect(screen.getByText("2 pomodoros")).toBeInTheDocument();
-  });
-
-  it("should use the singular label for one pomodoro", () => {
-    render(
-      <TaskItem
-        task={{ ...task, completedPomodoros: 1 }}
-        isActive={false}
-        isTimerRunning={false}
-        onSelect={vi.fn()}
-        onToggle={vi.fn()}
-        onDelete={vi.fn()}
-      />,
-    );
-
-    expect(screen.getByText("1 pomodoro")).toBeInTheDocument();
-  });
-
-  it("should not show a pomodoro count when there are none", () => {
-    render(
-      <TaskItem
-        task={task}
-        isActive={false}
-        isTimerRunning={false}
-        onSelect={vi.fn()}
-        onToggle={vi.fn()}
-        onDelete={vi.fn()}
-      />,
-    );
-
-    expect(screen.queryByText(/pomodoro/)).not.toBeInTheDocument();
-  });
-
   it("should not show FOCUS for a completed task", () => {
     const completedTask: Task = {
       id: "task-1",

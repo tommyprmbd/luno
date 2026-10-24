@@ -8,6 +8,12 @@ import type {
 import TimerMode from "./TimerMode";
 import TimerProgress from "./TimerProgress";
 
+const MODE_TAGLINE: Record<TimerModeType, string> = {
+  pomodoro: "Deep Focus Orbit",
+  "short-break": "Mindful Breath Interval",
+  "long-break": "Restorative Orbit Rest",
+};
+
 type TimerProps = {
   activeTask: Task | null;
   mode: TimerModeType;
@@ -15,7 +21,6 @@ type TimerProps = {
   remainingSeconds: number;
   completedPomodoros: number;
   longBreakInterval: number;
-  feedback: string | null;
   onStart: () => void;
   onPause: () => void;
   onReset: () => void;
@@ -29,38 +34,51 @@ function Timer({
   remainingSeconds,
   completedPomodoros,
   longBreakInterval,
-  feedback,
   onStart,
   onPause,
   onReset,
   onChangeMode,
 }: TimerProps) {
   return (
-    <section className="timer">
-      {activeTask && <div className="timer-task">{activeTask.title}</div>}
+    <>
+      <section className="timer">
+        <TimerMode mode={mode} onChange={onChangeMode} />
 
-      <TimerMode mode={mode} onChange={onChangeMode} />
+        <TimerDisplay remainingSeconds={remainingSeconds} />
 
-      <TimerDisplay remainingSeconds={remainingSeconds} />
-
-      {feedback && (
-        <p className="timer-feedback" role="status">
-          {feedback}
+        <p className="timer-tagline">
+          <span
+            className={`timer-tagline-dot timer-tagline-dot-${mode}`}
+            aria-hidden="true"
+          />
+          {MODE_TAGLINE[mode]}
         </p>
+
+        <TimerControls
+          status={status}
+          onStart={onStart}
+          onPause={onPause}
+          onReset={onReset}
+        />
+
+        <TimerProgress
+          completedPomodoros={completedPomodoros}
+          longBreakInterval={longBreakInterval}
+        />
+      </section>
+
+      {activeTask && (
+        <div className="active-task">
+          <span className="active-task-icon" aria-hidden="true">
+            🎯
+          </span>
+          <div>
+            <span className="active-task-label">CURRENT INTENTION</span>
+            <p className="active-task-title">{activeTask.title}</p>
+          </div>
+        </div>
       )}
-
-      <TimerProgress
-        completedPomodoros={completedPomodoros}
-        longBreakInterval={longBreakInterval}
-      />
-
-      <TimerControls
-        status={status}
-        onStart={onStart}
-        onPause={onPause}
-        onReset={onReset}
-      />
-    </section>
+    </>
   );
 }
 
