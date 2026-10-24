@@ -1,21 +1,15 @@
 import { useState } from "react";
 
-const NOTICES = {
-  sound: "Rainfall soundscape isn't available yet.",
-  about: "Luno is a local-first focus timer. Your tasks and history stay in this browser.",
-};
+const SOUND_NOTICE = "Rainfall soundscape isn't available yet.";
 
 type HeaderProps = {
   onOpenHistory: () => void;
   onOpenSettings: () => void;
+  onOpenAbout: () => void;
 };
 
-function Header({ onOpenHistory, onOpenSettings }: HeaderProps) {
-  const [notice, setNotice] = useState<keyof typeof NOTICES | null>(null);
-
-  function toggleNotice(next: keyof typeof NOTICES) {
-    setNotice((current) => (current === next ? null : next));
-  }
+function Header({ onOpenHistory, onOpenSettings, onOpenAbout }: HeaderProps) {
+  const [showSoundNotice, setShowSoundNotice] = useState(false);
 
   return (
     <header className="header">
@@ -45,7 +39,7 @@ function Header({ onOpenHistory, onOpenSettings }: HeaderProps) {
           className="sound-button"
           aria-label="Rainfall soundscape"
           title="Soundscapes"
-          onClick={() => toggleNotice("sound")}
+          onClick={() => setShowSoundNotice((current) => !current)}
         >
           <span className="sound-icon" aria-hidden="true">
             🌧️
@@ -99,7 +93,7 @@ function Header({ onOpenHistory, onOpenSettings }: HeaderProps) {
           className="icon-button"
           aria-label="About"
           title="About Luno"
-          onClick={() => toggleNotice("about")}
+          onClick={onOpenAbout}
         >
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
@@ -111,9 +105,9 @@ function Header({ onOpenHistory, onOpenSettings }: HeaderProps) {
           </svg>
         </button>
 
-        {notice && (
+        {showSoundNotice && (
           <p className="header-notice" role="status">
-            {NOTICES[notice]}
+            {SOUND_NOTICE}
           </p>
         )}
       </div>

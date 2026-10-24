@@ -13,6 +13,7 @@ describe("Header", () => {
       <Header
         onOpenHistory={onOpenHistory}
         onOpenSettings={onOpenSettings}
+        onOpenAbout={vi.fn()}
       />,
     );
 
@@ -26,7 +27,13 @@ describe("Header", () => {
   it("should explain that the rainfall soundscape is unavailable", async () => {
     const user = userEvent.setup();
 
-    render(<Header onOpenHistory={vi.fn()} onOpenSettings={vi.fn()} />);
+    render(
+      <Header
+        onOpenHistory={vi.fn()}
+        onOpenSettings={vi.fn()}
+        onOpenAbout={vi.fn()}
+      />,
+    );
 
     const sound = screen.getByRole("button", {
       name: "Rainfall soundscape",
@@ -43,15 +50,20 @@ describe("Header", () => {
     expect(screen.queryByRole("status")).not.toBeInTheDocument();
   });
 
-  it("should show about info", async () => {
+  it("should open about", async () => {
     const user = userEvent.setup();
+    const onOpenAbout = vi.fn();
 
-    render(<Header onOpenHistory={vi.fn()} onOpenSettings={vi.fn()} />);
+    render(
+      <Header
+        onOpenHistory={vi.fn()}
+        onOpenSettings={vi.fn()}
+        onOpenAbout={onOpenAbout}
+      />,
+    );
 
     await user.click(screen.getByRole("button", { name: "About" }));
 
-    expect(screen.getByRole("status")).toHaveTextContent(
-      "local-first focus timer",
-    );
+    expect(onOpenAbout).toHaveBeenCalledTimes(1);
   });
 });

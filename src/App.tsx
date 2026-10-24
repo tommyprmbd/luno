@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import "./App.css";
 import Header from "./components/Header/Header";
+import AboutModal from "./components/About/AboutModal";
 import HistoryModal from "./components/History/HistoryModal";
 import SettingsModal from "./components/Settings/SettingsModal";
 import TaskList from "./components/Tasks/TaskList";
@@ -31,6 +32,7 @@ function App() {
 
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [completionMessage, setCompletionMessage] = useState<string | null>(
     null,
   );
@@ -146,6 +148,7 @@ function App() {
       <Header
         onOpenHistory={() => setIsHistoryOpen(true)}
         onOpenSettings={() => setIsSettingsOpen(true)}
+        onOpenAbout={() => setIsAboutOpen(true)}
       />
 
       <Timer
@@ -188,6 +191,8 @@ function App() {
           onClose={() => setIsSettingsOpen(false)}
         />
       )}
+
+      {isAboutOpen && <AboutModal onClose={() => setIsAboutOpen(false)} />}
     </main>
   );
 }

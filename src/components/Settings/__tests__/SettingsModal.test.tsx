@@ -32,7 +32,7 @@ describe("SettingsModal", () => {
     renderModal();
 
     expect(
-      screen.getByRole("dialog", { name: "Settings" }),
+      screen.getByRole("dialog", { name: "Orbit Configuration" }),
     ).toBeInTheDocument();
 
     expect(
