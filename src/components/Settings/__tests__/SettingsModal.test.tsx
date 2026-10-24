@@ -170,6 +170,20 @@ describe("SettingsModal", () => {
     ).not.toBeInTheDocument();
   });
 
+  it("should list upcoming options as disabled", () => {
+    renderModal();
+
+    for (const label of [
+      "Auto-start breaks",
+      "Auto-start pomodoros",
+      "Hydration reminders",
+    ]) {
+      expect(screen.getByLabelText(label)).toBeDisabled();
+    }
+
+    expect(screen.getAllByText("SOON 🚀")).toHaveLength(3);
+  });
+
   it("should close on Escape", async () => {
     const { onClose, user } = renderModal();
 
@@ -186,8 +200,6 @@ describe("SettingsModal", () => {
 
     await user.tab();
 
-    expect(
-      screen.getByLabelText("Pomodoro duration (minutes)"),
-    ).toHaveFocus();
+    expect(screen.getByRole("button", { name: "Close" })).toHaveFocus();
   });
 });

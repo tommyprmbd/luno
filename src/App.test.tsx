@@ -771,7 +771,7 @@ describe("App", () => {
       const dialog = screen.getByRole("dialog", { name: "Session history" });
 
       expect(dialog).toBeInTheDocument();
-      expect(screen.getByText("1 focus session")).toBeInTheDocument();
+      expect(screen.getByText("1 Pomo")).toBeInTheDocument();
       expect(within(dialog).getAllByRole("listitem")).toHaveLength(1);
     } finally {
       vi.useRealTimers();
@@ -880,7 +880,7 @@ describe("App", () => {
         screen.getByRole("button", { name: "History" }).click();
       });
 
-      expect(screen.getByText("1 focus session")).toBeInTheDocument();
+      expect(screen.getByText("1 Pomo")).toBeInTheDocument();
     } finally {
       vi.useRealTimers();
     }
@@ -1072,8 +1072,8 @@ describe("App", () => {
 
     await user.click(screen.getByRole("button", { name: "History" }));
 
-    expect(screen.getByText("1 focus session")).toBeInTheDocument();
-    expect(screen.getByText("25m focused")).toBeInTheDocument();
+    expect(screen.getByText("1 Pomo")).toBeInTheDocument();
+    expect(screen.getByText("Today's Focus").closest(".history-stat")).toHaveTextContent("25m");
     expect(screen.getByText("Build Luno")).toBeInTheDocument();
   });
 
