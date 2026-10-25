@@ -241,7 +241,7 @@ describe("App", () => {
 
     await user.click(
       screen.getByRole("button", {
-        name: "FOCUS",
+        name: "Build Luno",
       }),
     );
 
@@ -253,7 +253,7 @@ describe("App", () => {
 
     expect(
       screen.getByRole("checkbox", {
-        name: "Build Luno",
+        name: "Mark Build Luno as done",
       }),
     ).not.toBeChecked();
 
@@ -285,11 +285,7 @@ describe("App", () => {
       }),
     );
 
-    const focusButtons = screen.getAllByRole("button", {
-      name: "FOCUS",
-    });
-
-    await user.click(focusButtons[0]);
+    await user.click(screen.getByRole("button", { name: "Build Luno" }));
 
     await user.click(
       screen.getByRole("button", {
@@ -300,9 +296,9 @@ describe("App", () => {
     expect(screen.getAllByText("Build Luno")).toHaveLength(2);
 
     expect(
-      screen.getAllByRole("button", {
-        name: "FOCUS",
-      })[1],
+      screen.getByRole("button", {
+        name: "Write tests",
+      }),
     ).toBeDisabled();
   });
 
@@ -332,9 +328,9 @@ describe("App", () => {
     );
 
     await user.click(
-      screen.getAllByRole("button", {
-        name: "FOCUS",
-      })[0],
+      screen.getByRole("button", {
+        name: "Build Luno",
+      }),
     );
 
     await user.click(
@@ -375,9 +371,9 @@ describe("App", () => {
     );
 
     await user.click(
-      screen.getAllByRole("button", {
-        name: "FOCUS",
-      })[0],
+      screen.getByRole("button", {
+        name: "Build Luno",
+      }),
     );
 
     await user.click(
@@ -393,9 +389,9 @@ describe("App", () => {
     );
 
     await user.click(
-      screen.getAllByRole("button", {
-        name: "FOCUS",
-      })[1],
+      screen.getByRole("button", {
+        name: "Write tests",
+      }),
     );
 
     expect(screen.getAllByText("Write tests")).toHaveLength(2);
@@ -420,7 +416,7 @@ describe("App", () => {
 
     await user.click(
       screen.getByRole("button", {
-        name: "FOCUS",
+        name: "Build Luno",
       }),
     );
 
@@ -600,7 +596,7 @@ describe("App", () => {
       act(() => {
         screen
           .getByRole("button", {
-            name: "FOCUS",
+            name: "Build Luno",
           })
           .click();
       });

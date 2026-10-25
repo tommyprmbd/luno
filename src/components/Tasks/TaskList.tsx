@@ -40,7 +40,7 @@ function TaskList({
   return (
     <section className="tasks">
       <div className="tasks-header">
-        <h2>Tasks</h2>
+        <h2>📋 Task Orbit</h2>
         <span className="tasks-remaining">{remaining} remaining</span>
       </div>
 
@@ -49,7 +49,7 @@ function TaskList({
           type="text"
           value={newTask}
           onChange={(event) => setNewTask(event.target.value)}
-          placeholder="What are you working on?"
+          placeholder="Add a new intention to your orbit..."
           aria-label="New Task"
         />
 
