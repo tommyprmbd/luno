@@ -27,7 +27,7 @@ describe("TaskItem", () => {
     expect(screen.getByText("Build Luno")).toBeInTheDocument();
   });
 
-  it("should call onSelect when focus button is clicked", async () => {
+  it("should call onSelect when the task title is clicked", async () => {
     const user = userEvent.setup();
     const onSelect = vi.fn();
 
@@ -42,7 +42,7 @@ describe("TaskItem", () => {
       />,
     );
 
-    await user.click(screen.getByRole("button", { name: "FOCUS" }));
+    await user.click(screen.getByRole("button", { name: "Build Luno" }));
 
     expect(onSelect).toHaveBeenCalledWith("task-1");
   });
@@ -114,7 +114,7 @@ describe("TaskItem", () => {
 
     expect(
       screen.getByRole("button", {
-        name: "FOCUS",
+        name: "Build Luno",
       }),
     ).toBeDisabled();
 
@@ -148,7 +148,7 @@ describe("TaskItem", () => {
 
     expect(
       screen.getByRole("button", {
-        name: "FOCUS",
+        name: "Build Luno",
       }),
     ).toBeEnabled();
   });
@@ -210,13 +210,13 @@ describe("TaskItem", () => {
     expect(screen.getByRole("checkbox")).toBeChecked();
 
     expect(
-      screen.queryByRole("button", {
-        name: "FOCUS",
+      screen.getByRole("button", {
+        name: "Build Luno",
       }),
-    ).not.toBeInTheDocument();
+    ).toBeDisabled();
   });
 
-  it("should not show FOCUS for a completed task", () => {
+  it("should not allow selecting a completed task", () => {
     const completedTask: Task = {
       id: "task-1",
       title: "Completed task",
@@ -236,9 +236,9 @@ describe("TaskItem", () => {
     );
 
     expect(
-      screen.queryByRole("button", {
-        name: "FOCUS",
+      screen.getByRole("button", {
+        name: "Completed task",
       }),
-    ).not.toBeInTheDocument();
+    ).toBeDisabled();
   });
 });

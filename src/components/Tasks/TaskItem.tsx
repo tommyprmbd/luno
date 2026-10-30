@@ -27,32 +27,28 @@ function TaskItem({
         .filter(Boolean)
         .join(" ")}
     >
-      <label>
-        <input
-          type="checkbox"
-          checked={task.completed}
-          disabled={isTimerRunning}
-          onChange={() => onToggle(task.id)}
-        />
+      <input
+        type="checkbox"
+        className="task-checkbox"
+        checked={task.completed}
+        disabled={isTimerRunning}
+        aria-label={`Mark ${task.title} as done`}
+        onChange={() => onToggle(task.id)}
+      />
 
+      <button
+        type="button"
+        className="task-select"
+        disabled={isTimerRunning || task.completed}
+        onClick={() => onSelect(task.id)}
+      >
         <span className={task.completed ? "task-title-completed" : ""}>
           {task.title}
         </span>
-      </label>
+      </button>
 
       {isActive && !task.completed && (
         <span className="task-active-badge">In Progress</span>
-      )}
-
-      {!task.completed && (
-        <button
-          type="button"
-          className="task-focus-button"
-          disabled={isTimerRunning}
-          onClick={() => onSelect(task.id)}
-        >
-          FOCUS
-        </button>
       )}
 
       <button
