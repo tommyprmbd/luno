@@ -18,13 +18,16 @@ Luno is a small React + TypeScript single-page app with a clear separation:
   - `useNotifications` — browser permission state and best-effort completion
     notifications; uses a service worker when available and falls back to the
     `Notification` constructor; no-op when denied or unsupported.
+  - `useAudio` — best-effort lifecycle cues and the rain ambience loop, plus
+    its in-memory volume/mute state; failures are swallowed.
   - `useLocalStorage` — generic persisted state with a safe fallback.
 - **`App`** composes the hooks and components and enforces cross-cutting rules
   (blocking task/mode interactions while the timer is running, handling the
   timer's single completed-session event for task attribution, history,
   notifications, and the in-app completion message, and updating
   `document.title`).
-- **Constants** (`constants/timer.ts`, `constants/storage.ts`) and **types**
+- **Constants** (`constants/timer.ts`, `constants/storage.ts`,
+  `constants/audio.ts`) and **types**
   (`types/timer.ts`, `types/task.ts`, `types/session.ts`,
   `types/notification.ts`) are the shared vocabulary.
 

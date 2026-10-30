@@ -22,11 +22,13 @@ this consistent with [`roadmap.md`](./roadmap.md).
 | 2026-10-22 | MVP 2.6 | Productivity UX: in-app completion message after every finished session (shared copy with the notification), empty/error/confirmation and keyboard/responsive review; no charts | 156 tests pass, build pass, lint clean; browser check at 1280/320 px; MVP 2.6 `DONE` |
 | 2026-10-24 | MVP 2.7 | Persistence hardening: `useLocalStorage` catches blocked reads and quota-failed writes; session history capped at 5,000 (`MAX_STORED_SESSIONS`); `STORAGE_KEY.timerSettings` added (KI-5, KI-16); tests for read/write failures, malformed data, and retention | 159 tests pass, build pass, lint clean; MVP 2.7 `DONE`; MVP 2 `DONE` |
 | 2026-10-30 | MVP 2B | Plan created for Pomodoro/break cues and rainfall ambience; existing `public/sounds/fx` files mapped, `drink*.mp3` excluded; no code written | `TODO`; start at 2B.1 |
+| 2026-10-30 | MVP 2B | Implemented audio: `constants/audio.ts`, `useAudio` (cues, rain loop, volume/mute/presets), App wiring from the single completion event, nested rainfall popover in the light palette | 2B.1–2B.3 done; 185 tests pass / 20 files, build pass, lint clean; 2B.4 manual QA pending |
 
 ## Current next action
 
-**MVP 2 is complete. MVP 2B (audio) is planned, not started.** Follow
-[`mvp-2b-audio.md`](./mvp-2b-audio.md), beginning with 2B.1 (audio foundation).
+**MVP 2 is complete. MVP 2B (audio) is implemented through 2B.3.** Run the
+2B.4 manual browser QA in [`mvp-2b-audio.md`](./mvp-2b-audio.md) before marking
+it `DONE`.
 
 MVP 3 (backend/accounts/sync) remains **not in scope** without explicit
 approval. Useful non-feature work if requested: manual QA pass, an in-repo a11y

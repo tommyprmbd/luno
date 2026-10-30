@@ -1,6 +1,6 @@
 # Roadmap & Status Dashboard
 
-**Last reviewed:** 2026-10-30 (MVP 2B plan added) · **Audited commit:** working tree
+**Last reviewed:** 2026-10-30 (MVP 2B implemented) · **Audited commit:** working tree
 **Evidence:** `npm test` 159 passed / 15 files · `npm run build` pass · `npm run lint` clean.
 
 This dashboard reflects the **actual** repository state after the 2026-10-24
@@ -24,7 +24,7 @@ audit. See the per-MVP files for the detailed checklist and the exact evidence.
 | MVP 2.5 — Notifications | `DONE` | Optional browser notifications on session completion; explicit permission request; denied/unsupported browsers degrade gracefully. |
 | MVP 2.6 — Productivity UX | `DONE` | In-app completion message after each finished session; empty/error/confirmation states and keyboard/responsive flow reviewed; no charts added. |
 | MVP 2.7 — Persistence improvements | `DONE` | Read/write failures (blocked storage, quota) are handled; session history capped at 5,000; no schema version (validators are the migration policy). |
-| **MVP 2B — Audio & Ambience** | `TODO` | Plan in [`mvp-2b-audio.md`](./mvp-2b-audio.md): Pomodoro start/finish cues, break-finish cue, rainfall loop with volume popover. No code yet. |
+| **MVP 2B — Audio & Ambience** | `IN PROGRESS` | 2B.1–2B.3 done: start/finish/break cues, rainfall loop with volume popover. Manual browser QA (2B.4) pending; see [`mvp-2b-audio.md`](./mvp-2b-audio.md). |
 | **MVP 3 — Backend / accounts / sync** | `NOT IN SCOPE` | Candidate future milestone only. Do not implement unless explicitly reprioritized. |
 
 Legend: `DONE` · `PARTIAL` · `IN PROGRESS` · `TODO` · `VERIFY` · `NOT IN SCOPE`
@@ -58,8 +58,9 @@ Legend: `DONE` · `PARTIAL` · `IN PROGRESS` · `TODO` · `VERIFY` · `NOT IN SC
 
 ## Priority order (suggested)
 
-MVP 2 is complete. MVP 2B (audio) is planned but not started; see
-[`mvp-2b-audio.md`](./mvp-2b-audio.md). Start with 2B.1 (audio foundation).
+MVP 2 is complete. MVP 2B (audio) is implemented through 2B.3 and passes the
+full gate; only the 2B.4 manual browser QA remains. See
+[`mvp-2b-audio.md`](./mvp-2b-audio.md).
 MVP 3 (backend/accounts/sync) remains **not in scope** without explicit
 approval. Useful non-feature work if requested: a manual QA pass, an in-repo
 a11y check (KI-9), and the test-key cleanup (KI-10).

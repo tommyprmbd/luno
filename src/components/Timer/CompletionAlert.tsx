@@ -32,6 +32,15 @@ function CompletionAlert({ message, onClose }: CompletionAlertProps) {
         aria-modal="true"
         aria-labelledby="completion-message"
       >
+        <button
+          type="button"
+          className="completion-close"
+          aria-label="Close"
+          onClick={onClose}
+        >
+          ×
+        </button>
+
         <span className="completion-icon" aria-hidden="true">
           ✓
         </span>

@@ -99,20 +99,30 @@ input:disabled {
   gap: 8px;
 }
 
+.sound-wrapper {
+  position: relative;
+}
+
 .sound-button {
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 5px 14px 5px 5px;
-  border: 1px solid var(--color-primary);
+  border: 1px solid var(--color-outline);
   border-radius: var(--radius-md);
-  background: color-mix(in srgb, var(--color-primary) 25%, transparent);
+  background: var(--color-surface);
   color: var(--color-text);
   font-size: 12px;
   font-weight: 600;
   transition:
     background 0.15s ease,
+    border-color 0.15s ease,
     transform 0.1s ease;
+}
+
+.sound-button[aria-pressed="true"] {
+  border-color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 25%, transparent);
 }
 
 .sound-button:hover {
@@ -179,21 +189,145 @@ input:disabled {
   transform: scale(0.95);
 }
 
-.header-notice {
+.sound-popover {
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
-  width: max-content;
-  max-width: min(260px, calc(100vw - 40px));
-  margin: 0;
-  padding: 8px 12px;
+  z-index: 5;
+  display: none;
+  width: min(264px, calc(100vw - 40px));
+  padding: 12px 14px;
   border: 1px solid var(--color-outline);
   border-radius: var(--radius-md);
   background: var(--color-surface);
-  color: var(--color-text);
-  font-size: 12px;
-  font-weight: 500;
   box-shadow: 0 16px 36px -10px rgba(15, 23, 42, 0.18);
+}
+
+.sound-wrapper:hover .sound-popover,
+.sound-wrapper:focus-within .sound-popover {
+  display: block;
+}
+
+.sound-popover-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--color-outline);
+}
+
+.sound-popover-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 12px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sound-volume-readout {
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--color-canvas);
+  color: var(--color-text-muted);
+  font-size: 10px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.sound-popover-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+  color: var(--color-text-muted);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.sound-active {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-accent-ink);
+}
+
+.sound-active span {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary);
+}
+
+.sound-volume-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.sound-mute {
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1;
+}
+
+.sound-volume-slider {
+  flex: 1;
+  min-width: 0;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}
+
+.sound-volume-max {
+  color: var(--color-text-muted);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.sound-popover-foot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--color-outline);
+}
+
+.sound-preset {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.sound-preset:hover {
+  color: var(--color-text);
+}
+
+.sound-turn-off {
+  margin-left: auto;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #ba1a1a;
+  cursor: pointer;
+  font: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
 /* Timer */
@@ -1247,12 +1381,36 @@ input:disabled {
 /* Completion alert */
 
 .completion-alert {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 12px;
   width: min(100%, 360px);
   text-align: center;
+}
+
+.completion-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--color-text-muted);
+  font-size: 18px;
+  line-height: 1;
+}
+
+.completion-close:hover {
+  background: var(--color-canvas);
+  color: var(--color-text);
 }
 
 .completion-icon {

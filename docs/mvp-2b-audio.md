@@ -3,7 +3,8 @@
 **Goal:** make Luno audible without changing its single-page flow: short sound
 cues for the Pomodoro lifecycle and an optional looping rainfall ambience.
 
-**Overall status:** `TODO` — plan only; no code written yet.
+**Overall status:** `IN PROGRESS` — 2B.1–2B.3 implemented and covered by tests;
+2B.4 manual browser QA remains.
 
 **Scope owner note:** this is a small product increment after MVP 2. It does not
 change timer, task, history, or notification rules.
@@ -41,9 +42,9 @@ change timer, task, history, or notification rules.
 
 | Event | Sound | Notes |
 | --- | --- | --- |
-| START pressed in Pomodoro mode from `idle` | `pomodoro-start` | Only the idle → running transition. |
+| START pressed in any mode from `idle` | `pomodoro-start` | Same cue for Pomodoro and both breaks; only the idle → running transition. |
 | RESUME after pause | none | Avoid replaying the start cue. |
-| RESET, mode switch, or starting a break | none | Not requested. |
+| RESET or mode switch | none | Not requested. |
 | A Pomodoro finishes | `pomodoro-finish` | Same single completion event used by history/notifications. |
 | A short or long break finishes | `break-finish` | One cue for both break lengths. |
 | Rainfall button clicked while off | `gentle-rain` loop at the current volume | Starts playback, highlights the button, reveals the popover. |
@@ -170,7 +171,7 @@ Owns all audio behavior so `App` and `Header` stay presentational.
   a number; mute button calls `onToggleMute` and flips its label at `0%`;
   `Soft`/`Deep` call the preset handler; `Turn Off` calls `onToggleRain`.
 - `App.test.tsx`:
-  - START in Pomodoro mode plays the start cue; RESUME and break START do not;
+  - START plays the start cue in every mode; RESUME does not;
   - Pomodoro completion plays the finish cue; short/long break completion plays
     the break cue;
   - a failing `play()` does not stop history, notification, or the completion
@@ -183,30 +184,30 @@ Owns all audio behavior so `App` and `Header` stay presentational.
 
 ## Subphases
 
-### 2B.1 — Audio foundation — `TODO`
+### 2B.1 — Audio foundation — `DONE`
 
-- [ ] Add `src/constants/audio.ts` with the three cues, rain file, default
+- [x] Add `src/constants/audio.ts` with the three cues, rain file, default
       volume, and the `Soft`/`Deep` preset levels.
-- [ ] Add `useAudio` with `playFx`, `toggleRain`, `rainVolume`,
+- [x] Add `useAudio` with `playFx`, `toggleRain`, `rainVolume`,
       `setRainVolume`, `toggleMute`, preset setter, and cleanup.
-- [ ] Add hook tests (URLs, play/pause, volume/clamp, mute restore, presets,
+- [x] Add hook tests (URLs, play/pause, volume/clamp, mute restore, presets,
       failure path, cleanup).
 
-### 2B.2 — Timer cues — `TODO`
+### 2B.2 — Timer cues — `DONE`
 
-- [ ] Play the start cue only on idle → running in Pomodoro mode.
-- [ ] Play finish cues from the existing completion event.
-- [ ] Add App regression tests (start/resume/no break-start, finish mapping,
+- [x] Play the start cue on every idle → running transition, breaks included.
+- [x] Play finish cues from the existing completion event.
+- [x] Add App regression tests (start/resume/break-start, finish mapping,
       audio failure isolation).
-- [ ] Verify no second completion detector or duplicate cues under StrictMode.
+- [x] Verify no second completion detector or duplicate cues under StrictMode.
 
-### 2B.3 — Rainfall ambience — `TODO`
+### 2B.3 — Rainfall ambience — `DONE`
 
-- [ ] Wire `Header` props; remove the “unavailable” notice.
-- [ ] Add `aria-pressed`, active styling, and the playing indicator.
-- [ ] Add the volume popover: readout, mute toggle, `0–100` slider, `Soft`/`Deep`
+- [x] Wire `Header` props; remove the “unavailable” notice.
+- [x] Add `aria-pressed`, active styling, and the playing indicator.
+- [x] Add the volume popover: readout, mute toggle, `0–100` slider, `Soft`/`Deep`
       presets, and `Turn Off`, shown on hover/focus while playing.
-- [ ] Test toggle wiring, popover visibility, slider/mute/preset handlers, and
+- [x] Test toggle wiring, popover visibility, slider/mute/preset handlers, and
       Header state; update the old unavailability test.
 
 ### 2B.4 — Verification & docs — `TODO`
@@ -216,27 +217,27 @@ Owns all audio behavior so `App` and `Header` stay presentational.
       button, the popover reveals on hover and after a click, no console errors
       under `npm run dev` and `npm run preview` (root base).
 - [ ] Confirm deployment under a non-root base still resolves sound files.
-- [ ] Update `roadmap.md` status/evidence, this checklist, and
+- [x] Update `roadmap.md` status/evidence, this checklist, and
       `progress-log.md` with the actual test/build/lint results.
 - [ ] Add a `known-issues` entry if autoplay limitations are observed in
       practice rather than predicted.
 
 ## Acceptance criteria
 
-- [ ] Pomodoro start, Pomodoro finish, and break finish play the mapped cues.
-- [ ] No start cue on resume, reset, mode change, or break start.
-- [ ] Finish cues are driven by the same single completion event as history and
+- [x] Pomodoro start, Pomodoro finish, and break finish play the mapped cues.
+- [x] No start cue on resume, reset, or mode change; breaks reuse the start cue.
+- [x] Finish cues are driven by the same single completion event as history and
       notifications, with no duplicates.
-- [ ] The rainfall button starts/stops a looped `gentle-rain.mp3`, reflects state
+- [x] The rainfall button starts/stops a looped `gentle-rain.mp3`, reflects state
       via `aria-pressed` and visual styling, and degrades silently if blocked.
-- [ ] The popover shows the live volume percentage, applies slider changes
+- [x] The popover shows the live volume percentage, applies slider changes
       immediately, mutes/unmutes to the previous level, applies `Soft` (35%) and
       `Deep` (80%), and its `Turn Off` stops playback.
-- [ ] Ambient playback and its volume never auto-start on load and are not
+- [x] Ambient playback and its volume never auto-start on load and are not
       persisted.
-- [ ] Audio failures cannot break any existing behavior.
-- [ ] No new runtime dependencies; app remains a single page.
-- [ ] `npm test`, `npm run build`, and `npm run lint` pass.
+- [x] Audio failures cannot break any existing behavior.
+- [x] No new runtime dependencies; app remains a single page.
+- [x] `npm test`, `npm run build`, and `npm run lint` pass.
 
 ## Risks & deliberate non-goals
 
@@ -252,4 +253,7 @@ Owns all audio behavior so `App` and `Header` stay presentational.
 - **No hydration/drink sounds:** `drink*.mp3` is explicitly out of scope.
 - **No offline/service-worker audio caching** beyond normal HTTP cache.
 
-**Next action:** implement 2B.1, then re-run the full gate before 2B.2.
+**Next action:** run the 2B.4 manual browser QA under `npm run dev` / `npm run preview`, then update the status to `DONE`.
+
+**Evidence (2026-10-30):** `npm test` -> 186 passed / 20 files;
+`npm run build` -> pass; `npm run lint` -> clean.
