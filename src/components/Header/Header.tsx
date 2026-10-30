@@ -1,16 +1,28 @@
-import { useState } from "react";
-
-const SOUND_NOTICE = "Rainfall soundscape isn't available yet.";
+import type { AmbiencePreset } from "../../constants/audio";
 
 type HeaderProps = {
   onOpenHistory: () => void;
   onOpenSettings: () => void;
   onOpenAbout: () => void;
+  isRainPlaying: boolean;
+  rainVolume: number;
+  onToggleRain: () => void;
+  onChangeRainVolume: (percent: number) => void;
+  onToggleMute: () => void;
+  onPresetRainVolume: (preset: AmbiencePreset) => void;
 };
 
-function Header({ onOpenHistory, onOpenSettings, onOpenAbout }: HeaderProps) {
-  const [showSoundNotice, setShowSoundNotice] = useState(false);
-
+function Header({
+  onOpenHistory,
+  onOpenSettings,
+  onOpenAbout,
+  isRainPlaying,
+  rainVolume,
+  onToggleRain,
+  onChangeRainVolume,
+  onToggleMute,
+  onPresetRainVolume,
+}: HeaderProps) {
   return (
     <header className="header">
       <div className="brand">
@@ -34,19 +46,88 @@ function Header({ onOpenHistory, onOpenSettings, onOpenAbout }: HeaderProps) {
       </div>
 
       <div className="header-actions">
-        <button
-          type="button"
-          className="sound-button"
-          aria-label="Rainfall soundscape"
-          title="Soundscapes"
-          onClick={() => setShowSoundNotice((current) => !current)}
-        >
-          <span className="sound-icon" aria-hidden="true">
-            🌧️
-            <span className="sound-pulse" />
-          </span>
-          <span className="sound-label">Rainfall</span>
-        </button>
+        <div className="sound-wrapper">
+          <button
+            type="button"
+            className="sound-button"
+            aria-label="Rainfall soundscape"
+            aria-pressed={isRainPlaying}
+            title="Soundscapes"
+            onClick={onToggleRain}
+          >
+            <span className="sound-icon" aria-hidden="true">
+              🌧️
+              {isRainPlaying && <span className="sound-pulse" />}
+            </span>
+            <span className="sound-label">Rainfall</span>
+          </button>
+
+          {isRainPlaying && (
+            <div className="sound-popover">
+              <div className="sound-popover-head">
+                <span aria-hidden="true">🌧️</span>
+                <span className="sound-popover-title">Rainfall Soundscape</span>
+                <span className="sound-volume-readout">{rainVolume}%</span>
+              </div>
+
+              <div className="sound-popover-status">
+                <span>Ambient White Noise</span>
+                <span className="sound-active">
+                  <span aria-hidden="true" /> ACTIVE
+                </span>
+              </div>
+
+              <div className="sound-volume-row">
+                <button
+                  type="button"
+                  className="sound-mute"
+                  aria-label={
+                    rainVolume > 0 ? "Mute rainfall" : "Unmute rainfall"
+                  }
+                  onClick={onToggleMute}
+                >
+                  {rainVolume > 0 ? "🔊" : "🔇"}
+                </button>
+                <input
+                  type="range"
+                  className="sound-volume-slider"
+                  min="0"
+                  max="100"
+                  value={rainVolume}
+                  aria-label="Rainfall volume"
+                  onChange={(event) =>
+                    onChangeRainVolume(Number(event.target.value))
+                  }
+                />
+                <span className="sound-volume-max">100</span>
+              </div>
+
+              <div className="sound-popover-foot">
+                <button
+                  type="button"
+                  className="sound-preset"
+                  onClick={() => onPresetRainVolume("soft")}
+                >
+                  <span aria-hidden="true">🍃</span> Soft
+                </button>
+                <button
+                  type="button"
+                  className="sound-preset"
+                  onClick={() => onPresetRainVolume("deep")}
+                >
+                  <span aria-hidden="true">🌧️</span> Deep
+                </button>
+                <button
+                  type="button"
+                  className="sound-turn-off"
+                  onClick={onToggleRain}
+                >
+                  Turn Off
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
 
         <button
           type="button"
@@ -104,12 +185,6 @@ function Header({ onOpenHistory, onOpenSettings, onOpenAbout }: HeaderProps) {
             />
           </svg>
         </button>
-
-        {showSoundNotice && (
-          <p className="header-notice" role="status">
-            {SOUND_NOTICE}
-          </p>
-        )}
       </div>
     </header>
   );

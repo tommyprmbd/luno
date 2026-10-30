@@ -49,7 +49,7 @@ function TaskList({
           type="text"
           value={newTask}
           onChange={(event) => setNewTask(event.target.value)}
-          placeholder="What are you working on?"
+          placeholder="Add new intention to your orbit..."
           aria-label="New Task"
         />
 

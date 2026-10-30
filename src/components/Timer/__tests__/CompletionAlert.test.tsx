@@ -1,4 +1,5 @@
 import { act, render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import CompletionAlert from "../CompletionAlert";
 
@@ -42,6 +43,19 @@ describe("CompletionAlert", () => {
     act(() => {
       vi.advanceTimersByTime(2000);
     });
+
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it("should close when the close button is clicked", async () => {
+    const user = userEvent.setup();
+    const onClose = vi.fn();
+
+    render(
+      <CompletionAlert message="Pomodoro complete." onClose={onClose} />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Close" }));
 
     expect(onClose).toHaveBeenCalledTimes(1);
   });

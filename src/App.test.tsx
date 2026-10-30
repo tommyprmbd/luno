@@ -3,6 +3,11 @@ import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import App from "./App";
+import {
+  AMBIENCE_RAIN,
+  DEFAULT_AMBIENCE_VOLUME,
+  SOUND_FX,
+} from "./constants/audio";
 import { TIMER_DURATION } from "./constants/timer";
 
 type SentNotification = {
@@ -21,6 +26,24 @@ class MockNotification {
   }
 }
 
+class MockAudio {
+  static instances: MockAudio[] = [];
+  static playImpl = () => Promise.resolve();
+
+  src: string;
+  loop = false;
+  volume = 1;
+  play = vi.fn(() => MockAudio.playImpl());
+  pause = vi.fn();
+
+  constructor(src?: string) {
+    this.src = src ?? "";
+    MockAudio.instances.push(this);
+  }
+}
+
+const audioSources = () => MockAudio.instances.map((audio) => audio.src);
+
 describe("App", () => {
   beforeEach(() => {
     localStorage.clear();
@@ -29,7 +52,10 @@ describe("App", () => {
     MockNotification.requestPermission = vi.fn(
       async () => MockNotification.permission,
     );
+    MockAudio.instances = [];
+    MockAudio.playImpl = () => Promise.resolve();
     vi.stubGlobal("Notification", MockNotification);
+    vi.stubGlobal("Audio", MockAudio);
   });
 
   afterEach(() => {
@@ -47,6 +73,126 @@ describe("App", () => {
     ).toBeInTheDocument();
 
     expect(screen.getByText("Add a task to get started.")).toBeInTheDocument();
+  });
+
+  it("should play the start cue for every session start", () => {
+    vi.useFakeTimers();
+
+    try {
+      render(<App />);
+
+      act(() => {
+        screen.getByRole("button", { name: "START" }).click();
+      });
+
+      expect(audioSources()).toEqual([SOUND_FX.pomodoroStart]);
+
+      act(() => {
+        screen.getByRole("button", { name: "PAUSE" }).click();
+      });
+      act(() => {
+        screen.getByRole("button", { name: "RESUME" }).click();
+      });
+
+      expect(audioSources()).toEqual([SOUND_FX.pomodoroStart]);
+
+      act(() => {
+        vi.advanceTimersByTime(TIMER_DURATION.pomodoro * 1000);
+      });
+
+      // starting the break reuses the same start cue as a pomodoro.
+      act(() => {
+        screen.getByRole("button", { name: "START" }).click();
+      });
+
+      expect(audioSources()).toEqual([
+        SOUND_FX.pomodoroStart,
+        SOUND_FX.pomodoroFinish,
+        SOUND_FX.pomodoroStart,
+      ]);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("should play the matching cue when a session finishes", () => {
+    vi.useFakeTimers();
+
+    try {
+      render(<App />);
+
+      act(() => {
+        screen.getByRole("button", { name: "START" }).click();
+      });
+      act(() => {
+        vi.advanceTimersByTime(TIMER_DURATION.pomodoro * 1000);
+      });
+
+      expect(audioSources().at(-1)).toBe(SOUND_FX.pomodoroFinish);
+
+      act(() => {
+        screen.getByRole("button", { name: "START" }).click();
+      });
+      act(() => {
+        vi.advanceTimersByTime(TIMER_DURATION["short-break"] * 1000);
+      });
+
+      expect(audioSources().at(-1)).toBe(SOUND_FX.breakFinish);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("should keep working when a cue cannot play", () => {
+    MockAudio.playImpl = () => Promise.reject(new Error("blocked"));
+    vi.useFakeTimers();
+
+    try {
+      render(<App />);
+
+      act(() => {
+        screen.getByRole("button", { name: "START" }).click();
+      });
+      act(() => {
+        vi.advanceTimersByTime(TIMER_DURATION.pomodoro * 1000);
+      });
+
+      expect(
+        screen.getByRole("alertdialog", {
+          name: "Pomodoro complete. Time for a break.",
+        }),
+      ).toBeInTheDocument();
+      expect(
+        JSON.parse(localStorage.getItem("luno:sessions") ?? "[]"),
+      ).toHaveLength(1);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("should toggle the rainfall soundscape from the header", async () => {
+    const user = userEvent.setup();
+
+    render(<App />);
+
+    const sound = screen.getByRole("button", {
+      name: "Rainfall soundscape",
+    });
+
+    await user.click(sound);
+
+    const rain = MockAudio.instances.find(
+      (audio) => audio.src === AMBIENCE_RAIN,
+    );
+
+    expect(rain?.volume).toBe(DEFAULT_AMBIENCE_VOLUME / 100);
+    expect(rain?.play).toHaveBeenCalledTimes(1);
+    expect(sound).toHaveAttribute("aria-pressed", "true");
+
+    await user.click(screen.getByRole("button", { name: "Turn Off" }));
+
+    expect(rain?.pause).toHaveBeenCalledTimes(1);
+    expect(sound).toHaveAttribute("aria-pressed", "false");
   });
 
   it("should apply saved timer settings and persist them", async () => {
@@ -239,11 +385,7 @@ describe("App", () => {
       }),
     );
 
-    await user.click(
-      screen.getByRole("button", {
-        name: "FOCUS",
-      }),
-    );
+    await user.click(screen.getByRole("button", { name: "Build Luno" }));
 
     expect(
       screen.getByRole("button", {
@@ -253,7 +395,7 @@ describe("App", () => {
 
     expect(
       screen.getByRole("checkbox", {
-        name: "Build Luno",
+        name: "Mark Build Luno as done",
       }),
     ).not.toBeChecked();
 
@@ -285,11 +427,7 @@ describe("App", () => {
       }),
     );
 
-    const focusButtons = screen.getAllByRole("button", {
-      name: "FOCUS",
-    });
-
-    await user.click(focusButtons[0]);
+    await user.click(screen.getByRole("button", { name: "Build Luno" }));
 
     await user.click(
       screen.getByRole("button", {
@@ -300,9 +438,9 @@ describe("App", () => {
     expect(screen.getAllByText("Build Luno")).toHaveLength(2);
 
     expect(
-      screen.getAllByRole("button", {
-        name: "FOCUS",
-      })[1],
+      screen.getByRole("button", {
+        name: "Write tests",
+      }),
     ).toBeDisabled();
   });
 
@@ -331,11 +469,7 @@ describe("App", () => {
       }),
     );
 
-    await user.click(
-      screen.getAllByRole("button", {
-        name: "FOCUS",
-      })[0],
-    );
+    await user.click(screen.getByRole("button", { name: "Build Luno" }));
 
     await user.click(
       screen.getByRole("button", {
@@ -374,11 +508,7 @@ describe("App", () => {
       }),
     );
 
-    await user.click(
-      screen.getAllByRole("button", {
-        name: "FOCUS",
-      })[0],
-    );
+    await user.click(screen.getByRole("button", { name: "Build Luno" }));
 
     await user.click(
       screen.getByRole("button", {
@@ -392,11 +522,7 @@ describe("App", () => {
       }),
     );
 
-    await user.click(
-      screen.getAllByRole("button", {
-        name: "FOCUS",
-      })[1],
-    );
+    await user.click(screen.getByRole("button", { name: "Write tests" }));
 
     expect(screen.getAllByText("Write tests")).toHaveLength(2);
   });
@@ -418,11 +544,7 @@ describe("App", () => {
       }),
     );
 
-    await user.click(
-      screen.getByRole("button", {
-        name: "FOCUS",
-      }),
-    );
+    await user.click(screen.getByRole("button", { name: "Build Luno" }));
 
     await user.click(
       screen.getByRole("button", {
@@ -598,11 +720,7 @@ describe("App", () => {
       });
 
       act(() => {
-        screen
-          .getByRole("button", {
-            name: "FOCUS",
-          })
-          .click();
+        screen.getByRole("button", { name: "Build Luno" }).click();
       });
 
       act(() => {

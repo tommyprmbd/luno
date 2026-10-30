@@ -3,7 +3,7 @@
 > Working documentation for **Luno**, a minimalist, local-first Pomodoro and
 > task-focused web app. Written for both developers and AI coding agents.
 
-**Last reviewed:** 2026-10-24
+**Last reviewed:** 2026-10-30 (MVP 2B plan added)
 **Audited commit:** working tree
 **Verification snapshot (2026-10-20):**
 
@@ -25,6 +25,7 @@ one file so the roadmap stays stable while progress is tracked separately.
 | [`roadmap.md`](./roadmap.md) | Milestone status dashboard and acceptance criteria | To see what is done/next |
 | [`mvp-1-core-pomodoro.md`](./mvp-1-core-pomodoro.md) | MVP 1 phases 1–5 detail | Core app work |
 | [`mvp-2-productivity.md`](./mvp-2-productivity.md) | MVP 2 (2.1–2.7) detail | Settings, tracking, history |
+| [`mvp-2b-audio.md`](./mvp-2b-audio.md) | MVP 2B plan: timer cues + rainfall ambience | Sound/audio work |
 | [`mvp-3-future.md`](./mvp-3-future.md) | Not-committed future scope | Before proposing scope |
 | [`architecture.md`](./architecture.md) | Architecture + rules/workflow for AI agents | Before editing code |
 | [`progress-log.md`](./progress-log.md) | Dated progress entries + current next action | After finishing a subphase |

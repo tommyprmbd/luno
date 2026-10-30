@@ -9,6 +9,7 @@ import TaskList from "./components/Tasks/TaskList";
 import Timer from "./components/Timer/Timer";
 import { createDotBackdrop } from "./backdrop";
 import { SESSION_COMPLETE_COPY } from "./constants/timer";
+import { useAudio } from "./hooks/useAudio";
 import { useNotifications } from "./hooks/useNotifications";
 import { useSessions } from "./hooks/useSessions";
 import { useTasks } from "./hooks/useTasks";
@@ -56,6 +57,15 @@ function App() {
 
   const { sessions, addSession } = useSessions();
   const {
+    playFx,
+    isRainPlaying,
+    toggleRain,
+    rainVolume,
+    setRainVolume,
+    toggleMute,
+    setRainPreset,
+  } = useAudio();
+  const {
     permission: notificationPermission,
     requestPermission,
     notifySessionComplete,
@@ -102,6 +112,12 @@ function App() {
 
     notifySessionComplete(lastCompletedSession);
 
+    playFx(
+      lastCompletedSession.mode === "pomodoro"
+        ? "pomodoroFinish"
+        : "breakFinish",
+    );
+
     const { title, body } = SESSION_COMPLETE_COPY[lastCompletedSession.mode];
 
     setCompletionMessage(`${title}. ${body}`);
@@ -112,6 +128,7 @@ function App() {
     incrementTaskPomodoro,
     addSession,
     notifySessionComplete,
+    playFx,
   ]);
 
   function handleSelectTask(id: string) {
@@ -132,6 +149,11 @@ function App() {
 
   function handleStart() {
     setCompletionMessage(null);
+
+    if (status === "idle") {
+      playFx("pomodoroStart");
+    }
+
     start();
   }
 
@@ -157,6 +179,12 @@ function App() {
         onOpenHistory={() => setIsHistoryOpen(true)}
         onOpenSettings={() => setIsSettingsOpen(true)}
         onOpenAbout={() => setIsAboutOpen(true)}
+        isRainPlaying={isRainPlaying}
+        rainVolume={rainVolume}
+        onToggleRain={toggleRain}
+        onChangeRainVolume={setRainVolume}
+        onToggleMute={toggleMute}
+        onPresetRainVolume={setRainPreset}
       />
 
       <Timer
